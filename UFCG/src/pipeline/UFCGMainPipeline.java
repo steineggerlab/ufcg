@@ -1,19 +1,18 @@
 /*
- *    __  __ __  __ _____ _____
- *   / / / // / / // ___// ___/  ____
- *  / / / // / / // /   / / __  / __/
- * / /_/ // /_/ // /___/ /_/ /_/ /_
- * \____/ \____/ \____/\____/_  __/
- *                           / /
- *                          /_/
+ *    __  __ _____ _____ _____
+ *   / / / // ___// ___// ___/
+ *  / / / // /_  / /   / / __
+ * / /_/ // __/ / /___/ /_/ /
+ * \____//_/    \____/\____/
+ *
  *                                 
  * UFCG : Profiling Fungi Genome with Up-to-date Universal Core Gene
  * 
- * Developed by Dongwook Daniel Kim and Jon Jongsik Chun
- * Laboratory of Evolutionary Bioinformatics, Seoul National University
+ * Developed by Dongwook Daniel Kim
+ * Steinegger Lab, Seoul National University
  * 
  * Contact : endix1029@gmail.com
- * Correspondence :	jchun@snu.ac.kr
+ * Correspondence :	jchun@snu.ac.kr, martin.steinegger@snu.ac.kr
  * 
  */
 
@@ -67,8 +66,8 @@ import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class UFCGMainPipeline {
-	public static final String VERSION = "1.0.2";
-	public static final String RELEASE_DATE = "Feb 11, 2020";
+	public static final String VERSION = "1.0";
+	public static final String RELEASE_DATE = "Jan 2022";
 	
 	/* Print the UFCG logo with version number */
 	private static void printLogo() {
@@ -76,17 +75,14 @@ public class UFCGMainPipeline {
 //		String header = GenericConfig.TSTAMP ?
 //				ANSIHandler.wrapper("[" + TimeKeeper.timeStamp() + "] ", 'c') : " ";
 		String header = "";
-		System.out.println(header + ANSIHandler.wrapper("    __  __ __  __ _____ _____",    'Y'));
-		System.out.println(header + ANSIHandler.wrapper("   / / / // / / // ___// ___/  ____",    'Y'));
-		System.out.println(header + ANSIHandler.wrapper("  / / / // / / // /   / / __  / __/",  'Y'));
-		System.out.println(header + ANSIHandler.wrapper(" / /_/ // /_/ // /___/ /_/ /_/ /_", 'Y'));
-		System.out.println(header + ANSIHandler.wrapper(" \\____/ \\____/ \\____/\\____/_  __/",  'Y'));
-		System.out.print  (header + ANSIHandler.wrapper("                           / /  ",      'Y'));
-		for(int i = 0; i < 10 - VERSION.length(); i++) System.out.print(" ");
-		System.out.println(ANSIHandler.wrapper("v" + VERSION, 'B'));
-		System.out.println(header + ANSIHandler.wrapper("                          /_/   ",      'Y') 
-//			+ ANSIHandler.wrapper("by LEB, SNU", 'B')
-			);
+		System.out.println(header + ANSIHandler.wrapper("    __  __ _____ _____ _____",    'Y'));
+		System.out.println(header + ANSIHandler.wrapper("   / / / // ___// ___// ___/",    'Y'));
+		System.out.println(header + ANSIHandler.wrapper("  / / / // /_  / /   / / __",  'Y'));
+		System.out.println(header + ANSIHandler.wrapper(" / /_/ // __/ / /___/ /_/ /", 'Y'));
+		System.out.print  (header + ANSIHandler.wrapper(" \\____//_/    \\____/\\____/",  'Y'));
+		System.out.println(ANSIHandler.wrapper(" v" + VERSION, 'B'));
+//		System.out.println(header + ANSIHandler.wrapper("                          /_/   ",      'Y') 
+//			+ ANSIHandler.wrapper("by LEB, SNU", 'B'));
 		System.out.println("");
 
 	}
@@ -331,14 +327,15 @@ public class UFCGMainPipeline {
 	/* Information route; exit with status 0 */
 	private static void printInfo() {
 		System.out.println(
-				ANSIHandler.wrapper("UFCG : Profiling Fungi Genome with " + String.valueOf(GenericConfig.FCG_REF.length) + 
+				ANSIHandler.wrapper(" UFCG : Profiling Fungi Genome with " + String.valueOf(GenericConfig.FCG_REF.length) + 
 									" Fungi Up-to-date Universal Core Gene\n", 'Y') +
-				ANSIHandler.wrapper("Ver. " + VERSION + " (Released: " + RELEASE_DATE + ")\n\n", 'Y') + 
-				"Developed by Daniel Dongwook Kim and Jon Jongsik Chun\n" +
-				"Laboratory of Evolutionary Bioinformatics, Seoul National University\n\n" +
-				"Contact : endix1029@snu.ac.kr\n" +
-				"Correspondence : jchun@snu.ac.kr\n\n" +
-				"Feel free to report any typos, errors, or kind suggestions.\n"
+				ANSIHandler.wrapper(" ver. " + VERSION + " (Released: " + RELEASE_DATE + ")\n\n", 'Y') + 
+				" Developed by Daniel Dongwook Kim\n" +
+				" Steinegger Lab, Seoul National University\n\n" +
+				" Contact        : endix1029@snu.ac.kr\n" +
+				" Correspondence : jchun@snu.ac.kr\n" +
+				"                  martin.steinegger@snu.ac.kr\n"
+//				+ "\nFeel free to report any typos, errors, or kind suggestions.\n"
 				);
 		System.exit(0);
 	}
