@@ -27,7 +27,7 @@ public class GenericConfig {
 	public static boolean DEV = false;      // Developer mode
 	public static boolean VERB = false; 	// Program verbosity
 	public static boolean NOCOLOR = false;  // No color escapes
-	public static boolean TSTAMP = false;   // Print timestamp
+	public static boolean TSTAMP = true;   // Print timestamp
 	public static boolean INTRON = false;   // Include intron
 	public static boolean INTERACT = false; // Interactive mode
 	public static boolean FORCE = false;    // Force to delete existing file

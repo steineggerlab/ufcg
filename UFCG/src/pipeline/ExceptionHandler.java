@@ -26,6 +26,7 @@ public class ExceptionHandler {
 	public static final int INTEGRITY_TEST_FAILED	= 0x12;
 	public static final int METAINFO_CONFLICT		= 0x13;
 	public static final int INVALID_METAINFO		= 0x14;
+	public static final int UNKNOWN_MODULE			= 0x15;
 	
 	private static Object OBJ;
 	public static void pass(Object obj) {OBJ = obj;}
@@ -83,6 +84,8 @@ public class ExceptionHandler {
 			System.out.println("--metainfo option cannot be given with the directory input or --metadata option."); break;
 		case INVALID_METAINFO:
 			System.out.println("Metadata information is improperly formatted."); break;
+		case UNKNOWN_MODULE:
+			System.out.println("Unknown module given : " + OBJ.toString()); break;
 		}
 		
 		if(!GenericConfig.INTERACT || exception == EXCEPTION) {
