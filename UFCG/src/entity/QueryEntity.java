@@ -136,7 +136,7 @@ public class QueryEntity {
 				FileStream tmpMetaStream = new FileStream(PathConfig.TempPath + GenericConfig.TEMP_HEADER + "meta_tmp.tsv", 'w');
 				tmpMetaStream.isTemp();
 			
-				tmpMetaStream.println("filename\taccession\ttaxon_name");
+				tmpMetaStream.println("filename\tlabel\taccession");
 				for(String fname : fnames) {
 					String acc = fname.substring(0, fname.lastIndexOf("."));
 					tmpMetaStream.println(String.format("%s\t%s\t%s", fname, acc, acc));

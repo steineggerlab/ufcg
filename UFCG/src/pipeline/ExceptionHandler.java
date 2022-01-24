@@ -92,7 +92,7 @@ public class ExceptionHandler {
 			switch(exception) {
 			case EXCEPTION: 		break;
 			case INVALID_GENE_NAME:	Prompt.print("Use --core option to check out the valid genes.\n"); break;
-			default: 				Prompt.print("Use -h option to see the user manual.\n");
+			default: 				Prompt.print("Run with \"" + GenericConfig.getModuleName() + " -h\" option to see the user manual.\n");
 			}
 			System.exit(1);
 		}

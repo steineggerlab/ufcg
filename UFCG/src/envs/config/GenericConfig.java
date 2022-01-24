@@ -1,6 +1,7 @@
 package envs.config;
 
 import pipeline.ExceptionHandler;
+import pipeline.UFCGMainPipeline;
 import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ public class GenericConfig {
 	public static String PHEAD = ""; 		// Prompt header
 	public static int HLEN = 0;				// Prompt maximum header length
 	private static boolean custom_hlen = false;
+	public static int MODULE = 0; // module
 	
 	public static void setHeader(String header) {
 		PHEAD = header;
@@ -19,6 +21,19 @@ public class GenericConfig {
 	public static void setHeaderLength(int len) {
 		HLEN  = len;
 		custom_hlen = true;
+	}
+	
+	public static void setModule(int module) {
+		MODULE = module;
+	}
+	public static String getModuleName() {
+		switch(MODULE) {
+		case UFCGMainPipeline.MODULE_PROFILE: return "profile";
+		case UFCGMainPipeline.MODULE_PROFILE_RNA: return "profile-rna";
+		case UFCGMainPipeline.MODULE_TREE: return "tree";
+		case UFCGMainPipeline.MODULE_TREE_FIX: return "tree-fix";
+		default: return "";
+		}
 	}
 	
 	public static final String SESSION_UID = Long.toHexString(new Random().nextLong());

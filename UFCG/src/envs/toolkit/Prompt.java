@@ -8,7 +8,7 @@ public class Prompt {
 		for(int i = 0; i < GenericConfig.HLEN - hlen; i++) head += " ";
 		String header = ANSIHandler.wrapper(GenericConfig.TSTAMP ?
 				String.format("[%s] %s |:", TimeKeeper.timeStamp(), head) :
-				String.format("%s |:", head), color);
+				String.format(" %s |:", head), color);
 		return String.format("%s  %s", header, message);
 	}
 	

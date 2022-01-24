@@ -23,9 +23,12 @@ public class GffTableParser {
 				String seq = line.split(" = ")[1].substring(1);
 				
 				// build up
-				String tmp;
-				while(!(tmp = gffStream.readLine()).contains("end")) {
-					if(tmp.contains("block")) break;
+				if(!seq.contains("]")) {
+					String tmp;
+					while(!(tmp = gffStream.readLine()).contains("]")) {
+						if(tmp.contains("block")) break;
+						seq += tmp.substring(2);
+					}
 					seq += tmp.substring(2);
 				}
 				

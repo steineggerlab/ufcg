@@ -40,6 +40,12 @@ public class UFCGMainPipeline {
 	public static final String VERSION = "1.0";
 	public static final String RELEASE_DATE = "Jan. 2022";
 	
+	public static final int NO_MODULE			= 0x00;
+	public static final int MODULE_PROFILE		= 0x01;
+	public static final int MODULE_PROFILE_RNA	= 0x02;
+	public static final int MODULE_TREE			= 0x03;
+	public static final int MODULE_TREE_FIX		= 0x04;
+	
 	/* Print the UFCG logo with version number */
 	private static void printLogo() {
 		/* No longer print timestamps even if timestamp option is activated. */
@@ -62,8 +68,20 @@ public class UFCGMainPipeline {
 	}
 	
 	private static int parseModule(String[] args) {
-		Prompt.debug(args[0] + " " + args[1]);
-		return 0;
+		if(args.length == 0) return NO_MODULE;
+		
+		String module = args[0];
+		if(module.equals("profile")) 		return MODULE_PROFILE;
+		if(module.equals("profile-rna"))	return MODULE_PROFILE_RNA;
+		if(module.equals("tree"))			return MODULE_TREE;
+		if(module.equals("tree-fix"))		return MODULE_TREE_FIX;
+		
+		if(!module.startsWith("-")) {
+			ExceptionHandler.pass(module);
+			ExceptionHandler.handle(ExceptionHandler.UNKNOWN_MODULE);
+		}
+		
+		return NO_MODULE;
 	}
 	
 	/* Argument parsing route */
@@ -75,7 +93,8 @@ public class UFCGMainPipeline {
 		opts.addOption(null, "info", false, "information route");
 		opts.addOption(null, "version", false, "information route");
 		opts.addOption(null, "core", false, "core gene route");
-		opts.addOption(null, "timestamp", false, "print timestamp with prompt");
+		
+		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
 		opts.addOption("v", "verbose", false, "verbosity");
 		opts.addOption(null, "developer", false, "developer tool");
@@ -104,14 +123,12 @@ public class UFCGMainPipeline {
 		
 		/* parse user friendly options; return ID and finish routine if necessary */
 		if(cmd.hasOption("v"))		 GenericConfig.VERB = true;
-//		if(cmd.hasOption("u"))		 GenericConfig.INTERACT = true;
 		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
 		if(cmd.hasOption("h"))		 return -1;
 		if(cmd.hasOption("info")) 	 return -2;
 		if(cmd.hasOption("version")) return -2;
 		if(cmd.hasOption("core"))    return -3;
-		if(cmd.hasOption("notime")) GenericConfig.TSTAMP = false;
-//		if(cmd.hasOption("f"))		 GenericConfig.FORCE = true;
+		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
 		
 		Prompt.debug(ANSIHandler.wrapper("Developer mode activated.", 'Y'));
 		Prompt.talk("Verbose option check.");
@@ -133,7 +150,9 @@ public class UFCGMainPipeline {
 				ANSIHandler.wrapper(" Available Modules\n", 'Y') +
 				ANSIHandler.wrapper(" Module         Description\n", 'c') +
 									" profile        Extract UFCG profile from genome\n"+
-									" tree           Build maximum likelihood tree with UFCG profiles\n\n\n"+
+//									" profile-rna    Extract UFCG profile from RNA-seq transcriptome\n"+
+									" tree           Build maximum likelihood tree with UFCG profiles\n"+
+									" tree-fix       Fix UFCG tree or single gene tree\n\n\n"+
 				
 				ANSIHandler.wrapper(" Miscellaneous\n", 'Y') +
 				ANSIHandler.wrapper(" Argument       Description\n", 'c') +
@@ -209,18 +228,12 @@ public class UFCGMainPipeline {
 			FileStream.init();
 			
 			/* Module parsing */
+			int module = parseModule(args);
+			GenericConfig.setModule(module);
 			
-			
-			
-			/* Argument parsing */
-			switch(parseArgument(args)) {
-			case -2: printLogo(); printInfo();
-			case -3: printLogo(); printCore();
-			case -4: Prompt.print(GenericConfig.geneString()); break;
-			default: printLogo(); printManual();
-			}
-			
-			
+			printLogo();
+			ModuleHandler mh = new ModuleHandler(module, args);
+			mh.handle();
 		}
 		catch(Exception e) {
 			/* Exception handling route; exit with status 1 */
@@ -230,6 +243,20 @@ public class UFCGMainPipeline {
 		finally {
 			Prompt.print("Job finished. Terminating process.\n");
 			System.exit(0);
+		}
+	}
+	
+	public static void run(String[] args) {
+		try {
+			switch(parseArgument(args)) {
+			case -2: printInfo();
+			case -3: printCore();
+			case -4: Prompt.print(GenericConfig.geneString()); break;
+			default: printManual();
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			ExceptionHandler.handle(e);
 		}
 	}
 }

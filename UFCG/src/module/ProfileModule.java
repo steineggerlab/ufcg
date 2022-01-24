@@ -51,9 +51,6 @@ public class ProfileModule {
 		/* option argument setup */
 		Options opts = new Options();
 		opts.addOption("h", "help", false, "helper route");
-//		opts.addOption(null, "info", false, "information route");
-//		opts.addOption(null, "version", false, "information route");
-//		opts.addOption(null, "core", false, "core gene route");
 		opts.addOption("u", "inter", false, "interactive route");
 		
 		opts.addOption("i", "input", true, "input path");
@@ -71,17 +68,17 @@ public class ProfileModule {
 		opts.addOption("n", "intron", false, "include intron sequences");
 		opts.addOption(null, "profile", true, "core gene profile path");
 		opts.addOption(null, "ppxcfg", true, "AUGUSTUS-PPX config path");
-//		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
-//		opts.addOption(null, "timestamp", false, "print timestamp with prompt");
-//		opts.addOption("v", "verbose", false, "verbosity");
+		opts.addOption("v", "verbose", false, "verbosity");
 		
 		opts.addOption(null, "fbscutoff", true, "fastBlockSearch cutoff");
 		opts.addOption(null, "augoffset", true, "AUGUSTUS prediction offset");
 		opts.addOption(null, "hmmscore", true, "hmmsearch score cutoff");
 		opts.addOption(null, "corelist", true, "custom core gene list");
 		
-//		opts.addOption(null, "developer", false, "developer tool");
-//		opts.addOption(null, "test", false, "for test");
+		opts.addOption(null, "notime", false, "no timestamp with prompt");
+		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
+		opts.addOption("v", "verbose", false, "verbosity");
+		opts.addOption(null, "developer", false, "developer tool");
 		
 		/* parse argument with CommandLineParser */
 		CommandLineParser clp = new DefaultParser();
@@ -97,30 +94,26 @@ public class ProfileModule {
 					mae.getOption().getLongOpt());
 			ExceptionHandler.handle(ExceptionHandler.MISSING_ARGUMENT);
 		}
-//		if(cmd.hasOption("developer")) {
-//			GenericConfig.DEV = true;
-//			GenericConfig.VERB = true;
-//			GenericConfig.TSTAMP = true;
-//		}
-//		if(cmd.hasOption("test")) return -4;
+		if(cmd.hasOption("developer")) {
+			GenericConfig.DEV = true;
+			GenericConfig.VERB = true;
+			GenericConfig.TSTAMP = true;
+		}
 		
 		/* parse user friendly options; return ID and finish routine if necessary */
-//		if(cmd.hasOption("v"))		 GenericConfig.VERB = true;
+		if(cmd.hasOption("v"))		 GenericConfig.VERB = true;
 		if(cmd.hasOption("u"))		 GenericConfig.INTERACT = true;
-//		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
+		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
+		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
 		if(cmd.hasOption("h"))		 return -1;
-//		if(cmd.hasOption("info")) 	 return -2;
-//		if(cmd.hasOption("version")) return -2;
-//		if(cmd.hasOption("core"))    return -3;
-//		if(cmd.hasOption("timestamp")) GenericConfig.TSTAMP = true;
 		if(cmd.hasOption("f"))		 GenericConfig.FORCE = true;
 		
 		if(GenericConfig.INTERACT) return 1; 
-//		else {
-//			Prompt.debug(ANSIHandler.wrapper("Developer mode activated.", 'Y'));
-//			Prompt.talk("Verbose option check.");
-//			if(GenericConfig.TSTAMP) Prompt.talk("Timestamp printing option check."); 
-//		}
+		else {
+			Prompt.debug(ANSIHandler.wrapper("Developer mode activated.", 'Y'));
+			Prompt.talk("Verbose option check.");
+			if(GenericConfig.TSTAMP) Prompt.talk("Timestamp printing option check."); 
+		}
 		
 		/* parse general I/O options */
 		if(cmd.hasOption("i"))
@@ -267,7 +260,7 @@ public class ProfileModule {
 				, 'B') + 
 				"    --profile  <PATH>     : Path to core genome profiles (default : 'config/prfl')\n" +
 				"    --ppxcfg   <PATH>     : Path to AUGUSTUS-PPX config file (default : 'config/ppx.cfg')\n" +
-				"    --timestamp           : Print timestamp in front of the prompt string\n\n" +
+//				"    --timestamp           : Print timestamp in front of the prompt string\n\n" +
 								
 				ANSIHandler.wrapper("* Advanced options\n", 'c') + 
 				"    --fbscutoff <VALUE>   : Customize cutoff value for fastBlockSearch process (default = 0.5)\n" + 
@@ -576,10 +569,10 @@ public class ProfileModule {
 			}
 			proceed = false;
 			
-			// --timestamp
+/*			// --timestamp
 			while(!proceed) {
 				if(GenericConfig.TSTAMP) break; 
-				Prompt.print_nnc("Print timestamp before the prompt (--timestamp)? (y/n) : ");
+				Prompt.print_nnc("Disable timestamp before the prompt (--timestamp)? (y/n) : ");
 				buf = stream.readLine();
 				if(buf.length() == 0) continue;
 				if(buf.startsWith("n") || buf.startsWith("N")) proceed = true;
@@ -604,7 +597,7 @@ public class ProfileModule {
 				}
 			}
 			proceed = false;
-			
+*/			
 			// --fbscutoff
 			while(!proceed) {
 				Prompt.print_nnc("Enter the cutoff value for fastBlockSearch process (--fbscutoff, default = 0.5) : ");
@@ -682,12 +675,12 @@ public class ProfileModule {
 	public static void run(String[] args) {
 		try {
 			/* Environment setup and path definition */
-//			GenericConfig.setHeader("UFCG");
-//			GenericConfig.setHeaderLength(5);
+/*			GenericConfig.setHeader("UFCG");
+			GenericConfig.setHeaderLength(5);
 			String jarPath = ProfileModule.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 			PathConfig.setEnvironmentPath(jarPath.substring(0, jarPath.lastIndexOf("/") + 1));
 			System.out.println("");
-			FileStream.init();
+			FileStream.init(); */
 			
 			/* Argument parsing and route selection */
 			switch(parseArgument(args)) {
@@ -771,7 +764,7 @@ public class ProfileModule {
 				
 				/* Write the entire result on a single JSON file */
 				Prompt.dynamic(ANSIHandler.wrapper(" DONE", 'g') + "\n");
-				Prompt.print(String.format("RESULT : [Single: %s ; Multiple: %s ; Missing: %s]",
+				Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 						ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 				String jsonPath = PathConfig.OutputPath + GenericConfig.ACCESS + ".ucg";
 				Prompt.print("Writing results on : " + ANSIHandler.wrapper(jsonPath, 'y'));
@@ -882,7 +875,7 @@ public class ProfileModule {
 					/* Multiple copies */
 					nMul++;
 					result = ANSIHandler.wrapper("O", 'G');
-					Prompt.talk("Query genome contains " + ANSIHandler.wrapper("multiple", 'G') +
+					Prompt.talk("Query genome contains " + ANSIHandler.wrapper("duplicated", 'G') +
 								" copies of gene " + ANSIHandler.wrapper(cg, 'Y'));
 				}
 				else {
