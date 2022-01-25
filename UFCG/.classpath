@@ -19,6 +19,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="F:/git/UFCG/UFCG/Lumberjack_mismatch.jar"/>
+	<classpathentry kind="lib" path="lib/Lumberjack_mismatch.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -55,7 +55,7 @@ public class ProfileModule {
 		
 		opts.addOption("i", "input", true, "input path");
 		opts.addOption("o", "output", true, "output path");
-		opts.addOption("t", "temp", true, "temporary path");
+		opts.addOption("k", "keep", true, "intermediate path");
 		opts.addOption("f", "force", false, "force delete");
 		opts.addOption("c", "cpu",  true, "number of cpu threads");
 		
@@ -65,7 +65,7 @@ public class ProfileModule {
 		
 		opts.addOption("m", "metadata", true, "metadata path");
 		opts.addOption(null, "metainfo", true, "single file metadata information");
-		opts.addOption("n", "intron", false, "include intron sequences");
+//		opts.addOption("n", "intron", false, "include intron sequences");
 		opts.addOption(null, "profile", true, "core gene profile path");
 		opts.addOption(null, "ppxcfg", true, "AUGUSTUS-PPX config path");
 		opts.addOption("v", "verbose", false, "verbosity");
@@ -122,10 +122,10 @@ public class ProfileModule {
 		if(cmd.hasOption("o"))
 			PathConfig.setOutputPath(cmd.getOptionValue("o"));
 		else ExceptionHandler.handle(ExceptionHandler.NO_OUTPUT);
+		if(cmd.hasOption("k"))
+			PathConfig.setTempPath(cmd.getOptionValue("k"));
 		if(cmd.hasOption("t"))
-			PathConfig.setTempPath(cmd.getOptionValue("t"));
-		if(cmd.hasOption("c"))
-			GenericConfig.setThreadPoolSize(cmd.getOptionValue("c"));
+			GenericConfig.setThreadPoolSize(cmd.getOptionValue("t"));
 		
 		/* parse dependency options */
 		if(cmd.hasOption("fastblocksearch"))
@@ -138,10 +138,10 @@ public class ProfileModule {
 		/* parse configuration options */
 		if(cmd.hasOption("m"))
 			PathConfig.setMetaPath(cmd.getOptionValue("m"));
-		if(cmd.hasOption("n")) {
-			Prompt.talk("Including intron to the result DNA sequences.");
-			GenericConfig.INTRON = true;
-		}
+//		if(cmd.hasOption("n")) {
+//			Prompt.talk("Including intron to the result DNA sequences.");
+//			GenericConfig.INTRON = true;
+//		}
 		if(cmd.hasOption("metainfo")) {
 			// check confilct
 			if(cmd.hasOption("m") || PathConfig.InputIsFolder) ExceptionHandler.handle(ExceptionHandler.METAINFO_CONFLICT);
@@ -232,7 +232,7 @@ public class ProfileModule {
 						"        Note. For an input directory, included files must share the extension and the file type.\n"
 				, 'B') + 
 				"    -o, --output <PATH>  : Directory to store result files\n" + 
-				"    -t, --temp   <PATH>  : Directory to store temporary files created\n" + 
+				"    -k, --keep   <PATH>  : Directory to keep intermediate files\n" + 
 				ANSIHandler.wrapper(
 						"        Note. If not given, program will use '/tmp' directory and wipe out all the temporary files as the process finishes.\n"
 				, 'B') + 
@@ -244,13 +244,13 @@ public class ProfileModule {
 				"    --hmmsearch <PATH>       : Path to hmmsearch binary file\n\n" + 
 				
 				ANSIHandler.wrapper("* Configuration\n", 'c') + 
-				"    -c, --cpu <NUMBER>    : Number of CPU thread(s) for multithread processing (default = 1)\n" +
+				"    -t, --thread <NUMBER> : Number of CPU thread(s) for multithread processing (default = 1)\n" +
 				"    -m, --metadata <PATH> : List containing metadata of the assembly file(s)\n" + 
 				ANSIHandler.wrapper(
 						"        Note. List should be formatted and respectively ordered with proper header. Refer to the sample list in 'sample' directory.\n"
 				, 'B') + 
-				"    -n, --intron          : Include introns from the predicted ORFs to the result sequences\n" +
-/*				ANSIHandler.wrapper(
+/*				"    -n, --intron          : Include introns from the predicted ORFs to the result sequences\n" +
+				ANSIHandler.wrapper(
 						"        Note. Including introns may improve the resolution of intra-genus or intra-species taxonomy.\n"
 				, 'B') + */
 				"    --metainfo <INFO>     : Metadata information for a single file input\n" +
@@ -349,12 +349,12 @@ public class ProfileModule {
 			buf = stream.readLine();
 			if(buf.startsWith("y") || buf.startsWith("Y")) {
 				while(!proceed) {
-					Prompt.print_nnc("Enter the directory to store temporary files (--temp) : ");
+					Prompt.print_nnc("Enter the directory to store temporary files (--keep) : ");
 					buf = stream.readLine();
 					if(buf.length() == 0) continue;
 					if(PathConfig.setTempPath(buf) == 0) {
 						proceed = true;
-						command += " --temp " + buf;
+						command += " --keep " + buf;
 					}
 				}
 			}
@@ -442,12 +442,12 @@ public class ProfileModule {
 		/* set runtime configurations */
 		// --cpu
 		while(!proceed) {
-			Prompt.print_nnc("Enter the number of CPU thread to use (--cpu, default = 1) : ");
+			Prompt.print_nnc("Enter the number of CPU thread to use (--thread, default = 1) : ");
 			buf = stream.readLine();
 			if(buf.length() == 0) continue;
 			if(GenericConfig.setThreadPoolSize(buf) == 0) {
 				proceed = true;
-				command += " --cpu " + buf;
+				command += " --thread " + buf;
 			}
 		}
 		proceed = false;
