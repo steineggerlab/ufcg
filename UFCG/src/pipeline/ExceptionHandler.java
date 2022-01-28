@@ -5,7 +5,9 @@ import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
 
 public class ExceptionHandler {
+	// general
 	public static final int EXCEPTION				= 0xFF;
+	public static final int UNKNOWN_MODULE			= 0x00;
 	public static final int UNKNOWN_OPTION			= 0x01;
 	public static final int MISSING_ARGUMENT		= 0x02;
 	public static final int NO_INPUT 				= 0x03;
@@ -14,6 +16,8 @@ public class ExceptionHandler {
 	public static final int INVALID_DIRECTORY		= 0x06;
 	public static final int INVALID_BINARY			= 0x07;
 	public static final int INVALID_VALUE			= 0x08;
+	
+	// profile
 	public static final int WRONG_CORE_FORMAT		= 0x09;
 	public static final int INVALID_GENE_NAME		= 0x0A;
 	public static final int DEPENDENCY_UNSOLVED		= 0x0B;
@@ -26,7 +30,11 @@ public class ExceptionHandler {
 	public static final int INTEGRITY_TEST_FAILED	= 0x12;
 	public static final int METAINFO_CONFLICT		= 0x13;
 	public static final int INVALID_METAINFO		= 0x14;
-	public static final int UNKNOWN_MODULE			= 0x15;
+	
+	// tree
+	public static final int NO_LEAF_OPTION			= 0x15;
+	public static final int NO_GENE_NAME			= 0x16;
+	public static final int INVALID_LEAF_FORMAT		= 0x17;
 	
 	private static Object OBJ;
 	public static void pass(Object obj) {OBJ = obj;}
@@ -86,6 +94,12 @@ public class ExceptionHandler {
 			System.out.println("Metadata information is improperly formatted."); break;
 		case UNKNOWN_MODULE:
 			System.out.println("Unknown module given : " + OBJ.toString()); break;
+		case NO_LEAF_OPTION:
+			System.out.println("No leaf string given."); break;
+		case NO_GENE_NAME:
+			System.out.println("No gene name given."); break;
+		case INVALID_LEAF_FORMAT:
+			System.out.println("Invalid leaf option given : " + OBJ.toString()); break;
 		}
 		
 		if(!GenericConfig.INTERACT || exception == EXCEPTION) {

@@ -57,7 +57,7 @@ public class ProfileModule {
 		opts.addOption("o", "output", true, "output path");
 		opts.addOption("k", "keep", true, "intermediate path");
 		opts.addOption("f", "force", false, "force delete");
-		opts.addOption("c", "cpu",  true, "number of cpu threads");
+		opts.addOption("t", "thread",  true, "number of cpu threads");
 		
 		opts.addOption(null, "fastblocksearch", true, "fastBlockSearch binary");
 		opts.addOption(null, "augustus", true, "AUGUSTUS binary");
@@ -780,7 +780,7 @@ public class ProfileModule {
 		}
 		catch(Exception e) {
 			/* Exception handling route; exit with status 1 */
-			e.printStackTrace();
+			// e.printStackTrace();
 			ExceptionHandler.handle(e);
 		}
 		finally {

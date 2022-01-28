@@ -237,7 +237,7 @@ public class UFCGMainPipeline {
 		}
 		catch(Exception e) {
 			/* Exception handling route; exit with status 1 */
-			e.printStackTrace();
+			// e.printStackTrace();
 			ExceptionHandler.handle(e);
 		}
 		finally {

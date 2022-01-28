@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import envs.config.PathConfig;
 import tree.TreeBuilder;
 import tree.tools.AlignMode;
 import tree.tools.PhylogenyTool;
@@ -33,7 +33,7 @@ public class TreeModule {
 	
 	
 
-	public static void main(String[] args) {
+	public static void run(String[] args) {
 		TreeModule proc = new TreeModule();
 		proc.parameters = args;
 		proc.paramList = Arrays.asList(args);
@@ -685,10 +685,10 @@ public class TreeModule {
 
 		programPath = new HashMap<>();
 		try {
-			File jar = new File(TreeModule.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-			String jarDir = jar.getParent() + File.separator;
+//			File jar = new File(TreeModule.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+//			String jarDir = jar.getParent() + File.separator;
 			BufferedReader pathBR = new BufferedReader(
-					new FileReader(jarDir + "programPath"));
+					new FileReader(PathConfig.EnvironmentPath + "config/tree.cfg"));
 
 			String line;
 			while ((line = pathBR.readLine()) != null) {
@@ -722,10 +722,6 @@ public class TreeModule {
 		} catch (IOException e) {
 			System.err.println("Error occurred!");
 			System.err.println(e.getMessage());
-			System.exit(1);
-		} catch (URISyntaxException ex) {
-			System.err.println("Error occurred!");
-			System.err.println(ex.getMessage());
 			System.exit(1);
 		}
 	}
