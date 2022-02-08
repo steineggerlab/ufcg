@@ -51,6 +51,7 @@ public class ProfileModule {
 		/* option argument setup */
 		Options opts = new Options();
 		opts.addOption("h", "help", false, "helper route");
+		opts.addOption(null, "hh", false, "advanced helper route");
 		opts.addOption("u", "inter", false, "interactive route");
 		
 		opts.addOption("i", "input", true, "input path");
@@ -105,7 +106,8 @@ public class ProfileModule {
 		if(cmd.hasOption("u"))		 GenericConfig.INTERACT = true;
 		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
 		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
-		if(cmd.hasOption("h"))		 return -1;
+		if(cmd.hasOption("h")) 		 return -1;
+		if(cmd.hasOption("hh"))		 return -2;
 		if(cmd.hasOption("f"))		 GenericConfig.FORCE = true;
 		
 		if(GenericConfig.INTERACT) return 1; 
@@ -198,6 +200,7 @@ public class ProfileModule {
 	
 	/* Manual route; exit with status 0 */
 	private static void printManual() {
+		/*
 		System.out.println(
 				ANSIHandler.wrapper("Manual - UFCG profile module\n", 'Y') + 
 				
@@ -249,10 +252,10 @@ public class ProfileModule {
 				ANSIHandler.wrapper(
 						"        Note. List should be formatted and respectively ordered with proper header. Refer to the sample list in 'sample' directory.\n"
 				, 'B') + 
-/*				"    -n, --intron          : Include introns from the predicted ORFs to the result sequences\n" +
+				"    -n, --intron          : Include introns from the predicted ORFs to the result sequences\n" +
 				ANSIHandler.wrapper(
 						"        Note. Including introns may improve the resolution of intra-genus or intra-species taxonomy.\n"
-				, 'B') + */
+				, 'B') + 
 				"    --metainfo <INFO>     : Metadata information for a single file input\n" +
 				ANSIHandler.wrapper(
 						"        Note. Information should include the seven entries from 'sample/meta_full.tsv' in respective order, seperated by comma.\n" +
@@ -272,6 +275,58 @@ public class ProfileModule {
 				, 'B')
 //				+ "    --developer           : Activate developer mode (For beta-testing or debugging)\n"
 				);
+		*/
+		
+		System.out.println(ANSIHandler.wrapper(" UFCG - profile", 'G'));
+		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal whole genome sequences", 'g'));
+		System.out.println("");
+	
+		System.out.println(ANSIHandler.wrapper("\n INTERACTIVE MODE :", 'Y') + " java -jar UFCG.jar profile -u");
+		System.out.println(ANSIHandler.wrapper(" ONE-LINER MODE   :", 'Y') + " java -jar UFCG.jar profile -i <INPUT> -o <OUTPUT> [...]");
+		System.out.println("");
+		
+		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
+		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
+		System.out.println(String.format(" %s\t\t%s", "-i", "Input directory containing fungal genome assemblies"));
+		System.out.println(String.format(" %s\t\t%s", "-o", "Tree label format, comma-separated string containing one or more of the following keywords:"));
+		System.out.println("");
+		
+		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));
+		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
+		System.out.println(String.format(" %s\t\t%s", "-k", "Directory to keep the temporary files (default: use /tmp and do not keep)"));
+		System.out.println(String.format(" %s\t\t%s", "-f", "Force to overwrite the existing files"));
+		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
+		System.out.println(String.format(" %s\t\t%s", "-m", "File to the list containing metadata"));
+		System.out.println("");
+		
+		System.out.println(" To see the advanced options, run with \"profile -hh\".\n");
+		
+		System.exit(0);
+	}
+	
+	public static void printManualAdvanced() {
+		System.out.println(ANSIHandler.wrapper(" UFCG - profile", 'G'));
+		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal whole genome sequences", 'g'));
+		System.out.println("");
+		
+		System.out.println(ANSIHandler.wrapper("\n Dependencies", 'y'));
+		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
+		System.out.println(String.format(" %s\t%s", "--fastblocksearch", "Path to fastBlockSearch binary"));
+		System.out.println(String.format(" %s\t\t%s", "--augustus", "Path to AUGUSTUS binary"));
+		System.out.println(String.format(" %s\t\t%s", "--hmmsearch", "Path to hmmsearch binary"));
+		System.out.println("");
+		
+		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
+		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
+		System.out.println(String.format(" %s\t\t%s", "--metainfo",  "Comma-separated metadata string for a single file input"));
+		System.out.println(String.format(" %s\t\t%s", "--profile",   "Path to the core genome profiles (default: ./config/prfl)"));
+		System.out.println(String.format(" %s\t\t%s", "--ppxcfg",    "Path to the AUGUSTUS-PPX config file (default: ./config/ppx.cfg"));
+		System.out.println(String.format(" %s\t\t%s", "--fbscutoff", "Cutoff value for fastBlockSearch process (default = 0.5)"));
+		System.out.println(String.format(" %s\t\t%s", "--augoffset", "Prediction offset window size for AUGUSTUS process (default = 10000)"));
+		System.out.println(String.format(" %s\t\t%s", "--hmmscore",  "Bitscore cutoff for hmmsearch validation (default = 100)"));
+		System.out.println(String.format(" %s\t\t%s", "--corelist",  "Comma-separated string for a custom set of fungal core genes"));
+		System.out.println("");
+		
 		System.exit(0);
 	}
 	
@@ -685,6 +740,7 @@ public class ProfileModule {
 			/* Argument parsing and route selection */
 			switch(parseArgument(args)) {
 			case -1: printManual();
+			case -2: printManualAdvanced();
 			case -4: Prompt.print(GenericConfig.geneString()); break;
 			case  1: while(interactiveRoute(args[0]) > 0); break;
 			case  0: solveDependency(); break;

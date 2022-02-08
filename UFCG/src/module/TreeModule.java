@@ -16,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import envs.config.PathConfig;
+import envs.toolkit.ANSIHandler;
 import tree.TreeBuilder;
 import tree.tools.AlignMode;
 import tree.tools.PhylogenyTool;
@@ -38,25 +39,15 @@ public class TreeModule {
 		proc.parameters = args;
 		proc.paramList = Arrays.asList(args);
 		
-		proc.getProgramPath();
-
-		/*
-		 * METHOD - align, replace
-		 */
+		String method = proc.paramList.get(0); // Define module
+		
+		// Help route
 		if (proc.paramList.contains("-h") || proc.paramList.contains("--help")) {
-			proc.printHelpMessage();
-			System.exit(1);
+			if(method.equals("align")) proc.printTreeHelp();
+			if(method.equals("replace")) proc.printTreeFixHelp();
 		}
 		
-		String method = null;
-		
-		try {
-			method = proc.parameters[0];
-		}catch(IndexOutOfBoundsException e) {
-			System.err.println("Error : Enter align or replace for the first parameter. Enter -h for detailed options.");
-			System.err.println("Exit.");
-			System.exit(1);
-		}
+		proc.getProgramPath();
 		
 		switch (method) {
 		case "align":
@@ -725,5 +716,52 @@ public class TreeModule {
 			System.exit(1);
 		}
 	}
-
+	
+	private void printTreeHelp() {
+		System.out.println(ANSIHandler.wrapper(" UFCG - tree", 'G'));
+		System.out.println(ANSIHandler.wrapper(" Align UFCG profiles and reconstruct their phylogenetic relationship", 'g'));
+		System.out.println("");
+	
+		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar tree -i <INPUT> -l <LABEL> [...]");
+		System.out.println("");
+	
+		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
+		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
+		System.out.println(String.format(" %s\t\t%s", "-i", "Input directory containing UFCG profiles"));
+		System.out.println(String.format(" %s\t\t%s", "-l", "Tree label format, comma-separated string containing one or more of the following keywords:"));
+		System.out.println(String.format(" %s\t\t%s", "  ", "[uid, acc, label, taxon, strain, type, taxonomy]"));
+		System.out.println("");
+		
+		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
+		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
+		System.out.println(String.format(" %s\t\t%s", "-o", "Define output directory (default: ./output)"));
+		System.out.println(String.format(" %s\t\t%s", "-n", "Name of this run (default: random number)"));
+		System.out.println(String.format(" %s\t\t%s", "-a", "Alignment method [nucleotide, codon, codon12, protein] (default: codon)"));
+		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
+		System.out.println(String.format(" %s\t\t%s", "-f", "Gap-rich filter percentage threshold [1 - 100] (default: 50)"));
+		System.out.println(String.format(" %s\t\t%s", "-p", "Tree building program [raxml, fasttree] (default: raxml)"));
+		System.out.println(String.format(" %s\t\t%s", "-m", "ML tree inference model (default: JTT+CAT for proteins, GTR+CAT for nucleotides)"));
+		System.out.println(String.format(" %s\t\t%s", "-g", "GSI value threshold [1 - 100] (default: 95)"));
+		System.out.println("");
+		
+		System.exit(0);
+	}
+	private void printTreeFixHelp() {
+		System.out.println(ANSIHandler.wrapper(" UFCG - tree-fix", 'G'));
+		System.out.println(ANSIHandler.wrapper(" Fix UFCG tree labels or get a single gene tree", 'g'));
+		System.out.println("");
+	
+		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar tree-fix -i <INPUT> -g <GENE> -l <LABEL>");
+		System.out.println("");
+	
+		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
+		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
+		System.out.println(String.format(" %s\t\t%s", "-i", "Input .trm file provided by tree module"));
+		System.out.println(String.format(" %s\t\t%s", "-g", "Gene name - \"UFCG\" for a UFCG tree, proper gene name for a single gene tree"));
+		System.out.println(String.format(" %s\t\t%s", "-l", "Tree label format, comma-separated string containing one or more of the following keywords:"));
+		System.out.println(String.format(" %s\t\t%s", "  ", "[uid, acc, label, taxon, strain, type, taxonomy]"));
+		System.out.println("");
+		
+		System.exit(0);
+	}
 }
