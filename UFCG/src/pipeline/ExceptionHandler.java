@@ -7,6 +7,9 @@ import envs.toolkit.Prompt;
 public class ExceptionHandler {
 	// general
 	public static final int EXCEPTION				= 0xFF;
+	public static final int UNEXPECTED_ERROR		= 0xFE;
+	public static final int ERROR_WITH_MESSAGE		= 0xFD;
+	
 	public static final int UNKNOWN_MODULE			= 0x00;
 	public static final int UNKNOWN_OPTION			= 0x01;
 	public static final int MISSING_ARGUMENT		= 0x02;
@@ -35,6 +38,10 @@ public class ExceptionHandler {
 	public static final int NO_LEAF_OPTION			= 0x15;
 	public static final int NO_GENE_NAME			= 0x16;
 	public static final int INVALID_LEAF_FORMAT		= 0x17;
+	public static final int INVALID_MODEL			= 0x18;
+	public static final int INVALID_PROGRAM_PATH	= 0x19;
+	public static final int INVALID_ALIGN_MODE		= 0x1A;
+	
 	
 	private static Object OBJ;
 	public static void pass(Object obj) {OBJ = obj;}
@@ -52,6 +59,10 @@ public class ExceptionHandler {
 		switch(exception) {
 		case EXCEPTION:
 			printStackTrace(); break;
+		case UNEXPECTED_ERROR:
+			System.out.println("Program terminated by an unexpected error."); break;
+		case ERROR_WITH_MESSAGE:
+			System.out.println(OBJ.toString()); break;
 		case UNKNOWN_OPTION:
 			System.out.println("Unrecognized option given : " + OBJ.toString()); break;
 		case MISSING_ARGUMENT:
@@ -93,13 +104,19 @@ public class ExceptionHandler {
 		case INVALID_METAINFO:
 			System.out.println("Metadata information is improperly formatted."); break;
 		case UNKNOWN_MODULE:
-			System.out.println("Unknown module given : " + OBJ.toString()); break;
+			System.out.println("Unknown module given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		case NO_LEAF_OPTION:
 			System.out.println("No leaf string given."); break;
 		case NO_GENE_NAME:
 			System.out.println("No gene name given."); break;
 		case INVALID_LEAF_FORMAT:
-			System.out.println("Invalid leaf option given : " + OBJ.toString()); break;
+			System.out.println("Invalid leaf option given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
+		case INVALID_MODEL:
+			System.out.println("Invalid tree building model given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
+		case INVALID_PROGRAM_PATH:
+			System.out.println("Program path file is not properly set."); break;
+		case INVALID_ALIGN_MODE:
+			System.out.println("Invalid align mode given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		}
 		
 		if(!GenericConfig.INTERACT || exception == EXCEPTION) {

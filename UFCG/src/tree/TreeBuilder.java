@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 //import java.nio.file.Files;
 //import java.nio.file.Path;
 //import java.nio.file.Paths;
-import java.sql.Timestamp;
+//import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,9 +28,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import envs.config.GenericConfig;
+import envs.toolkit.ANSIHandler;
+import envs.toolkit.Prompt;
+
 import org.json.JSONException;
 import lbj.BranchAnalysis;
-
+import pipeline.ExceptionHandler;
 import tree.tools.DetectedGeneDomain;
 import tree.tools.GeneSetByGenomeDomain;
 import tree.tools.AlignMode;
@@ -95,7 +100,7 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 	}
 	this.outDirectory = outDirectory;
 	
-	this.runOutDirName = String.valueOf(new Timestamp(System.currentTimeMillis()).getTime()) + File.separator;
+	this.runOutDirName = GenericConfig.SESSION_UID + File.separator;
 	if(runOutDirName!=null && !runOutDirName.equals("")) {
 		if (!runOutDirName.endsWith(File.separator)) {
 			runOutDirName = runOutDirName + File.separator;
@@ -118,11 +123,6 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 	this.allGeneTreesFile = this.outDirectory + this.runOutDirName + "all_genetrees.txt";
 	this.logFileName = this.outDirectory + this.runOutDirName + runOutDirName.replace(File.separator, "") + ".log";
 	this.trmFile = this.outDirectory + this.runOutDirName + runOutDirName.replace(File.separator, "") + ".trm";
-	
-	if (filtering <= 0 || filtering > 100) {
-		System.err.print("filtering must be a value between 1~100. Exit!");
-		System.exit(1);
-	}
 	this.alignMode = alignMode;
 	this.filtering = filtering;
 	
@@ -132,9 +132,7 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 }
 
 public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
-	
 	checkThirdPartyPrograms(tool);
-	
 	readJsonsToFastaFiles();
 	alignGenes(nThreads); // 
 	concatenateAlignedGenesRemoveGaps(); 
@@ -145,6 +143,154 @@ public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 	deleteFiles();
 }
 
+void checkThirdPartyPrograms(PhylogenyTool phylogenyTool) {
+	if(phylogenyTool.equals(PhylogenyTool.fasttree)) {
+		testMafft(mafftPath);
+		testFasttree(fastTreePath);
+	}else if(phylogenyTool.equals(PhylogenyTool.raxml)) {
+		testMafft(mafftPath);
+		testRaxml(raxmlPath);
+	}
+}
+
+private void testMafft(String mafftPath) {
+	// mafft v.7.310
+	// mafft test
+	boolean mafft = false;
+
+	// test external programs
+	List<String> argMafft = new ArrayList<>();
+	argMafft.add(mafftPath);
+	argMafft.add("-h");
+
+	try {
+		Prompt.talk("Running command : " + mafftPath + " -h");
+		Process testMafft = new ProcessBuilder(argMafft).start();
+
+		BufferedReader stdOut = new BufferedReader(new InputStreamReader(testMafft.getInputStream()));
+		BufferedReader stdError = new BufferedReader(new InputStreamReader(testMafft.getErrorStream()));
+
+		String s;
+
+		while ((s = stdOut.readLine()) != null) {
+		}
+		while ((s = stdError.readLine()) != null) {
+			if (s.contains("  MAFFT ")) {
+				mafft = true;
+				break;
+			}
+		}
+
+		stdOut.close();
+		stdError.close();
+
+		try {
+			testMafft.waitFor();
+		} catch (InterruptedException e) {
+			ExceptionHandler.handle(e);
+		}
+
+	} catch (IOException e) {
+		ExceptionHandler.handle(e);
+	}
+
+	if (!mafft) {
+		ExceptionHandler.pass("mafft");
+		ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
+	}
+}
+private void testFasttree(String fasttreePath) {
+	// FastTree 2.1.10 SSE3
+	boolean fasttree = false;
+
+	List<String> argFasttree = new ArrayList<>();
+	argFasttree.add(fasttreePath);
+	argFasttree.add("-help");
+
+	try {
+		Prompt.talk("Running command : " + fasttreePath + " -help");
+		Process testFasttree = new ProcessBuilder(argFasttree).start();
+
+		BufferedReader stdOut = new BufferedReader(new InputStreamReader(testFasttree.getInputStream()));
+		BufferedReader stdError = new BufferedReader(new InputStreamReader(testFasttree.getErrorStream()));
+//		BufferedOutputStream stdin = new BufferedOutputStream(testFasttree.getOutputStream());
+
+		String s;
+
+		while ((s = stdOut.readLine()) != null) {
+		}
+
+		while ((s = stdError.readLine()) != null) {
+			if (s.contains("FastTree ")) {
+				fasttree = true;
+				break;
+			}
+		}
+
+		stdOut.close();
+		stdError.close();
+
+		try {
+			testFasttree.waitFor();
+		} catch (InterruptedException e) {
+			ExceptionHandler.handle(e);
+		}
+
+	} catch (IOException e) {
+		ExceptionHandler.handle(e);
+	}
+
+	if (!fasttree) {
+		ExceptionHandler.pass("fasttree");
+		ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
+	}
+}
+private void testRaxml(String raxmlPath) {
+	boolean raxml = false;
+
+	List<String> argRaxml = new ArrayList<>();
+	argRaxml.add(raxmlPath);
+	argRaxml.add("-h");
+
+	try {
+		Prompt.talk("Running command : " + raxmlPath + " -h");
+		Process testRaxml = new ProcessBuilder(argRaxml).start();
+
+		BufferedReader stdOut = new BufferedReader(new InputStreamReader(testRaxml.getInputStream()));
+		BufferedReader stdError = new BufferedReader(new InputStreamReader(testRaxml.getErrorStream()));
+//		BufferedOutputStream stdin = new BufferedOutputStream(testRaxml.getOutputStream());
+
+		String s;
+
+		while ((s = stdOut.readLine()) != null) {
+			if (s.contains("This is RAxML")) {
+				raxml = true;
+				break;
+			}
+		}
+
+		while ((s = stdError.readLine()) != null) {
+		}
+
+		stdOut.close();
+		stdError.close();
+
+		try {
+			testRaxml.waitFor();
+		} catch (InterruptedException e) {
+			ExceptionHandler.handle(e);
+		}
+
+	} catch (IOException e) {
+		ExceptionHandler.handle(e);
+	}
+
+	if (!raxml) {
+		ExceptionHandler.pass("RAxML");
+		ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
+	}
+}
+
 void readJsonsToFastaFiles() throws IOException{
 	
 	checkPathDirectory();
@@ -153,9 +299,8 @@ void readJsonsToFastaFiles() throws IOException{
 	File dir = new File(ucgDirectory);
 
 	if(!dir.exists()) {
-		System.err.println("Error occurred! " + ucgDirectory + " doesn't exists.");
-		System.err.println("Exit!");
-		System.exit(1);
+		ExceptionHandler.pass(dir);
+		ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
 	}
 	
 	File[] files = dir.listFiles(new FilenameFilter() {
@@ -179,9 +324,8 @@ void readJsonsToFastaFiles() throws IOException{
 		genomeList.add(uid);
 		
 		if(!uidSet.add(uid)) {
-			System.err.println("Error! There are duplicate uids. Uid must be unique.");
-			System.err.println("Exit!");
-			System.exit(1);
+			ExceptionHandler.pass("Duplicated UIDs exist.");
+			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 		}
 		
 		String label = "";
@@ -238,20 +382,42 @@ void readJsonsToFastaFiles() throws IOException{
 	}
 }
 
+private void checkPathDirectory() {
+	
+	File path = new File(outDirectory);
+	
+	if(!path.exists()) {
+		if(!path.mkdir()) {
+			ExceptionHandler.pass(outDirectory + " doesn't exist and can't be created.");
+			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+		}
+	}
+	
+	if(new File(outDirectory + runOutDirName).exists()) {
+		ExceptionHandler.pass("Run id '" + runOutDirName.replace(File.separator, "") + "' already exists.");
+		ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+	}
+	
+	if(!new File(outDirectory).canWrite()) {
+		ExceptionHandler.pass("Cannot write files to " + outDirectory + ". Please check the permission.");
+		ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+	}else {
+		new File(outDirectory + runOutDirName).mkdir();
+	}
+	
+	
+}
+
 void alignGenes(int nThreads) {
 	
 	int geneNum = usedGenes.size();
 	
-	System.out.println("Aligning each gene..");
-	System.out.println();
-	System.out.println("Total # of genes to be aligned : " + geneNum);
-	System.out.println();
+	Prompt.print("Aligning genes...");
+	Prompt.talk("Total # of genes to be aligned : " + geneNum);
 	
 	align(nThreads);
 	
-	System.out.println();
-	System.out.println("MSA is finished!");
-	System.out.println();
+	Prompt.talk("Gene alignment finished.");
 	
 	// convert to codon
 	if(alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
@@ -263,8 +429,7 @@ void alignGenes(int nThreads) {
 
 void concatenateAlignedGenesRemoveGaps() {
 	
-	System.out.println("Concatenating aligned genes..");
-	System.out.println();
+	Prompt.print("Concatenating aligned genes...");
 	
 	List<String> fileList = new ArrayList<String>();
 
@@ -302,8 +467,8 @@ void concatenateAlignedGenesRemoveGaps() {
 			} else {
 				
 				if (seqLength != fs.sequence.length()) {
-					System.out.println("Error : \"" + fileName + "\" has different sequence length.");
-					System.exit(1);
+					ExceptionHandler.pass("\"" + fileName + "\" has a different length of sequence.");
+					ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 				}
 			}
 		}
@@ -367,17 +532,13 @@ void concatenateAlignedGenesRemoveGaps() {
 		fw.close();
 		
 	} catch (IOException e) {
-		e.getMessage();
-		System.err.println("Error : Cannot write a file in the directory '" + outDirectory + runOutDirName);
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}
 }
 
 
 void inferTree(PhylogenyTool tool, int nThreads) {
-	
-
-	System.out.println("Reconstructing the final tree..");
+	Prompt.print("Reconstructing the final tree...");
 	
 	if(tool.equals(PhylogenyTool.raxml)) {
 		runRaxml(nThreads);
@@ -385,15 +546,12 @@ void inferTree(PhylogenyTool tool, int nThreads) {
 		runFasttree(nThreads);
 	}
 	
-	System.out.println("The final tree is written in " + treeLabelFileName);
-	System.out.println();
-	
+	Prompt.print("The final tree was written in : " + ANSIHandler.wrapper(treeLabelFileName, 'B'));
 }
 
 void inferGeneTrees(PhylogenyTool phylogenyTool, int nThreads) {
 	
-	System.out.println("Reconstructing gene trees..");
-	System.out.println();
+	Prompt.print("Reconstructing gene trees...");
 
 	// log info - the length of genes and concatenated sequence
 
@@ -434,16 +592,12 @@ void inferGeneTrees(PhylogenyTool phylogenyTool, int nThreads) {
 		logFW.flush();
 		logFW.close();
 	} catch (IOException e) {
-		System.err.println("Error occurred!");
-		System.err.println(e.getMessage());
-		System.err.println("Exit!");
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}
 
 	int numOfGenes = usedGenes.size();
 	
-	System.out.println("Total number of gene trees to be reconstructed : " + numOfGenes);
-	System.out.println();
+	Prompt.talk("Total number of gene trees to be reconstructed : " + numOfGenes);
 
 	ExecutorService exeServiceTree = Executors.newFixedThreadPool(nThreads);
 
@@ -470,28 +624,20 @@ void inferGeneTrees(PhylogenyTool phylogenyTool, int nThreads) {
 		for (Future<ProcessGobbler> f : futures) {
 			ProcessGobbler processGobbler = f.get();
 			if (processGobbler.getExitValue() != 0) {
-				System.err.println("Error occurred!");
-				System.err.println("log|" + processGobbler.getLog());
-				System.exit(1);
+				ExceptionHandler.pass(processGobbler.getLog());
+				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
 		}
 	
 		while (!exeServiceTree.awaitTermination(1, TimeUnit.SECONDS)) {
 		}
-	} catch (InterruptedException e) {
-		System.err.println("Error occurred!");
-		System.err.println(e.getMessage());
-		System.err.println("Exit!");
-		System.exit(1);
-	}catch(ExecutionException ex) {
-		System.err.println("Error occurred!");
-		System.err.println(ex.getMessage());
-		System.err.println("Exit!");
-		System.exit(1);
+	} catch(InterruptedException e) {
+		ExceptionHandler.handle(e);
+	} catch(ExecutionException ex) {
+		ExceptionHandler.handle(ex);
 	}
 
-	System.out.println("All of the gene trees were reconstructed.");
-	System.out.println();
+	Prompt.talk("Gene tree reconstruction finished.");
 
 	// merge gene trees
 	StringBuffer mergedTrees = new StringBuffer();
@@ -510,9 +656,7 @@ void inferGeneTrees(PhylogenyTool phylogenyTool, int nThreads) {
 			treeReader.close();
 
 		} catch (IOException e) {
-			System.err.println("Error : Cannot read gene tree '" + geneTree + "'.");
-			System.err.println(e.getMessage());
-			System.exit(1);
+			ExceptionHandler.handle(e);
 		}
 
 	}
@@ -525,16 +669,13 @@ void inferGeneTrees(PhylogenyTool phylogenyTool, int nThreads) {
 		mergeWriter.close();
 
 	} catch (IOException e) {
-		System.err.println("Error : Cannot write a file in the directory.");
-		System.err.println(e.getMessage());
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}
 }
 
 void calculateGsi() {
 	
-	System.out.println("Calculating Gene Support Indices (GSIs) from the gene trees..");
-	System.out.println();
+	Prompt.print("Calculating Gene Support Indices (GSIs) from the gene trees...");
 
 	File ucgJsonDir = new File(ucgDirectory);
 	File[] tempUcgJsonFileList = ucgJsonDir.listFiles();
@@ -553,8 +694,8 @@ void calculateGsi() {
 			new File(treeZzFileName),
 			false, true, -1, (int) ((100 - gsi_threshold) * genomeNum / 100));
 
-	treeZzGsiFileName = outDirectory + runOutDirName + "concatenated_gsi(" + usedGenes.size() + ")." + ".zZ.nwk";
-	treeLabelGsiFileName = outDirectory + runOutDirName + "concatenated_gsi(" + usedGenes.size() + ")" + ".nwk";
+	treeZzGsiFileName = outDirectory + runOutDirName + "concatenated_gsi_" + usedGenes.size() + ".zZ.nwk";
+	treeLabelGsiFileName = outDirectory + runOutDirName + "concatenated_gsi_" + usedGenes.size() + ".nwk";
 	
 	try {
 		FileWriter stFW = new FileWriter(treeZzGsiFileName);
@@ -566,10 +707,7 @@ void calculateGsi() {
 		stFW.close();
 
 	} catch (IOException e) {
-		System.err.println("Error occurred!");
-		System.err.println(e.getMessage());
-		System.err.println("Exit!");
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}
 
 	// make trm file
@@ -630,10 +768,7 @@ void calculateGsi() {
 		trmFW.close();
 
 	} catch (IOException e) {
-		System.err.println("Error occurred!");
-		System.err.println(e.getMessage());
-		System.err.println("Exit!");
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}
 }
 
@@ -675,8 +810,7 @@ void replaceLabel() {
 		}
 	}
 	
-	System.out.println("The final tree marked with GSI was written to '" + treeLabelGsiFileName);
-	System.out.println();
+	Prompt.print("The final tree marked with GSI was written in : " + ANSIHandler.wrapper(treeLabelGsiFileName, 'B'));
 }
 
 void deleteFiles() {
@@ -793,7 +927,7 @@ private void runFasttree(int nThreads) {
 private void runPhylogenyToolByProcess(List<String> argTree, PhylogenyTool phylogenyTool) {
 	try {
 
-		System.out.println(argTree);
+		Prompt.debug("Running command : " + ANSIHandler.wrapper(String.join(" ", argTree), 'B'));
 
 		Process tree = new ProcessBuilder(argTree).start();
 
@@ -806,66 +940,17 @@ private void runPhylogenyToolByProcess(List<String> argTree, PhylogenyTool phylo
 		try {
 			tree.waitFor();
 		} catch (InterruptedException e) {
-			System.err.println("Error occurred!");
-			System.err.println(e.getMessage());
-			System.exit(1);
+			ExceptionHandler.handle(e);
 		}
 
 		if (tree.exitValue() != 0) {
 			String log = errorGobbler.LogMessage();
-			System.err.println(log);
-			if (phylogenyTool.equals(PhylogenyTool.raxml)) {
-				System.err.println("Error occurred during running RAxML.");
-			}else {
-				System.err.println("Error occurred during running FastTree.");
-			}
-			System.exit(1);
+			ExceptionHandler.pass(log);
+			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 		}
 	} catch (IOException e) {
-		System.err.println("Error occurred!");
-		System.err.println(e.getMessage());
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}
-}
-
-private void checkPathDirectory() {
-	
-	File path = new File(outDirectory);
-	
-	if(!path.exists()) {
-		if(!path.mkdir()) {
-			System.err.println("Error occurred!");
-			System.err.println(outDirectory + " doesn't exist and can't be created.");
-			System.exit(1);
-		}
-	}
-	
-	if(new File(outDirectory + runOutDirName).exists()) {
-		System.err.println("Error occurred!");
-		System.err.println("Run id '" + runOutDirName.replace(File.separator, "") + "' already exists!");
-		System.exit(1);
-	}
-	
-	if(!new File(outDirectory).canWrite()) {
-		System.err.println("Error occurred!");
-		System.err.println("Cannot write files to " + outDirectory + ". Check the permission.");
-		System.exit(1);
-	}else {
-		new File(outDirectory + runOutDirName).mkdir();
-	}
-	
-	
-}
-
-void checkThirdPartyPrograms(PhylogenyTool phylogenyTool) {
-	if(phylogenyTool.equals(PhylogenyTool.fasttree)) {
-		testMafft(mafftPath);
-		testFasttree(fastTreePath);
-	}else if(phylogenyTool.equals(PhylogenyTool.raxml)) {
-		testMafft(mafftPath);
-		testRaxml(raxmlPath);
-	}
-	
 }
 
 private void align(int nThreads) {
@@ -890,9 +975,8 @@ private void align(int nThreads) {
 		for(Future<ProcessGobbler> f : futures) {
 			ProcessGobbler processGobbler = f.get();
 			if(processGobbler.getExitValue()!=0) {
-				System.err.println("Error occurred when running mafft!");
-				System.err.println("log|" + processGobbler.getLog());
-				System.exit(1);
+				ExceptionHandler.pass(processGobbler.getLog());
+				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
 		}
 		
@@ -900,19 +984,16 @@ private void align(int nThreads) {
 		}
 		
 	}catch(InterruptedException e){
-		System.err.println(e.getMessage());
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}catch(ExecutionException ex) {
-		System.err.println("Error occurred!");
-		System.err.println(ex.getMessage());
-		System.exit(1);
+		ExceptionHandler.handle(ex);
 	}
 	
 }
 
 private void proAlignToCodon() {
 
-	System.out.println("Converting protein alignments to DNA(codon) alignments..");
+	Prompt.print("Converting protein alignments to DNA(codon) alignments...");
 	
 	for(String gene : usedGenes){
 		String nucFile = fastaFileName(gene, AlignMode.nucleotide);
@@ -1043,9 +1124,8 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 
 					if(nucSeq==null) {
 						String label = geneSetsDomain.getLabel();
-						System.err.println("Error : " + label + " has no DNA sequence! DNA sequence is needed to be aligned with their sequences.");
-						System.err.println("Exit!");
-						System.exit(1);
+						ExceptionHandler.pass(label + " has no DNA sequence! DNA sequence is needed to be aligned with their sequences.");
+						ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 					}
 					if (nucSeq != null) {
 						sbNuc.append(">zZ" + uid + "zZ\n");
@@ -1065,7 +1145,7 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 		}
 		
 		if(nuc<4 && pro<4) {
-			System.err.println("Less than 4 species have '" + gene + "', this sequence is excluded in further analysis.");
+			Prompt.print(ANSIHandler.wrapper("WARNING", 'Y') + " : Less than 4 species have '" + gene + "'. This gene will be excluded");
 		}
 		
 		if (sbNuc.length() != 0 && nuc>3) {
@@ -1120,7 +1200,7 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 		}
 		
 		if(num<4) {
-			System.err.println("Less than 4 species have '" + gene + "', this sequence is excluded in further analysis.");
+			Prompt.print(ANSIHandler.wrapper("WARNING", 'Y') + " : Less than 4 species have '" + gene + "'. This gene will be excluded");
 		}
 		
 		if (sb.length() != 0 && num>3) {
@@ -1148,12 +1228,11 @@ private List<GeneSetByGenomeDomain> jsonsToGeneSetDomains(File[] files) {
 }
 private boolean checkIfSameTargetGeneSets(File[] files) throws JSONException {
 	
-	System.out.println(files.length + " ucg files are detected.");
-	System.out.println();
+	Prompt.print(files.length + " ucg files are detected.");
 	
 	if(files.length<3) {
-		System.err.println("There are less than 3 ucg files! Exit.");
-		System.exit(1);
+		ExceptionHandler.pass("Three or more .ucg profiles are required.");
+		ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 	}
 	
 	boolean same = false;
@@ -1167,9 +1246,8 @@ private boolean checkIfSameTargetGeneSets(File[] files) throws JSONException {
 	for(File geneSetFile : files) {
 		ArrayList<String> targetGenes = fileToTargetGeneList(geneSetFile);
 		if(!sameTargetGenes(refTargetGenes, targetGenes)) {
-			System.err.println("Gene sets were extracted from different target genes.");
-			System.err.println("Exit!");
-			System.exit(1);
+			ExceptionHandler.pass("Gene sets are not identical across the profiles.");
+			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 		}
 	}
 	same = true;
@@ -1296,144 +1374,7 @@ private String alignedFinalGeneFastaLabelFile(String gene) {
 	return fasta;
 }
 
-private void testMafft(String mafftPath) {
-	// mafft v.7.310
-	// mafft test
-	boolean mafft = false;
 
-	// test external programs
-	List<String> argMafft = new ArrayList<>();
-	argMafft.add(mafftPath);
-	argMafft.add("-h");
-
-	try {
-
-		Process testMafft = new ProcessBuilder(argMafft).start();
-
-		BufferedReader stdOut = new BufferedReader(new InputStreamReader(testMafft.getInputStream()));
-		BufferedReader stdError = new BufferedReader(new InputStreamReader(testMafft.getErrorStream()));
-
-		String s;
-
-		while ((s = stdOut.readLine()) != null) {
-		}
-		while ((s = stdError.readLine()) != null) {
-			if (s.contains("  MAFFT ")) {
-				mafft = true;
-			}
-		}
-
-		stdOut.close();
-		stdError.close();
-
-		try {
-			testMafft.waitFor();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-	} catch (IOException e) {
-		System.err.println(e.getMessage());
-	}
-
-	if (!mafft) {
-		System.err.println(
-				"Error : Check if MAFFT v7.310 is properly installed and check the program path in the 'programPath' file");
-		System.exit(1);
-	}
-}
-private void testFasttree(String fasttreePath) {
-	// FastTree 2.1.10 SSE3
-	boolean fasttree = false;
-
-	List<String> argFasttree = new ArrayList<>();
-	argFasttree.add(fasttreePath);
-	argFasttree.add("-help");
-
-	try {
-
-		Process testFasttree = new ProcessBuilder(argFasttree).start();
-
-		BufferedReader stdOut = new BufferedReader(new InputStreamReader(testFasttree.getInputStream()));
-		BufferedReader stdError = new BufferedReader(new InputStreamReader(testFasttree.getErrorStream()));
-//		BufferedOutputStream stdin = new BufferedOutputStream(testFasttree.getOutputStream());
-
-		String s;
-
-		while ((s = stdOut.readLine()) != null) {
-		}
-
-		while ((s = stdError.readLine()) != null) {
-			if (s.contains("FastTree ")) {
-				fasttree = true;
-			}
-		}
-
-		stdOut.close();
-		stdError.close();
-
-		try {
-			testFasttree.waitFor();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-	} catch (IOException e) {
-		System.err.println(e.getMessage());
-	}
-
-	if (!fasttree) {
-		System.err.println(
-				"Error : Check if FastTree version 2.1.10 SSE3 is properly installed and check the program path in the 'programPath' file");
-		System.exit(1);
-	}
-}
-
-private void testRaxml(String raxmlPath) {
-	boolean raxml = false;
-
-	List<String> argRaxml = new ArrayList<>();
-	argRaxml.add(raxmlPath);
-	argRaxml.add("-h");
-
-	try {
-
-		Process testRaxml = new ProcessBuilder(argRaxml).start();
-
-		BufferedReader stdOut = new BufferedReader(new InputStreamReader(testRaxml.getInputStream()));
-		BufferedReader stdError = new BufferedReader(new InputStreamReader(testRaxml.getErrorStream()));
-//		BufferedOutputStream stdin = new BufferedOutputStream(testRaxml.getOutputStream());
-
-		String s;
-
-		while ((s = stdOut.readLine()) != null) {
-			if (s.contains("This is RAxML version 8")) {
-				raxml = true;
-			}
-		}
-
-		while ((s = stdError.readLine()) != null) {
-		}
-
-		stdOut.close();
-		stdError.close();
-
-		try {
-			testRaxml.waitFor();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-	} catch (IOException e) {
-		System.err.println(e.getMessage());
-	}
-
-	if (!raxml) {
-		System.err.println(
-				"Error : Check if RAxML version 8 is properly installed and check the program path in the 'programPath' file");
-		System.exit(1);
-	}
-}
 
 private void writeGenomeInfoToLogFile(List<GeneSetByGenomeDomain> geneSetByGenomeDomains) {
 	
@@ -1465,9 +1406,7 @@ private void writeGenomeInfoToLogFile(List<GeneSetByGenomeDomain> geneSetByGenom
 		fw.append(logSB);
 		fw.close();
 	}catch(IOException e) {
-		System.err.println("Error occurred!");
-		System.err.println(e.getMessage());
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}
 }
 }
@@ -1498,7 +1437,7 @@ public multipleAlign(String mafftPath, AlignMode alignMode, String fastaFile, St
 public static synchronized void updateCounter(String bcg, int[] counter, int bcgNum) {
 	counter[0]++;
 	String msg = bcg + " alignment was completed. (" + counter[0] + " / " + bcgNum + ")";
-	System.out.println(msg);
+	Prompt.talk(msg);
 }
 
 
@@ -1548,7 +1487,7 @@ public multipleTree(String alignedFastaFile, String run_id, String programPath, 
 public static synchronized void updateCounter(String ucg, int[] counter, int ucgNum) {
 	counter[0]++;
 	String msg = "'" + ucg + "' tree was reconstructed. (" + counter[0] + " / " + ucgNum + ")";
-	System.out.println(msg);
+	Prompt.talk(msg);
 }
 
 public ProcessGobbler call() throws IOException{
@@ -1559,7 +1498,7 @@ public ProcessGobbler call() throws IOException{
 
 	File inputFile = new File(alignedFastaFile);
 	if (!inputFile.exists()) {
-		ProcessGobbler processGobbler = new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' dosen't exist to run FastTree!");
+		ProcessGobbler processGobbler = new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' doesn't exist to run FastTree!");
 		return processGobbler;
 	}
 
@@ -1668,7 +1607,7 @@ public multipleTreeRaxml(String alignedFastaFile, String run_id, String programP
 public static synchronized void updateCounter(String ucg, int[] counter, int ucgNum) {
 	counter[0]++;
 	String msg = "'" + ucg + "' tree was reconstructed. (" + counter[0] + " / " + ucgNum + ")";
-	System.out.println(msg);
+	Prompt.talk(msg);
 }
 
 public ProcessGobbler call() throws IOException{
@@ -1679,7 +1618,7 @@ public ProcessGobbler call() throws IOException{
 
 	File inputFile = new File(alignedFastaFile);
 	if (!inputFile.exists()) {
-		return new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' dosen't exist to run RAxML!");
+		return new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' doesn't exist to run RAxML!");
 	}
 
 	argTree.add("-s");

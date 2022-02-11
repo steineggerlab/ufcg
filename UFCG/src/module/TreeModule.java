@@ -15,8 +15,11 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import envs.config.GenericConfig;
 import envs.config.PathConfig;
 import envs.toolkit.ANSIHandler;
+import envs.toolkit.Prompt;
+import pipeline.ExceptionHandler;
 import tree.TreeBuilder;
 import tree.tools.AlignMode;
 import tree.tools.PhylogenyTool;
@@ -56,19 +59,13 @@ public class TreeModule {
 		case "replace":
 			proc.replace();
 			break;
-		default :
-			System.err.println("Error : Enter proper parameters (align or replace)");
-			System.err.println("Exit.");
-			System.exit(1);
+		default:
+			ExceptionHandler.pass(method);
+			ExceptionHandler.handle(ExceptionHandler.UNKNOWN_MODULE);
 		}
 	}
 
 	private void align() {
-		System.out.println("     ------------------------------------");
-		System.out.println("       UFCG tree module");
-		System.out.println("     ------------------------------------");
-		System.out.println();
-		
 		String ucgDirectory = null;
 		String outDirectory = "output" + File.separator;
 		
@@ -106,10 +103,8 @@ public class TreeModule {
 			}else if(align.equals("protein")) {
 				alignMode = AlignMode.protein;
 			}else {
-				System.err.println("Error!");
-				System.err.println("Invalid align mode.");
-				System.err.println("Exit!");
-				System.exit(1);
+				ExceptionHandler.pass(align);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_ALIGN_MODE);
 			}
 		}
 		
@@ -119,19 +114,21 @@ public class TreeModule {
 				nThreads = Integer.parseInt(arg.get("-t"));
 
 				if (nThreads < 1) {
-					System.exit(1);
+					ExceptionHandler.pass(nThreads);
+					ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 				}
 			}
 
 			if (arg.get("-f")!=null) {
 				filtering = Integer.parseInt(arg.get("-f"));
+				if (filtering > 100 || filtering <= 0) {
+					ExceptionHandler.pass(filtering);
+					ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+				}
 			}
 			
 		}catch(NumberFormatException e) {
-			System.err.println("Error occurred!");
-			System.err.println(e.getMessage());
-			System.err.println("Exit.");
-			System.exit(1);
+			ExceptionHandler.handle(e);
 		}	
 		
 		if (arg.get("-fasttree")!=null) {
@@ -148,21 +145,15 @@ public class TreeModule {
 			try {
 				gsi_threshold = Integer.valueOf(arg.get("-gsi_threshold"));
 			} catch (NumberFormatException e) {
-				System.err.println("Error : Enter a value between 0 and 100 for the parameter -gsi_threshold.");
-				System.err.println("Exit!");
-				System.exit(1);
+				ExceptionHandler.handle(e);
 			}
-
 		}
 		if (gsi_threshold > 100 || gsi_threshold < 0) {
-			System.err.println("Error : Enter a value between 0 and 100 for the parameter -gsi_threshold.");
-			System.err.println("Exit!");
-			System.exit(1);
+			ExceptionHandler.pass(gsi_threshold);
+			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 		}
-		
 		if(parameters.length==0||outDirectory==null||ucgDirectory==null) {
-			printHelpMessage();
-			System.exit(1);
+			ExceptionHandler.handle(ExceptionHandler.UNEXPECTED_ERROR);
 		}
 		// labels
 		outputLabels = new ArrayList<String>();
@@ -193,9 +184,8 @@ public class TreeModule {
 		}
 		
 		if(outputLabels.size()==0) {
-			System.err.println("Error : Enter at least one labeling option");
-			System.err.println("Exit!");
-			System.exit(1);
+			ExceptionHandler.pass(outputLabels);
+			ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
 		}
 		
 		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runOutDirName, mafftPath, raxmlPath, fastTreePath, alignMode, filtering, model, gsi_threshold, outputLabels);
@@ -203,10 +193,7 @@ public class TreeModule {
 		try {
 			proc.jsonsToTree(nThreads, phylogenyTool);
 		}catch (IOException e) {
-			System.err.println("Error occurred.");
-			System.err.println(e.getMessage());
-			System.err.println("Exit.");
-			System.exit(1);
+			ExceptionHandler.handle(e);
 		}
 	}
 
@@ -221,7 +208,7 @@ public class TreeModule {
 			System.exit(1);
 		}
 		
-		validateParametersreplace();
+		validateParametersReplace();
 
 		String trmFileName = parameters[1];
 		String gene = parameters[2];
@@ -332,16 +319,15 @@ public class TreeModule {
 			LabelReplacer lr = new LabelReplacer();
 			lr.replace_name(treeFileName, treeFileName, replaceMap);
 
-			System.out.println("The tree file '" + treeFileName + "' with replaced labels was written.");
+			Prompt.print("The tree file '" + treeFileName + "' with replaced labels was written.");
 
 		} catch (IOException e) {
-			System.err.println("Error occurred!");
-			System.err.println(e.getMessage());
-			System.err.println("Exit!");
-			System.exit(1);
+			ExceptionHandler.handle(e);
 		}
 	}
-
+	
+	@SuppressWarnings("unused")
+	@Deprecated
 	private void printHelpMessage() {
 		System.out.println();
 		System.out.println("     -----------------------------------");
@@ -451,38 +437,30 @@ public class TreeModule {
 		
 		for(String param : paramList) {
 			if(param.startsWith("-")&& !validatedOptionList.contains(param)) {
-				System.err.println("Error!");
-				System.err.println("Invalid option " + param);
-				System.err.println("Exit!");
-				System.exit(1);
+				ExceptionHandler.pass(param);
+				ExceptionHandler.handle(ExceptionHandler.UNKNOWN_OPTION);
 			}
 		}
 		
 		// mandatory options
 		if(arg.get("-ucg_dir")==null || arg.get("-ucg_dir").equals("")) {
-			System.err.println("Error : Enter proper -ucg_dir option.");
-			System.err.println("Exit.");
-			System.exit(1);
+			ExceptionHandler.handle(ExceptionHandler.NO_INPUT);
 		}
 		if(arg.get("-leaf")==null || arg.get("-leaf").equals("")) {
-			System.err.println("Error : Enter proper -leaf option.");
-			System.err.println("Exit.");
-			System.exit(1);
+			ExceptionHandler.handle(ExceptionHandler.NO_LEAF_OPTION);
 		}
 		
 		if(!new File(arg.get("-ucg_dir")).exists()) {
-			System.err.println("Error : Ucg directory doesn't exist! Enter proper -ucg_dir option.");
-			System.err.println("Exit.");
-			System.exit(1);
+			ExceptionHandler.pass(arg.get("-ucg_dir"));
+			ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
 		}
 		
 		String[] leafOptions = arg.get("-leaf").split(",");
 		
 		for(String opt : leafOptions) {
 			if(!validatedLeafOptionList.contains(opt)) {
-				System.err.println("Error : Invalid option for the -leaf");
-				System.err.println("Exit!");
-				System.exit(1);
+				ExceptionHandler.pass(opt);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
 			}
 		}
 		
@@ -495,159 +473,23 @@ public class TreeModule {
 		}
 		
 		// check models
+		String[] options = null;
 		if(alignMode.equals(AlignMode.protein)) {
-			if(phylogenyTool.equals(PhylogenyTool.raxml)) {
-				String[] options = { "PROTCATDAYHOFF", "PROTCATDCMUT", "PROTCATJTT", "PROTCATMTREV", "PROTCATWAG",
-						"PROTCATRTREV", "PROTCATCPREV", "PROTCATVT", "PROTCATBLOSUM62", "PROTCATMTMAM", "PROTCATLG",
-						"PROTCATMTART", "PROTCATMTZOA", "PROTCATPMB", "PROTCATHIVB", "PROTCATHIVW",
-						"PROTCATJTTDCMUT", "PROTCATFLU", "PROTCATSTMTREV", "PROTCATDUMMY", "PROTCATDUMMY2",
-						"PROTCATAUTO", "PROTCATLG4M", "PROTCATLG4X", "PROTCATPROT_FILE", "PROTCATGTR_UNLINKED",
-						"PROTCATGTR", "ASC_PROTCATDAYHOFF", "ASC_PROTCATDCMUT", "ASC_PROTCATJTT",
-						"ASC_PROTCATMTREV", "ASC_PROTCATWAG", "ASC_PROTCATRTREV", "ASC_PROTCATCPREV",
-						"ASC_PROTCATVT", "ASC_PROTCATBLOSUM62", "ASC_PROTCATMTMAM", "ASC_PROTCATLG",
-						"ASC_PROTCATMTART", "ASC_PROTCATMTZOA", "ASC_PROTCATPMB", "ASC_PROTCATHIVB",
-						"ASC_PROTCATHIVW", "ASC_PROTCATJTTDCMUT", "ASC_PROTCATFLU", "ASC_PROTCATSTMTREV",
-						"ASC_PROTCATDUMMY", "ASC_PROTCATDUMMY2", "ASC_PROTCATAUTO", "ASC_PROTCATLG4M",
-						"ASC_PROTCATLG4X", "ASC_PROTCATPROT_FILE", "ASC_PROTCATGTR_UNLINKED", "ASC_PROTCATGTR",
-						"PROTCATIDAYHOFF", "PROTCATIDCMUT", "PROTCATIJTT", "PROTCATIMTREV", "PROTCATIWAG",
-						"PROTCATIRTREV", "PROTCATICPREV", "PROTCATIVT", "PROTCATIBLOSUM62", "PROTCATIMTMAM",
-						"PROTCATILG", "PROTCATIMTART", "PROTCATIMTZOA", "PROTCATIPMB", "PROTCATIHIVB",
-						"PROTCATIHIVW", "PROTCATIJTTDCMUT", "PROTCATIFLU", "PROTCATISTMTREV", "PROTCATIDUMMY",
-						"PROTCATIDUMMY2", "PROTCATIAUTO", "PROTCATILG4M", "PROTCATILG4X", "PROTCATIPROT_FILE",
-						"PROTCATIGTR_UNLINKED", "PROTCATIGTR", "PROTGAMMADAYHOFF", "PROTGAMMADCMUT", "PROTGAMMAJTT",
-						"PROTGAMMAMTREV", "PROTGAMMAWAG", "PROTGAMMARTREV", "PROTGAMMACPREV", "PROTGAMMAVT",
-						"PROTGAMMABLOSUM62", "PROTGAMMAMTMAM", "PROTGAMMALG", "PROTGAMMAMTART", "PROTGAMMAMTZOA",
-						"PROTGAMMAPMB", "PROTGAMMAHIVB", "PROTGAMMAHIVW", "PROTGAMMAJTTDCMUT", "PROTGAMMAFLU",
-						"PROTGAMMASTMTREV", "PROTGAMMADUMMY", "PROTGAMMADUMMY2", "PROTGAMMAAUTO", "PROTGAMMALG4M",
-						"PROTGAMMALG4X", "PROTGAMMAPROT_FILE", "PROTGAMMAGTR_UNLINKED", "PROTGAMMAGTR",
-						"ASC_PROTGAMMADAYHOFF", "ASC_PROTGAMMADCMUT", "ASC_PROTGAMMAJTT", "ASC_PROTGAMMAMTREV",
-						"ASC_PROTGAMMAWAG", "ASC_PROTGAMMARTREV", "ASC_PROTGAMMACPREV", "ASC_PROTGAMMAVT",
-						"ASC_PROTGAMMABLOSUM62", "ASC_PROTGAMMAMTMAM", "ASC_PROTGAMMALG", "ASC_PROTGAMMAMTART",
-						"ASC_PROTGAMMAMTZOA", "ASC_PROTGAMMAPMB", "ASC_PROTGAMMAHIVB", "ASC_PROTGAMMAHIVW",
-						"ASC_PROTGAMMAJTTDCMUT", "ASC_PROTGAMMAFLU", "ASC_PROTGAMMASTMTREV", "ASC_PROTGAMMADUMMY",
-						"ASC_PROTGAMMADUMMY2", "ASC_PROTGAMMAAUTO", "ASC_PROTGAMMALG4M", "ASC_PROTGAMMALG4X",
-						"ASC_PROTGAMMAPROT_FILE", "ASC_PROTGAMMAGTR_UNLINKED", "ASC_PROTGAMMAGTR",
-						"PROTGAMMAIDAYHOFF", "PROTGAMMAIDCMUT", "PROTGAMMAIJTT", "PROTGAMMAIMTREV", "PROTGAMMAIWAG",
-						"PROTGAMMAIRTREV", "PROTGAMMAICPREV", "PROTGAMMAIVT", "PROTGAMMAIBLOSUM62",
-						"PROTGAMMAIMTMAM", "PROTGAMMAILG", "PROTGAMMAIMTART", "PROTGAMMAIMTZOA", "PROTGAMMAIPMB",
-						"PROTGAMMAIHIVB", "PROTGAMMAIHIVW", "PROTGAMMAIJTTDCMUT", "PROTGAMMAIFLU",
-						"PROTGAMMAISTMTREV", "PROTGAMMAIDUMMY", "PROTGAMMAIDUMMY2", "PROTGAMMAIAUTO",
-						"PROTGAMMAILG4M", "PROTGAMMAILG4X", "PROTGAMMAIPROT_FILE", "PROTGAMMAIGTR_UNLINKED",
-						"PROTGAMMAIGTR", "PROTCATDAYHOFFF", "PROTCATDCMUTF", "PROTCATJTTF", "PROTCATMTREVF",
-						"PROTCATWAGF", "PROTCATRTREVF", "PROTCATCPREVF", "PROTCATVTF", "PROTCATBLOSUM62F",
-						"PROTCATMTMAMF", "PROTCATLGF", "PROTCATMTARTF", "PROTCATMTZOAF", "PROTCATPMBF",
-						"PROTCATHIVBF", "PROTCATHIVWF", "PROTCATJTTDCMUTF", "PROTCATFLUF", "PROTCATSTMTREVF",
-						"PROTCATDUMMYF", "PROTCATDUMMY2F", "PROTCATAUTOF", "PROTCATLG4MF", "PROTCATLG4XF",
-						"PROTCATPROT_FILEF", "PROTCATGTR_UNLINKEDF", "PROTCATGTRF", "ASC_PROTCATDAYHOFFF",
-						"ASC_PROTCATDCMUTF", "ASC_PROTCATJTTF", "ASC_PROTCATMTREVF", "ASC_PROTCATWAGF",
-						"ASC_PROTCATRTREVF", "ASC_PROTCATCPREVF", "ASC_PROTCATVTF", "ASC_PROTCATBLOSUM62F",
-						"ASC_PROTCATMTMAMF", "ASC_PROTCATLGF", "ASC_PROTCATMTARTF", "ASC_PROTCATMTZOAF",
-						"ASC_PROTCATPMBF", "ASC_PROTCATHIVBF", "ASC_PROTCATHIVWF", "ASC_PROTCATJTTDCMUTF",
-						"ASC_PROTCATFLUF", "ASC_PROTCATSTMTREVF", "ASC_PROTCATDUMMYF", "ASC_PROTCATDUMMY2F",
-						"ASC_PROTCATAUTOF", "ASC_PROTCATLG4MF", "ASC_PROTCATLG4XF", "ASC_PROTCATPROT_FILEF",
-						"ASC_PROTCATGTR_UNLINKEDF", "ASC_PROTCATGTRF", "PROTCATIDAYHOFFF", "PROTCATIDCMUTF",
-						"PROTCATIJTTF", "PROTCATIMTREVF", "PROTCATIWAGF", "PROTCATIRTREVF", "PROTCATICPREVF",
-						"PROTCATIVTF", "PROTCATIBLOSUM62F", "PROTCATIMTMAMF", "PROTCATILGF", "PROTCATIMTARTF",
-						"PROTCATIMTZOAF", "PROTCATIPMBF", "PROTCATIHIVBF", "PROTCATIHIVWF", "PROTCATIJTTDCMUTF",
-						"PROTCATIFLUF", "PROTCATISTMTREVF", "PROTCATIDUMMYF", "PROTCATIDUMMY2F", "PROTCATIAUTOF",
-						"PROTCATILG4MF", "PROTCATILG4XF", "PROTCATIPROT_FILEF", "PROTCATIGTR_UNLINKEDF",
-						"PROTCATIGTRF", "PROTGAMMADAYHOFFF", "PROTGAMMADCMUTF", "PROTGAMMAJTTF", "PROTGAMMAMTREVF",
-						"PROTGAMMAWAGF", "PROTGAMMARTREVF", "PROTGAMMACPREVF", "PROTGAMMAVTF", "PROTGAMMABLOSUM62F",
-						"PROTGAMMAMTMAMF", "PROTGAMMALGF", "PROTGAMMAMTARTF", "PROTGAMMAMTZOAF", "PROTGAMMAPMBF",
-						"PROTGAMMAHIVBF", "PROTGAMMAHIVWF", "PROTGAMMAJTTDCMUTF", "PROTGAMMAFLUF",
-						"PROTGAMMASTMTREVF", "PROTGAMMADUMMYF", "PROTGAMMADUMMY2F", "PROTGAMMAAUTOF",
-						"PROTGAMMALG4MF", "PROTGAMMALG4XF", "PROTGAMMAPROT_FILEF", "PROTGAMMAGTR_UNLINKEDF",
-						"PROTGAMMAGTRF", "ASC_PROTGAMMADAYHOFFF", "ASC_PROTGAMMADCMUTF", "ASC_PROTGAMMAJTTF",
-						"ASC_PROTGAMMAMTREVF", "ASC_PROTGAMMAWAGF", "ASC_PROTGAMMARTREVF", "ASC_PROTGAMMACPREVF",
-						"ASC_PROTGAMMAVTF", "ASC_PROTGAMMABLOSUM62F", "ASC_PROTGAMMAMTMAMF", "ASC_PROTGAMMALGF",
-						"ASC_PROTGAMMAMTARTF", "ASC_PROTGAMMAMTZOAF", "ASC_PROTGAMMAPMBF", "ASC_PROTGAMMAHIVBF",
-						"ASC_PROTGAMMAHIVWF", "ASC_PROTGAMMAJTTDCMUTF", "ASC_PROTGAMMAFLUF",
-						"ASC_PROTGAMMASTMTREVF", "ASC_PROTGAMMADUMMYF", "ASC_PROTGAMMADUMMY2F",
-						"ASC_PROTGAMMAAUTOF", "ASC_PROTGAMMALG4MF", "ASC_PROTGAMMALG4XF", "ASC_PROTGAMMAPROT_FILEF",
-						"ASC_PROTGAMMAGTR_UNLINKEDF", "ASC_PROTGAMMAGTRF", "PROTGAMMAIDAYHOFFF", "PROTGAMMAIDCMUTF",
-						"PROTGAMMAIJTTF", "PROTGAMMAIMTREVF", "PROTGAMMAIWAGF", "PROTGAMMAIRTREVF",
-						"PROTGAMMAICPREVF", "PROTGAMMAIVTF", "PROTGAMMAIBLOSUM62F", "PROTGAMMAIMTMAMF",
-						"PROTGAMMAILGF", "PROTGAMMAIMTARTF", "PROTGAMMAIMTZOAF", "PROTGAMMAIPMBF",
-						"PROTGAMMAIHIVBF", "PROTGAMMAIHIVWF", "PROTGAMMAIJTTDCMUTF", "PROTGAMMAIFLUF",
-						"PROTGAMMAISTMTREVF", "PROTGAMMAIDUMMYF", "PROTGAMMAIDUMMY2F", "PROTGAMMAIAUTOF",
-						"PROTGAMMAILG4MF", "PROTGAMMAILG4XF", "PROTGAMMAIPROT_FILEF", "PROTGAMMAIGTR_UNLINKEDF",
-						"PROTGAMMAIGTRF", "PROTCATDAYHOFFX", "PROTCATDCMUTX", "PROTCATJTTX", "PROTCATMTREVX",
-						"PROTCATWAGX", "PROTCATRTREVX", "PROTCATCPREVX", "PROTCATVTX", "PROTCATBLOSUM62X",
-						"PROTCATMTMAMX", "PROTCATLGX", "PROTCATMTARTX", "PROTCATMTZOAX", "PROTCATPMBX",
-						"PROTCATHIVBX", "PROTCATHIVWX", "PROTCATJTTDCMUTX", "PROTCATFLUX", "PROTCATSTMTREVX",
-						"PROTCATDUMMYX", "PROTCATDUMMY2X", "PROTCATAUTOX", "PROTCATLG4MX", "PROTCATLG4XX",
-						"PROTCATPROT_FILEX", "PROTCATGTR_UNLINKEDX", "PROTCATGTRX", "ASC_PROTCATDAYHOFFX",
-						"ASC_PROTCATDCMUTX", "ASC_PROTCATJTTX", "ASC_PROTCATMTREVX", "ASC_PROTCATWAGX",
-						"ASC_PROTCATRTREVX", "ASC_PROTCATCPREVX", "ASC_PROTCATVTX", "ASC_PROTCATBLOSUM62X",
-						"ASC_PROTCATMTMAMX", "ASC_PROTCATLGX", "ASC_PROTCATMTARTX", "ASC_PROTCATMTZOAX",
-						"ASC_PROTCATPMBX", "ASC_PROTCATHIVBX", "ASC_PROTCATHIVWX", "ASC_PROTCATJTTDCMUTX",
-						"ASC_PROTCATFLUX", "ASC_PROTCATSTMTREVX", "ASC_PROTCATDUMMYX", "ASC_PROTCATDUMMY2X",
-						"ASC_PROTCATAUTOX", "ASC_PROTCATLG4MX", "ASC_PROTCATLG4XX", "ASC_PROTCATPROT_FILEX",
-						"ASC_PROTCATGTR_UNLINKEDX", "ASC_PROTCATGTRX", "PROTCATIDAYHOFFX", "PROTCATIDCMUTX",
-						"PROTCATIJTTX", "PROTCATIMTREVX", "PROTCATIWAGX", "PROTCATIRTREVX", "PROTCATICPREVX",
-						"PROTCATIVTX", "PROTCATIBLOSUM62X", "PROTCATIMTMAMX", "PROTCATILGX", "PROTCATIMTARTX",
-						"PROTCATIMTZOAX", "PROTCATIPMBX", "PROTCATIHIVBX", "PROTCATIHIVWX", "PROTCATIJTTDCMUTX",
-						"PROTCATIFLUX", "PROTCATISTMTREVX", "PROTCATIDUMMYX", "PROTCATIDUMMY2X", "PROTCATIAUTOX",
-						"PROTCATILG4MX", "PROTCATILG4XX", "PROTCATIPROT_FILEX", "PROTCATIGTR_UNLINKEDX",
-						"PROTCATIGTRX", "PROTGAMMADAYHOFFX", "PROTGAMMADCMUTX", "PROTGAMMAJTTX", "PROTGAMMAMTREVX",
-						"PROTGAMMAWAGX", "PROTGAMMARTREVX", "PROTGAMMACPREVX", "PROTGAMMAVTX", "PROTGAMMABLOSUM62X",
-						"PROTGAMMAMTMAMX", "PROTGAMMALGX", "PROTGAMMAMTARTX", "PROTGAMMAMTZOAX", "PROTGAMMAPMBX",
-						"PROTGAMMAHIVBX", "PROTGAMMAHIVWX", "PROTGAMMAJTTDCMUTX", "PROTGAMMAFLUX",
-						"PROTGAMMASTMTREVX", "PROTGAMMADUMMYX", "PROTGAMMADUMMY2X", "PROTGAMMAAUTOX",
-						"PROTGAMMALG4MX", "PROTGAMMALG4XX", "PROTGAMMAPROT_FILEX", "PROTGAMMAGTR_UNLINKEDX",
-						"PROTGAMMAGTRX", "ASC_PROTGAMMADAYHOFFX", "ASC_PROTGAMMADCMUTX", "ASC_PROTGAMMAJTTX",
-						"ASC_PROTGAMMAMTREVX", "ASC_PROTGAMMAWAGX", "ASC_PROTGAMMARTREVX", "ASC_PROTGAMMACPREVX",
-						"ASC_PROTGAMMAVTX", "ASC_PROTGAMMABLOSUM62X", "ASC_PROTGAMMAMTMAMX", "ASC_PROTGAMMALGX",
-						"ASC_PROTGAMMAMTARTX", "ASC_PROTGAMMAMTZOAX", "ASC_PROTGAMMAPMBX", "ASC_PROTGAMMAHIVBX",
-						"ASC_PROTGAMMAHIVWX", "ASC_PROTGAMMAJTTDCMUTX", "ASC_PROTGAMMAFLUX",
-						"ASC_PROTGAMMASTMTREVX", "ASC_PROTGAMMADUMMYX", "ASC_PROTGAMMADUMMY2X",
-						"ASC_PROTGAMMAAUTOX", "ASC_PROTGAMMALG4MX", "ASC_PROTGAMMALG4XX", "ASC_PROTGAMMAPROT_FILEX",
-						"ASC_PROTGAMMAGTR_UNLINKEDX", "ASC_PROTGAMMAGTRX", "PROTGAMMAIDAYHOFFX", "PROTGAMMAIDCMUTX",
-						"PROTGAMMAIJTTX", "PROTGAMMAIMTREVX", "PROTGAMMAIWAGX", "PROTGAMMAIRTREVX",
-						"PROTGAMMAICPREVX", "PROTGAMMAIVTX", "PROTGAMMAIBLOSUM62X", "PROTGAMMAIMTMAMX",
-						"PROTGAMMAILGX", "PROTGAMMAIMTARTX", "PROTGAMMAIMTZOAX", "PROTGAMMAIPMBX",
-						"PROTGAMMAIHIVBX", "PROTGAMMAIHIVWX", "PROTGAMMAIJTTDCMUTX", "PROTGAMMAIFLUX",
-						"PROTGAMMAISTMTREVX", "PROTGAMMAIDUMMYX", "PROTGAMMAIDUMMY2X", "PROTGAMMAIAUTOX",
-						"PROTGAMMAILG4MX", "PROTGAMMAILG4XX", "PROTGAMMAIPROT_FILEX", "PROTGAMMAIGTR_UNLINKEDX",
-						"PROTGAMMAIGTRX" };
-				if(!Arrays.asList(options).contains(model)) {
-					System.err.println("Error : Invalid protein model named '" + model + "' for RAxML. Enter a proper model.");
-					System.err.println("Exit!");
-					System.exit(1);
-				}
-			}else if(phylogenyTool.equals(PhylogenyTool.fasttree)) {
-				if (!model.equalsIgnoreCase("JTTcat") && !model.equalsIgnoreCase("LGcat")
-						&& !model.equalsIgnoreCase("WAGcat") && !model.equalsIgnoreCase("JTTgamma")
-						&& !model.equalsIgnoreCase("LGgamma") && !model.equalsIgnoreCase("WAGgamma")) {
-					System.err.println("Error : Invalid protein model named '" + model + "' for FastTree. Enter a proper model.");
-					System.err.println("Exit!");
-					System.exit(1);
-				}
-			}
-		}else {
-			if (phylogenyTool.equals(PhylogenyTool.raxml)) {
-				String[] options = { "GTRCAT", "GTRCATI", "ASC_GTRCAT", "GTRGAMMA", "ASC_GTRGAMMA", "GTRGAMMAI",
-						"GTRCATX", "GTRCATIX", "ASC_GTRCATX", "GTRGAMMAX", "ASC_GTRGAMMAX", "GTRGAMMAIX" };
-
-				if(!Arrays.asList(options).contains(model)) {
-					System.err.println("Error : Invalid DNA model named '" + model + "' for RAxML. Enter a proper model.");
-					System.err.println("Exit!");
-					System.exit(1);
-				}
-			} else {
-				if (!model.equalsIgnoreCase("JCcat") && !model.equalsIgnoreCase("GTRcat")
-						&& !model.equalsIgnoreCase("JCgamma") && !model.equalsIgnoreCase("GTRgamma")) {
-					System.err.println("Error : Invalid DNA model named '" + model + "' for FastTree. Enter a proper model.");
-					System.err.println("Exit!");
-					System.exit(1);
-				}
-			}
+			if(phylogenyTool.equals(PhylogenyTool.raxml)) options = GenericConfig.PROTEIN_RAXML_MODELS;
+			if(phylogenyTool.equals(PhylogenyTool.fasttree)) options = GenericConfig.PROTEIN_FASTTREE_MODELS; 
+		}
+		else { // nucleotide
+			if(phylogenyTool.equals(PhylogenyTool.raxml)) options = GenericConfig.NUCLEOTIDE_RAXML_MODELS;
+			if(phylogenyTool.equals(PhylogenyTool.fasttree)) options = GenericConfig.NUCLEOTIDE_FASTTREE_MODELS;
 		}
 		
-		
+		if(!Arrays.asList(options).contains(model)) {
+			ExceptionHandler.pass(model);
+			ExceptionHandler.handle(ExceptionHandler.INVALID_MODEL);
+		}		
 	}
 	
-	private void validateParametersreplace() {
+	private void validateParametersReplace() {
 		
 		final String[] validatedLeaf = {"-uid", "-acc", "-label", "-taxon", "-strain", "-type", "-taxonomy"};
 		List<String> validatedLeafOptionList = Arrays.asList(validatedLeaf);
@@ -656,10 +498,8 @@ public class TreeModule {
 		
 		for(String param : paramList) {
 			if(param.startsWith("-")&& !validatedLeafOptionList.contains(param)) {
-				System.err.println("Error!");
-				System.err.println("Invalid option " + param);
-				System.err.println("Exit!");
-				System.exit(1);
+				ExceptionHandler.pass(param);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
 			}
 		}
 	}
@@ -704,16 +544,12 @@ public class TreeModule {
 
 			pathBR.close();
 
-			if (mafftPath == null || fasttreePath == null
-					|| raxmlPath == null) {
-				System.err.println("Error : The external program path is not properly set. Check the path file.");
-				System.exit(1);
+			if (mafftPath == null || fasttreePath == null || raxmlPath == null) {
+				ExceptionHandler.handle(ExceptionHandler.INVALID_PROGRAM_PATH);
 			}
 
 		} catch (IOException e) {
-			System.err.println("Error occurred!");
-			System.err.println(e.getMessage());
-			System.exit(1);
+			ExceptionHandler.handle(e);
 		}
 	}
 	
