@@ -406,12 +406,18 @@ public class GenericConfig {
 	PROTEIN_FASTTREE_MODELS = {
 		"JTTcat", "LGcat", "WAGcat", "JTTgamma", "LGgamma", "WAGgamma"
 	},
+	PROTEIN_IQTREE_MODELS = {
+			
+	},
 	NUCLEOTIDE_RAXML_MODELS = {
 		"GTRCAT", "GTRCATI", "ASC_GTRCAT", "GTRGAMMA", "ASC_GTRGAMMA", "GTRGAMMAI",
 		"GTRCATX", "GTRCATIX", "ASC_GTRCATX", "GTRGAMMAX", "ASC_GTRGAMMAX", "GTRGAMMAIX"
 	},
 	NUCLEOTIDE_FASTTREE_MODELS = {
 		"JCcat", "GTRcat", "JCgamma", "GTRgamma"
+	},
+	NUCLEOTIDE_IQTREE_MODELS = {
+			
 	};
 			
 	

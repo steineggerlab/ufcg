@@ -39,5 +39,9 @@ public class MafftForGeneSet {
 		
 		return processGobbler;
 	}
-
+	
+	@Override
+	public String toString() {
+		return String.join(" ", arguments);
+	}
 }

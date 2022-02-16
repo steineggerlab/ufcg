@@ -123,11 +123,13 @@ public class ModuleHandler {
 			}
 			if(cmd.hasOption("p")) {
 				String prog = cmd.getOptionValue("p");
-				if(!(prog.equals("raxml") || prog.equals("fasttree"))) {
+				if(!(prog.equals("raxml") || prog.equals("fasttree") || prog.equals("iqtree"))) {
 					ExceptionHandler.pass(prog);
 					ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
 				}
-				if(prog.equals("fasttree")) argList.add("-fasttree");
+				if(prog.equalsIgnoreCase("fasttree")) argList.add("-fasttree");
+				if(prog.startsWith("iq") || prog.startsWith("IQ")) argList.add("-iqtree");
+				if(prog.startsWith("ra") || prog.startsWith("RA")) argList.add("-raxml");
 			}
 			if(cmd.hasOption("m")) {
 				argList.add("-m");

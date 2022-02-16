@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -61,7 +62,8 @@ private String runOutDirName = null;
 
 private String mafftPath = null;
 private String raxmlPath = null;
-private String fastTreePath = null;
+private String fasttreePath = null;
+private String iqtreePath = null;
 
 private AlignMode alignMode = AlignMode.codon;
 private int filtering = 50; // removes the column which has more than 50% gaps
@@ -87,7 +89,7 @@ private String logFileName = null;
 private String trmFile = null;
 
 public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirName, String mafftPath, 
-        String raxmlPath, String fastTreePath, 
+        String raxmlPath, String fasttreePath, String iqtreePath,
         AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels) {
 	
 	if (!ucgDirectory.endsWith(File.separator)) {
@@ -110,7 +112,8 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 	
 	this.mafftPath = mafftPath;
 	this.raxmlPath = raxmlPath;
-	this.fastTreePath = fastTreePath;
+	this.fasttreePath = fasttreePath;
+	this.iqtreePath = iqtreePath;
 	this.genomeList = new ArrayList<>();
 	this.replaceMap = new HashMap<>();
 	this.targetGenes = new ArrayList<>();
@@ -144,13 +147,10 @@ public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 }
 
 void checkThirdPartyPrograms(PhylogenyTool phylogenyTool) {
-	if(phylogenyTool.equals(PhylogenyTool.fasttree)) {
-		testMafft(mafftPath);
-		testFasttree(fastTreePath);
-	}else if(phylogenyTool.equals(PhylogenyTool.raxml)) {
-		testMafft(mafftPath);
-		testRaxml(raxmlPath);
-	}
+	testMafft(mafftPath);
+	if(phylogenyTool.equals(PhylogenyTool.fasttree)) testFasttree(fasttreePath);
+	if(phylogenyTool.equals(PhylogenyTool.raxml)) testRaxml(raxmlPath);
+	if(phylogenyTool.equals(PhylogenyTool.iqtree)) testIqtree(iqtreePath);
 }
 
 private void testMafft(String mafftPath) {
@@ -173,9 +173,13 @@ private void testMafft(String mafftPath) {
 		String s;
 
 		while ((s = stdOut.readLine()) != null) {
+			if (s.contains("MAFFT")) {
+				mafft = true;
+				break;
+			}
 		}
 		while ((s = stdError.readLine()) != null) {
-			if (s.contains("  MAFFT ")) {
+			if (s.contains("MAFFT")) {
 				mafft = true;
 				break;
 			}
@@ -200,28 +204,32 @@ private void testMafft(String mafftPath) {
 	}
 }
 private void testFasttree(String fasttreePath) {
-	// FastTree 2.1.10 SSE3
+	// fasttree 2.1.10 SSE3
 	boolean fasttree = false;
 
-	List<String> argFasttree = new ArrayList<>();
-	argFasttree.add(fasttreePath);
-	argFasttree.add("-help");
+	List<String> argfasttree = new ArrayList<>();
+	argfasttree.add(fasttreePath);
+	argfasttree.add("-help");
 
 	try {
 		Prompt.talk("Running command : " + fasttreePath + " -help");
-		Process testFasttree = new ProcessBuilder(argFasttree).start();
+		Process testfasttree = new ProcessBuilder(argfasttree).start();
 
-		BufferedReader stdOut = new BufferedReader(new InputStreamReader(testFasttree.getInputStream()));
-		BufferedReader stdError = new BufferedReader(new InputStreamReader(testFasttree.getErrorStream()));
-//		BufferedOutputStream stdin = new BufferedOutputStream(testFasttree.getOutputStream());
+		BufferedReader stdOut = new BufferedReader(new InputStreamReader(testfasttree.getInputStream()));
+		BufferedReader stdError = new BufferedReader(new InputStreamReader(testfasttree.getErrorStream()));
+//		BufferedOutputStream stdin = new BufferedOutputStream(testfasttree.getOutputStream());
 
 		String s;
 
 		while ((s = stdOut.readLine()) != null) {
+			if (s.contains("Common")) {
+				fasttree = true;
+				break;
+			}
 		}
 
 		while ((s = stdError.readLine()) != null) {
-			if (s.contains("FastTree ")) {
+			if (s.contains("Common")) {
 				fasttree = true;
 				break;
 			}
@@ -231,7 +239,7 @@ private void testFasttree(String fasttreePath) {
 		stdError.close();
 
 		try {
-			testFasttree.waitFor();
+			testfasttree.waitFor();
 		} catch (InterruptedException e) {
 			ExceptionHandler.handle(e);
 		}
@@ -270,6 +278,10 @@ private void testRaxml(String raxmlPath) {
 		}
 
 		while ((s = stdError.readLine()) != null) {
+			if (s.contains("This is RAxML")) {
+				raxml = true;
+				break;
+			}
 		}
 
 		stdOut.close();
@@ -287,6 +299,54 @@ private void testRaxml(String raxmlPath) {
 
 	if (!raxml) {
 		ExceptionHandler.pass("RAxML");
+		ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
+	}
+}
+private void testIqtree(String fasttreePath) {
+	boolean iqtree = false;
+
+	List<String> argiqtree = new ArrayList<>();
+	argiqtree.add(iqtreePath);
+	argiqtree.add("-h");
+
+	try {
+		Prompt.talk("Running command : " + iqtreePath + " -h");
+		Process testiqtree = new ProcessBuilder(argiqtree).start();
+
+		BufferedReader stdOut = new BufferedReader(new InputStreamReader(testiqtree.getInputStream()));
+		BufferedReader stdError = new BufferedReader(new InputStreamReader(testiqtree.getErrorStream()));
+//		BufferedOutputStream stdin = new BufferedOutputStream(testfasttree.getOutputStream());
+
+		String s;
+
+		while ((s = stdOut.readLine()) != null) {
+			if (s.contains("IQ-TREE")) {
+				iqtree = true;
+				break;
+			}
+		}
+		while ((s = stdError.readLine()) != null) {
+			if (s.contains("IQ-TREE")) {
+				iqtree = true;
+				break;
+			}
+		}
+
+		stdOut.close();
+		stdError.close();
+
+		try {
+			testiqtree.waitFor();
+		} catch (InterruptedException e) {
+			ExceptionHandler.handle(e);
+		}
+
+	} catch (IOException e) {
+		ExceptionHandler.handle(e);
+	}
+
+	if (!iqtree) {
+		ExceptionHandler.pass("iqtree");
 		ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 	}
 }
@@ -540,11 +600,9 @@ void concatenateAlignedGenesRemoveGaps() {
 void inferTree(PhylogenyTool tool, int nThreads) {
 	Prompt.print("Reconstructing the final tree...");
 	
-	if(tool.equals(PhylogenyTool.raxml)) {
-		runRaxml(nThreads);
-	}else if(tool.equals(PhylogenyTool.fasttree)) {
-		runFasttree(nThreads);
-	}
+	if(tool.equals(PhylogenyTool.raxml)) runRaxml(nThreads);
+	if(tool.equals(PhylogenyTool.fasttree)) runfasttree(nThreads);
+	if(tool.equals(PhylogenyTool.iqtree)) runIqtree(nThreads); 
 	
 	Prompt.print("The final tree was written in : " + ANSIHandler.wrapper(treeLabelFileName, 'B'));
 }
@@ -606,18 +664,26 @@ void inferGeneTrees(PhylogenyTool phylogenyTool, int nThreads) {
 	// infer gene trees
 	if (phylogenyTool.equals(PhylogenyTool.raxml)) {
 		for (String ucg : usedGenes) {
-			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleTreeRaxml(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), raxmlPath, counterTree, ucg, alignMode,
-					numOfGenes, outDirectory, model));
-			futures.add(f);
-		}
-	} else {
-		for (String ucg : usedGenes) {
-			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), fastTreePath, counterTree, ucg, alignMode,
+			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleRaxml(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), raxmlPath, counterTree, ucg, alignMode,
 					numOfGenes, outDirectory, model));
 			futures.add(f);
 		}
 	}
-
+	else if (phylogenyTool.equals(PhylogenyTool.fasttree)){
+		for (String ucg : usedGenes) {
+			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleFastTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), fasttreePath, counterTree, ucg, alignMode,
+					numOfGenes, outDirectory, model));
+			futures.add(f);
+		}
+	}
+	else { // if(phylogenyTool.equals(PhylogenyTool.iqtree)
+		for (String ucg : usedGenes) {
+			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleIqTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), iqtreePath, counterTree, ucg, alignMode,
+					numOfGenes, outDirectory, model));
+			futures.add(f);
+		}
+	}
+	
 	exeServiceTree.shutdown();
 
 	try {
@@ -854,13 +920,13 @@ private void runRaxml(int nThreads) {
 	}
 	
 	argTree.add("-p");
-	argTree.add("123");
+	argTree.add(String.valueOf(new Random().nextInt(10000)));
 	
 	argTree.add("-f");
 	argTree.add("a");
 	
 	argTree.add("-x");
-	argTree.add("123");
+	argTree.add(String.valueOf(new Random().nextInt(10000)));
 	
 	argTree.add("-N");
 	argTree.add("100");
@@ -879,7 +945,7 @@ private void runRaxml(int nThreads) {
 	new File("RAxML_result." + prefix).delete();
 
 }
-private void runFasttree(int nThreads) {
+private void runfasttree(int nThreads) {
 	
 	List<String> argTree = new ArrayList<String>();
 	
@@ -888,40 +954,66 @@ private void runFasttree(int nThreads) {
 	
 	if(model==null) {
 		if (alignMode.equals(AlignMode.protein)) {
-			argTree.add(fastTreePath + " " + concatenatedSeqFileName + " > " + treeZzFileName);
+			argTree.add(fasttreePath + " " + concatenatedSeqFileName + " > " + treeZzFileName);
 		} else {
-			argTree.add(fastTreePath + " -nt -gtr < " + concatenatedSeqFileName + " > " + treeZzFileName);
+			argTree.add(fasttreePath + " -nt -gtr < " + concatenatedSeqFileName + " > " + treeZzFileName);
 		}
 	}else {
 		if(alignMode.equals(AlignMode.protein)) {
 			if (model.equalsIgnoreCase("JTTcat")) {
-				argTree.add(fastTreePath + " " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " " + concatenatedSeqFileName + " > " + treeZzFileName);
 			} else if (model.equalsIgnoreCase("LGcat")) {
-				argTree.add(fastTreePath + " -lg " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " -lg " + concatenatedSeqFileName + " > " + treeZzFileName);
 			} else if (model.equalsIgnoreCase("WAGcat")) {
-				argTree.add(fastTreePath + " -wag " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " -wag " + concatenatedSeqFileName + " > " + treeZzFileName);
 			} else if (model.equalsIgnoreCase("JTTgamma")) {
-				argTree.add(fastTreePath + " -gamma " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " -gamma " + concatenatedSeqFileName + " > " + treeZzFileName);
 			} else if (model.equalsIgnoreCase("LGgamma")) {
-				argTree.add(fastTreePath + " -lg -gamma " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " -lg -gamma " + concatenatedSeqFileName + " > " + treeZzFileName);
 			} else if (model.equalsIgnoreCase("WAGgamma")) {
-				argTree.add(fastTreePath + " -wag -gamma " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " -wag -gamma " + concatenatedSeqFileName + " > " + treeZzFileName);
 			}
 		}else {
 			if (model.equalsIgnoreCase("JCcat")) {
-				argTree.add(fastTreePath + " -nt " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " -nt " + concatenatedSeqFileName + " > " + treeZzFileName);
 			} else if (model.equalsIgnoreCase("GTRcat")) {
-				argTree.add(fastTreePath + " -nt -gtr < " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " -nt -gtr < " + concatenatedSeqFileName + " > " + treeZzFileName);
 			} else if (model.equalsIgnoreCase("JCgamma")) {
-				argTree.add(fastTreePath + " -nt -gamma < " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " -nt -gamma < " + concatenatedSeqFileName + " > " + treeZzFileName);
 			} else if (model.equalsIgnoreCase("GTRgamma")) {
-				argTree.add(fastTreePath + " -nt -gtr -gamma < " + concatenatedSeqFileName + " > " + treeZzFileName);
+				argTree.add(fasttreePath + " -nt -gtr -gamma < " + concatenatedSeqFileName + " > " + treeZzFileName);
 			}
 		}
 	}
 	
 	
 	runPhylogenyToolByProcess(argTree, PhylogenyTool.fasttree);
+}
+private void runIqtree(int nThreads) {
+	List<String> argTree = new ArrayList<String>();
+	
+	argTree.add(iqtreePath);
+	argTree.add("-s");
+	argTree.add(concatenatedSeqFileName);
+	argTree.add("-T");
+	argTree.add(String.valueOf(nThreads));
+	argTree.add("--quiet");
+	
+	argTree.add("-m");
+	if(model==null) {
+		if(alignMode.equals(AlignMode.protein)) argTree.add("JTT+F+I+G");
+		else argTree.add("GTR+F+I+G");
+	}
+	else argTree.add(model);
+	
+	runPhylogenyToolByProcess(argTree, PhylogenyTool.iqtree);
+	
+	new File(concatenatedSeqFileName + ".treefile").renameTo(new File(treeZzFileName));	
+	new File(concatenatedSeqFileName + ".iqtree").delete();
+	new File(concatenatedSeqFileName + ".bionj").delete();
+	new File(concatenatedSeqFileName + ".log").delete();
+	new File(concatenatedSeqFileName + ".mldist").delete();
+	new File(concatenatedSeqFileName + ".ckp.gz").delete();
 }
 
 private void runPhylogenyToolByProcess(List<String> argTree, PhylogenyTool phylogenyTool) {
@@ -1450,6 +1542,7 @@ public ProcessGobbler call() throws IOException, InterruptedException{
 		mw.setInputOutput(fastaFile, alignedFastaFile);
 	}
 	
+	Prompt.debug("Running command : " + ANSIHandler.wrapper(mw.toString(), 'B'));
 	ProcessGobbler processGobbler = mw.execute();
 	
 	// finished
@@ -1460,7 +1553,7 @@ public ProcessGobbler call() throws IOException, InterruptedException{
 }
 
 //used to infer gene trees using multi core
-class multipleTree implements Callable<ProcessGobbler> {
+class multipleFastTree implements Callable<ProcessGobbler> {
 String alignedFastaFile;
 String run_id;
 String programPath;
@@ -1471,7 +1564,7 @@ int ucgNum;
 String outputDir;
 String model;
 
-public multipleTree(String alignedFastaFile, String run_id, String programPath, int[] counter, String ucg, AlignMode alignMode,
+public multipleFastTree(String alignedFastaFile, String run_id, String programPath, int[] counter, String ucg, AlignMode alignMode,
 		 int ucgNum, String outputDir, String model) {
 	this.alignedFastaFile = alignedFastaFile;
 	this.run_id = run_id;
@@ -1498,7 +1591,7 @@ public ProcessGobbler call() throws IOException{
 
 	File inputFile = new File(alignedFastaFile);
 	if (!inputFile.exists()) {
-		ProcessGobbler processGobbler = new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' doesn't exist to run FastTree!");
+		ProcessGobbler processGobbler = new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' doesn't exist to run FastTree.");
 		return processGobbler;
 	}
 
@@ -1553,6 +1646,7 @@ public ProcessGobbler call() throws IOException{
 
 	}
 	
+	Prompt.debug("Running command : " + ANSIHandler.wrapper(String.join(" ", argTree), 'B'));
 	Process tree = new ProcessBuilder(argTree).start();
 
 	StreamGobbler outGobbler = new StreamGobbler(tree.getInputStream(), null, false);
@@ -1580,7 +1674,7 @@ public ProcessGobbler call() throws IOException{
 }
 
 //for RAxML
-class multipleTreeRaxml implements Callable<ProcessGobbler> {
+class multipleRaxml implements Callable<ProcessGobbler> {
 String alignedFastaFile;
 String run_id;
 String programPath;
@@ -1591,7 +1685,7 @@ int ucgNum;
 String outputDir;
 String model;
 
-public multipleTreeRaxml(String alignedFastaFile, String run_id, String programPath, int[] counter, String ucg,
+public multipleRaxml(String alignedFastaFile, String run_id, String programPath, int[] counter, String ucg,
 	 AlignMode alignMode, int ucgNum, String outputDir, String model) {
 	this.alignedFastaFile = alignedFastaFile;
 	this.run_id = run_id;
@@ -1618,7 +1712,7 @@ public ProcessGobbler call() throws IOException{
 
 	File inputFile = new File(alignedFastaFile);
 	if (!inputFile.exists()) {
-		return new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' doesn't exist to run RAxML!");
+		return new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' doesn't exist to run RAxML.");
 	}
 
 	argTree.add("-s");
@@ -1643,17 +1737,18 @@ public ProcessGobbler call() throws IOException{
 	}
 
 	argTree.add("-p");
-	argTree.add("123");
+	argTree.add(String.valueOf(new Random().nextInt(10000)));
 	
 	argTree.add("-f");
 	argTree.add("a");
 	
 	argTree.add("-x");
-	argTree.add("123");
-	
+	argTree.add(String.valueOf(new Random().nextInt(10000)));	
+
 	argTree.add("-N");
 	argTree.add("100");
-
+	
+	Prompt.debug("Running command : " + ANSIHandler.wrapper(String.join(" ", argTree), 'B'));
 	Process tree = new ProcessBuilder(argTree).start();
 
 	StreamGobbler outGobbler = new StreamGobbler(tree.getInputStream(), null, false);
@@ -1689,6 +1784,92 @@ public ProcessGobbler call() throws IOException{
 	if (reducedFile.exists()) {
 		reducedFile.delete();
 	}
+
+	// finished
+	updateCounter(ucg, counter, ucgNum);
+
+	return processGobbler;
+}
+}
+
+class multipleIqTree implements Callable<ProcessGobbler> {
+String alignedFastaFile;
+String run_id;
+String programPath;
+int[] counter;
+String ucg;
+AlignMode alignMode;
+int ucgNum;
+String outputDir;
+String model;
+
+public multipleIqTree(String alignedFastaFile, String run_id, String programPath, int[] counter, String ucg,
+	 AlignMode alignMode, int ucgNum, String outputDir, String model) {
+	this.alignedFastaFile = alignedFastaFile;
+	this.run_id = run_id;
+	this.programPath = programPath;
+	this.counter = counter;
+	this.ucg = ucg;
+	this.alignMode = alignMode;
+	this.ucgNum = ucgNum;
+	this.outputDir = outputDir;
+	this.model = model;
+}
+
+public static synchronized void updateCounter(String ucg, int[] counter, int ucgNum) {
+	counter[0]++;
+	String msg = "'" + ucg + "' tree was reconstructed. (" + counter[0] + " / " + ucgNum + ")";
+	Prompt.talk(msg);
+}
+
+public ProcessGobbler call() throws IOException{
+	List<String> argTree = new ArrayList<String>();
+
+	argTree.add(programPath);
+
+
+	File inputFile = new File(alignedFastaFile);
+	if (!inputFile.exists()) {
+		return new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' doesn't exist to run IQ-TREE.");
+	}
+
+	argTree.add("-s");
+	argTree.add(alignedFastaFile);
+	
+	argTree.add("-m");
+	if (model == null) {
+		if (alignMode.equals(AlignMode.protein)) argTree.add("JTT+F+I+G");
+		else argTree.add("GTR+F+I+G");
+	} else argTree.add(model);
+	
+	Prompt.debug("Running command : " + ANSIHandler.wrapper(String.join(" ", argTree), 'B'));
+	Process tree = new ProcessBuilder(argTree).start();
+
+	StreamGobbler outGobbler = new StreamGobbler(tree.getInputStream(), null, false);
+	StreamGobbler errorGobbler = new StreamGobbler(tree.getErrorStream(), null, false);
+
+	outGobbler.start();
+	errorGobbler.start();
+
+	try {
+		tree.waitFor();
+	} catch (InterruptedException e) {
+		System.err.println(e.getMessage());
+		System.exit(1);
+	}
+
+	int exitValue = tree.exitValue();
+	String errorLog = errorGobbler.LogMessage();
+
+	ProcessGobbler processGobbler = new ProcessGobbler(exitValue, errorLog);
+	
+	
+	new File(alignedFastaFile + ".treefile").renameTo(new File(outputDir + run_id + File.separator+ ucg + ".zZ.nwk"));
+	new File(alignedFastaFile + ".iqtree").delete();
+	new File(alignedFastaFile + ".bionj").delete();
+	new File(alignedFastaFile + ".log").delete();
+	new File(alignedFastaFile + ".mldist").delete();
+	new File(alignedFastaFile + ".ckp.gz").delete();
 
 	// finished
 	updateCounter(ucg, counter, ucgNum);

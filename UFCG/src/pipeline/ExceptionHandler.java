@@ -114,7 +114,7 @@ public class ExceptionHandler {
 		case INVALID_MODEL:
 			System.out.println("Invalid tree building model given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		case INVALID_PROGRAM_PATH:
-			System.out.println("Program path file is not properly set."); break;
+			System.out.println("Tree config file (config/tree.cfg) is not properly set."); break;
 		case INVALID_ALIGN_MODE:
 			System.out.println("Invalid align mode given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		}

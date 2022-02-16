@@ -71,8 +71,10 @@ public class TreeModule {
 		
 		String mafftPath = programPath.get("mafft");
 		String raxmlPath = programPath.get("raxml");
-		String fastTreePath = programPath.get("fasttree");
-		PhylogenyTool phylogenyTool = PhylogenyTool.raxml;
+		String fasttreePath = programPath.get("fasttree");
+		String iqtreePath = programPath.get("iqtree");
+		
+		PhylogenyTool phylogenyTool = PhylogenyTool.iqtree;
 		
 		String runOutDirName = "";
 		int nThreads = 1;
@@ -131,9 +133,9 @@ public class TreeModule {
 			ExceptionHandler.handle(e);
 		}	
 		
-		if (arg.get("-fasttree")!=null) {
-			phylogenyTool = PhylogenyTool.fasttree;
-		}
+		if (arg.get("-raxml") != null) phylogenyTool = PhylogenyTool.raxml;
+		if (arg.get("-fasttree") != null) phylogenyTool = PhylogenyTool.fasttree;
+		if (arg.get("-iqtree") != null) phylogenyTool = PhylogenyTool.iqtree;
 		
 		validateParametersAlign(phylogenyTool, alignMode);
 		
@@ -188,7 +190,7 @@ public class TreeModule {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
 		}
 		
-		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runOutDirName, mafftPath, raxmlPath, fastTreePath, alignMode, filtering, model, gsi_threshold, outputLabels);
+		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runOutDirName, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels);
 
 		try {
 			proc.jsonsToTree(nThreads, phylogenyTool);
@@ -203,9 +205,7 @@ public class TreeModule {
 		Arguments arg = new Arguments(parameters);
 
 		if (parameters.length < 4) {
-			System.err.println("Error : Enter proper parameters.");
-			System.err.println("Exit!");
-			System.exit(1);
+			ExceptionHandler.handle(ExceptionHandler.UNEXPECTED_ERROR);
 		}
 		
 		validateParametersReplace();
@@ -216,13 +216,13 @@ public class TreeModule {
 		File trmFile = new File(trmFileName);
 
 		if (!trmFile.exists()) {
-			System.err.println("Error : The file named '" + trmFile + "' doesn't exists!");
-			System.exit(1);
+			ExceptionHandler.pass(trmFile);
+			ExceptionHandler.handle(ExceptionHandler.INVALID_FILE);
 		}
 
 		if (!new File(System.getProperty("user.dir")).canWrite()) {
-			System.err.println("Error : Cannot write a file in the current working directory.");
-			System.exit(1);
+			ExceptionHandler.pass("Cannot write a file in the current working directory.");
+			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 		}
 
 		try {
@@ -232,21 +232,19 @@ public class TreeModule {
 			JSONObject jsonObject = new JSONObject(content);
 
 			if(!jsonObject.keySet().contains(gene)) {
-				System.err.println("Error : No " + gene + " tree in the trm file.");
-				System.err.println("Exit!");
-				System.exit(1);
+				ExceptionHandler.pass("No " + gene + " tree in the .trm file.");
+				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
 			if(jsonObject.get(gene)==null||jsonObject.get(gene).equals("")) {
-				System.err.println("Error : No " + gene + " tree in the trm file.");
-				System.err.println("Exit!");
-				System.exit(1);
+				ExceptionHandler.pass("No " + gene + " tree in the .trm file.");
+				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
 			
 			String nwk = (String) jsonObject.get(gene);
 
 			if (nwk == null) {
-				System.err.println("The " + gene + " tree doesn't exist!");
-				System.exit(1);
+				ExceptionHandler.pass("The " + gene + " tree doesn't exist.");
+				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
 
 			HashMap<String, String> replaceMap = new HashMap<String, String>();
@@ -428,7 +426,7 @@ public class TreeModule {
 
 	private void validateParametersAlign(PhylogenyTool phylogenyTool, AlignMode alignMode) {
 		
-		final String[] validatedOptions = {"-ucg_dir", "-out_dir", "-run_id", "-a", "-t", "-f", "-fasttree", "-m", "-gsi_threshold", "-leaf"};
+		final String[] validatedOptions = {"-ucg_dir", "-out_dir", "-run_id", "-a", "-t", "-f", "-fasttree", "-iqtree", "-raxml", "-m", "-gsi_threshold", "-leaf"};
 		final String[] validatedLeaf = {"uid", "acc", "label", "taxon", "strain", "type", "taxonomy"};
 		List<String> validatedOptionList = Arrays.asList(validatedOptions);
 		List<String> validatedLeafOptionList = Arrays.asList(validatedLeaf);
@@ -477,16 +475,20 @@ public class TreeModule {
 		if(alignMode.equals(AlignMode.protein)) {
 			if(phylogenyTool.equals(PhylogenyTool.raxml)) options = GenericConfig.PROTEIN_RAXML_MODELS;
 			if(phylogenyTool.equals(PhylogenyTool.fasttree)) options = GenericConfig.PROTEIN_FASTTREE_MODELS; 
+			if(phylogenyTool.equals(PhylogenyTool.iqtree)) options = GenericConfig.PROTEIN_IQTREE_MODELS; 
 		}
 		else { // nucleotide
 			if(phylogenyTool.equals(PhylogenyTool.raxml)) options = GenericConfig.NUCLEOTIDE_RAXML_MODELS;
 			if(phylogenyTool.equals(PhylogenyTool.fasttree)) options = GenericConfig.NUCLEOTIDE_FASTTREE_MODELS;
+			if(phylogenyTool.equals(PhylogenyTool.iqtree)) options = GenericConfig.NUCLEOTIDE_IQTREE_MODELS; 
 		}
 		
-		if(!Arrays.asList(options).contains(model)) {
-			ExceptionHandler.pass(model);
-			ExceptionHandler.handle(ExceptionHandler.INVALID_MODEL);
-		}		
+		if(!phylogenyTool.equals(PhylogenyTool.iqtree)) {
+			if(!Arrays.asList(options).contains(model)) {
+				ExceptionHandler.pass(model);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_MODEL);
+			}
+		}
 	}
 	
 	private void validateParametersReplace() {
@@ -513,7 +515,8 @@ public class TreeModule {
 		String mafftPath = null;
 		String fasttreePath = null;
 		String raxmlPath = null;
-
+		String iqtreePath = null;
+		
 		programPath = new HashMap<>();
 		try {
 //			File jar = new File(TreeModule.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
@@ -530,21 +533,28 @@ public class TreeModule {
 				} else if (line.startsWith("hmmsearch=")) {
 					hmmsearchPath = line.substring(line.indexOf("=") + 1);
 					programPath.put("hmmsearch", hmmsearchPath);
-*/				if (line.startsWith("mafft=")) {
+*/				
+				if (line.startsWith("mafft")) {
 					mafftPath = line.substring(line.indexOf("=") + 1);
 					programPath.put("mafft", mafftPath);
-				} else if (line.startsWith("fasttree=")) {
+				}
+				if (line.startsWith("fasttree")) {
 					fasttreePath = line.substring(line.indexOf("=") + 1);
 					programPath.put("fasttree", fasttreePath);
-				} else if (line.startsWith("raxml")) {
+				}
+				if (line.startsWith("raxml")) {
 					raxmlPath = line.substring(line.indexOf("=") + 1);
 					programPath.put("raxml", raxmlPath);
+				}
+				if (line.startsWith("iqtree")) {
+					iqtreePath = line.substring(line.indexOf("=") + 1);
+					programPath.put("iqtree", iqtreePath);
 				}
 			}
 
 			pathBR.close();
 
-			if (mafftPath == null || fasttreePath == null || raxmlPath == null) {
+			if (mafftPath == null || fasttreePath == null || raxmlPath == null || iqtreePath == null) {
 				ExceptionHandler.handle(ExceptionHandler.INVALID_PROGRAM_PATH);
 			}
 
@@ -575,8 +585,8 @@ public class TreeModule {
 		System.out.println(String.format(" %s\t\t%s", "-a", "Alignment method [nucleotide, codon, codon12, protein] (default: codon)"));
 		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
 		System.out.println(String.format(" %s\t\t%s", "-f", "Gap-rich filter percentage threshold [1 - 100] (default: 50)"));
-		System.out.println(String.format(" %s\t\t%s", "-p", "Tree building program [raxml, fasttree] (default: raxml)"));
-		System.out.println(String.format(" %s\t\t%s", "-m", "ML tree inference model (default: JTT+CAT for proteins, GTR+CAT for nucleotides)"));
+		System.out.println(String.format(" %s\t\t%s", "-p", "Tree building program [raxml, iqtree, fasttree] (default: iqtree)"));
+		System.out.println(String.format(" %s\t\t%s", "-m", "ML tree inference model (default: JTT+ for proteins, GTR+ for nucleotides)"));
 		System.out.println(String.format(" %s\t\t%s", "-g", "GSI value threshold [1 - 100] (default: 95)"));
 		System.out.println("");
 		

@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 
+import pipeline.ExceptionHandler;
+
 public class LabelReplacer {
 
 public String replace_name_str(String ori_str, HashMap<String, String> replaceMap) {
@@ -35,13 +37,11 @@ public void replace_name(String in_filename, String out_filename, HashMap<String
 			fw.write(new_str);
 			fw.close();
 		} catch (IOException e) {
-			System.err.println("Error : Cannot write file");
-			System.exit(1);
+			ExceptionHandler.handle(e);
 		}
 
 	} catch (IOException e) {
-		System.err.println("Error : Cannot read file");
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}
 
 }
@@ -64,13 +64,11 @@ public void replace_name_delete(String in_filename, String out_filename, HashMap
 			fw.write(new_str);
 			fw.close();
 		} catch (IOException e) {
-			System.err.println("Error : Cannot write file");
-			System.exit(1);
+			ExceptionHandler.handle(e);
 		}
 
 	} catch (IOException e) {
-		System.err.println("Error : Cannot read file");
-		System.exit(1);
+		ExceptionHandler.handle(e);
 	}
 
 }
