@@ -27,7 +27,7 @@ public class Shell {
 		reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 	}
 	public void execute(String[] cmdarray) {
-		Prompt.debug("exec: " + ANSIHandler.wrapper(cmdarray[cmdarray.length - 1], 'B')); 
+		Prompt.debug("exec: " + ANSIHandler.wrapper(String.join(" ", cmdarray), 'B')); 
 		try{
 			process = Runtime.getRuntime().exec(cmdarray);
 			process.waitFor();
