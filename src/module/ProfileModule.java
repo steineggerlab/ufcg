@@ -288,7 +288,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
 		System.out.println(String.format(" %s\t\t%s", "-i", "Input directory containing fungal genome assemblies"));
-		System.out.println(String.format(" %s\t\t%s", "-o", "Tree label format, comma-separated string containing one or more of the following keywords:"));
+		System.out.println(String.format(" %s\t\t%s", "-o", "Output directory to store the result files"));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));

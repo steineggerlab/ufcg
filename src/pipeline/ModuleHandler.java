@@ -34,7 +34,8 @@ public class ModuleHandler {
 		ProfileModule.run(args);
 	}
 	private void handle_profile_rna() {
-		
+		Prompt.talk("UFCG profile v" + UFCGMainPipeline.VERSION);
+		ProfileModule.run(args);
 	}
 	private void handle_tree() {
 		Prompt.talk("UFCG tree v" + UFCGMainPipeline.VERSION);

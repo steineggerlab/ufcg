@@ -610,12 +610,14 @@ void inferTree(PhylogenyTool tool, int nThreads) {
 }
 
 void inferGeneTrees(PhylogenyTool phylogenyTool, int nThreads) {
+	inferGeneTreesSynchronized(phylogenyTool, nThreads);
+	/*
 	if(phylogenyTool.equals(PhylogenyTool.fasttree)) {
 		inferGeneTreesSynchronized(phylogenyTool, nThreads);
 	}
 	else {
 		inferGeneTreesSequentially(phylogenyTool, nThreads);
-	}
+	}*/
 }
 void inferGeneTreesSequentially(PhylogenyTool phylogenyTool, int nThreads) {
 	Prompt.print("Reconstructing gene trees...");
@@ -771,6 +773,18 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	if (phylogenyTool.equals(PhylogenyTool.fasttree)){
 		for (String ucg : usedGenes) {
 			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleFastTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), fasttreePath, counterTree, ucg, alignMode,
+					numOfGenes, outDirectory, model));
+			futures.add(f);
+		}
+	} else if (phylogenyTool.equals(PhylogenyTool.raxml)){
+		for (String ucg : usedGenes) {
+			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleRaxml(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), raxmlPath, counterTree, ucg, alignMode,
+					numOfGenes, outDirectory, model));
+			futures.add(f);
+		}
+	} else if (phylogenyTool.equals(PhylogenyTool.iqtree)){
+		for (String ucg : usedGenes) {
+			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleIqTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), iqtreePath, counterTree, ucg, alignMode,
 					numOfGenes, outDirectory, model));
 			futures.add(f);
 		}
@@ -1223,6 +1237,8 @@ private void runIqtree(int nThreads) {
 	argTree.add(concatenatedSeqFileName);
 	argTree.add("-T");
 	argTree.add(String.valueOf(nThreads));
+	argTree.add("-B");
+	argTree.add("1000");
 	argTree.add("--quiet");
 	
 	argTree.add("-m");
@@ -1257,6 +1273,8 @@ private void runGeneIqtree(String alignedFastaFile, String run_id, String progra
 	argTree.add(alignedFastaFile);
 	argTree.add("-T");
 	argTree.add(String.valueOf(nThreads));
+	argTree.add("-B");
+	argTree.add("1000");
 	argTree.add("--quiet");
 	
 	argTree.add("-m");
@@ -1934,7 +1952,7 @@ public ProcessGobbler call() throws IOException{
 
 }
 
-/*
+
 //for RAxML
 class multipleRaxml implements Callable<ProcessGobbler> {
 String alignedFastaFile;
@@ -2139,4 +2157,3 @@ public ProcessGobbler call() throws IOException{
 	return processGobbler;
 }
 }
-*/
