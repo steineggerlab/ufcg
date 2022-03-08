@@ -82,6 +82,7 @@ public class TreeModule {
 		int filtering = 50;
 		String model = null;
 		int gsi_threshold = 95;
+		int executorLimit = 20;
 		
 		Arguments arg = new Arguments(parameters);
 		
@@ -190,7 +191,17 @@ public class TreeModule {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
 		}
 		
-		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runOutDirName, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels);
+		if(arg.get("-x") != null) {
+			try {
+				executorLimit = Integer.valueOf(arg.get("-x"));
+			} catch (NumberFormatException e) {
+				ExceptionHandler.handle(e);
+			}
+		} else {
+			executorLimit = nThreads;
+		}
+		
+		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runOutDirName, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit);
 
 		try {
 			proc.jsonsToTree(nThreads, phylogenyTool);
@@ -426,7 +437,7 @@ public class TreeModule {
 
 	private void validateParametersAlign(PhylogenyTool phylogenyTool, AlignMode alignMode) {
 		
-		final String[] validatedOptions = {"-ucg_dir", "-out_dir", "-run_id", "-a", "-t", "-f", "-fasttree", "-iqtree", "-raxml", "-m", "-gsi_threshold", "-leaf"};
+		final String[] validatedOptions = {"-ucg_dir", "-out_dir", "-run_id", "-a", "-t", "-f", "-fasttree", "-iqtree", "-raxml", "-m", "-gsi_threshold", "-leaf", "-x"};
 		final String[] validatedLeaf = {"uid", "acc", "label", "taxon", "strain", "type", "taxonomy"};
 		List<String> validatedOptionList = Arrays.asList(validatedOptions);
 		List<String> validatedLeafOptionList = Arrays.asList(validatedLeaf);
@@ -588,6 +599,7 @@ public class TreeModule {
 		System.out.println(String.format(" %s\t\t%s", "-p", "Tree building program [raxml, iqtree, fasttree] (default: iqtree)"));
 		System.out.println(String.format(" %s\t\t%s", "-m", "ML tree inference model (default: JTT+ for proteins, GTR+ for nucleotides)"));
 		System.out.println(String.format(" %s\t\t%s", "-g", "GSI value threshold [1 - 100] (default: 95)"));
+		System.out.println(String.format(" %s\t\t%s", "-x", "Maximum number of gene tree executors [1 - threads] (default: equal to -t; lower if RAM usage is excessive)"));
 		System.out.println("");
 		
 		System.exit(0);

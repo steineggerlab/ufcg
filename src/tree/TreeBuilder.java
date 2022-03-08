@@ -72,6 +72,7 @@ private int filtering = 50; // removes the column which has more than 50% gaps
 private String model = null;
 private int gsi_threshold = 95;
 private List<String> outputLabels = null;
+private int executorLimit = 20;
 
 private ArrayList<Long> genomeList = null;// Genomes used for the analysis
 private HashMap<String, String> replaceMap = null;
@@ -92,7 +93,7 @@ private String trmFile = null;
 
 public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirName, String mafftPath, 
         String raxmlPath, String fasttreePath, String iqtreePath,
-        AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels) {
+        AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit) {
 	
 	if (!ucgDirectory.endsWith(File.separator)) {
 		ucgDirectory = ucgDirectory + File.separator;
@@ -134,6 +135,7 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 	this.model = model;
 	this.gsi_threshold = gsi_threshold;
 	this.outputLabels = outputLabels;
+	this.executorLimit = executorLimit;
 }
 
 public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
@@ -715,6 +717,7 @@ void inferGeneTreesSequentially(PhylogenyTool phylogenyTool, int nThreads) {
 		ExceptionHandler.handle(e);
 	}
 }
+
 void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	
 	Prompt.print("Reconstructing gene trees...");
@@ -764,8 +767,12 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	int numOfGenes = usedGenes.size();
 	
 	Prompt.talk("Total number of gene trees to be reconstructed : " + numOfGenes);
-
-	ExecutorService exeServiceTree = Executors.newFixedThreadPool(nThreads);
+	
+	// Distribute cores to services
+	int nServices = (nThreads > executorLimit) ? executorLimit : nThreads,
+		nCores = (nThreads > executorLimit) ? nThreads / executorLimit : 1;
+	
+	ExecutorService exeServiceTree = Executors.newFixedThreadPool(nServices);
 
 	List<Future<ProcessGobbler>> futures = new ArrayList<>();
 	
@@ -773,19 +780,19 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	if (phylogenyTool.equals(PhylogenyTool.fasttree)){
 		for (String ucg : usedGenes) {
 			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleFastTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), fasttreePath, counterTree, ucg, alignMode,
-					numOfGenes, outDirectory, model));
+					numOfGenes, outDirectory, model, nCores));
 			futures.add(f);
 		}
 	} else if (phylogenyTool.equals(PhylogenyTool.raxml)){
 		for (String ucg : usedGenes) {
 			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleRaxml(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), raxmlPath, counterTree, ucg, alignMode,
-					numOfGenes, outDirectory, model));
+					numOfGenes, outDirectory, model, nCores));
 			futures.add(f);
 		}
 	} else if (phylogenyTool.equals(PhylogenyTool.iqtree)){
 		for (String ucg : usedGenes) {
 			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleIqTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), iqtreePath, counterTree, ucg, alignMode,
-					numOfGenes, outDirectory, model));
+					numOfGenes, outDirectory, model, nCores));
 			futures.add(f);
 		}
 	}
@@ -1844,7 +1851,7 @@ String outputDir;
 String model;
 
 public multipleFastTree(String alignedFastaFile, String run_id, String programPath, int[] counter, String ucg, AlignMode alignMode,
-		 int ucgNum, String outputDir, String model) {
+		 int ucgNum, String outputDir, String model, int nThreads) {
 	this.alignedFastaFile = alignedFastaFile;
 	this.run_id = run_id;
 	this.programPath = programPath;
@@ -1964,9 +1971,10 @@ AlignMode alignMode;
 int ucgNum;
 String outputDir;
 String model;
+int nThreads;
 
 public multipleRaxml(String alignedFastaFile, String run_id, String programPath, int[] counter, String ucg,
-	 AlignMode alignMode, int ucgNum, String outputDir, String model) {
+	 AlignMode alignMode, int ucgNum, String outputDir, String model, int nThreads) {
 	this.alignedFastaFile = alignedFastaFile;
 	this.run_id = run_id;
 	this.programPath = programPath;
@@ -1976,6 +1984,7 @@ public multipleRaxml(String alignedFastaFile, String run_id, String programPath,
 	this.ucgNum = ucgNum;
 	this.outputDir = outputDir;
 	this.model = model;
+	this.nThreads = nThreads;
 }
 
 public static synchronized void updateCounter(String ucg, int[] counter, int ucgNum) {
@@ -2000,6 +2009,9 @@ public ProcessGobbler call() throws IOException{
 
 	argTree.add("-n");
 	argTree.add(run_id + "_" + ucg);
+	
+	argTree.add("-T");
+	argTree.add(String.valueOf(nThreads));
 
 	if (model == null) {
 		if (alignMode.equals(AlignMode.protein)) {
@@ -2082,9 +2094,10 @@ AlignMode alignMode;
 int ucgNum;
 String outputDir;
 String model;
+int nThreads;
 
 public multipleIqTree(String alignedFastaFile, String run_id, String programPath, int[] counter, String ucg,
-	 AlignMode alignMode, int ucgNum, String outputDir, String model) {
+	 AlignMode alignMode, int ucgNum, String outputDir, String model, int nThreads) {
 	this.alignedFastaFile = alignedFastaFile;
 	this.run_id = run_id;
 	this.programPath = programPath;
@@ -2094,6 +2107,7 @@ public multipleIqTree(String alignedFastaFile, String run_id, String programPath
 	this.ucgNum = ucgNum;
 	this.outputDir = outputDir;
 	this.model = model;
+	this.nThreads = nThreads;
 }
 
 public static synchronized void updateCounter(String ucg, int[] counter, int ucgNum) {
@@ -2121,6 +2135,14 @@ public ProcessGobbler call() throws IOException{
 		if (alignMode.equals(AlignMode.protein)) argTree.add("JTT+F+I+G");
 		else argTree.add("GTR+F+I+G");
 	} else argTree.add(model);
+	
+	argTree.add("-T");
+	argTree.add(String.valueOf(nThreads));
+	
+	argTree.add("-B");
+	argTree.add("1000");
+	
+	argTree.add("--quiet");
 	
 	Prompt.debug("Running command : " + ANSIHandler.wrapper(String.join(" ", argTree), 'B'));
 	Process tree = new ProcessBuilder(argTree).start();

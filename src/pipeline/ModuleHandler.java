@@ -54,6 +54,7 @@ public class ModuleHandler {
 		opts.addOption("p", "program",	true,	"tree program");
 		opts.addOption("m", "model",	true,	"tree model");
 		opts.addOption("g", "gsi",		true,	"gsi-threshold");
+		opts.addOption("x", "executor", true,   "executor limit");
 		
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
@@ -139,6 +140,10 @@ public class ModuleHandler {
 			if(cmd.hasOption("g")) {
 				argList.add("-gsi_threshold");
 				argList.add(cmd.getOptionValue("g"));
+			}
+			if(cmd.hasOption("x")) {
+				argList.add("-x");
+				argList.add(cmd.getOptionValue("x"));
 			}
 		}
 		
