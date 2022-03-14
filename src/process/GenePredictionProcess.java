@@ -11,6 +11,7 @@ import parser.GffTableParser;
 import wrapper.AugustusWrapper;
 
 import java.util.List;
+import java.io.IOException;
 
 public class GenePredictionProcess {
 	// Predict gene from given contig and positions, return path to output gff file
@@ -20,6 +21,43 @@ public class GenePredictionProcess {
 		int pst = spos - GenericConfig.AugustusPredictionOffset;
 		if(pst < 0) pst = 0;
 		int ped = epos + GenericConfig.AugustusPredictionOffset;
+		
+		try {
+			// Extract sequence from offset-including sequence block
+			Prompt.debug("Extracting sequence block...");
+			
+			String cseq = "";	
+			
+			FileStream ctgStream = new FileStream(ctgPath, 'r');
+			String buf = ctgStream.readLine();
+			int ist = 0, ied = 0;
+			boolean flag = false;
+			while((buf = ctgStream.readLine()) != null) {
+				ied += buf.length();
+				
+				if(pst <= ist) flag = true;
+				if(ied > ped) flag = false;
+				if(flag) cseq += buf;
+				
+				ist += buf.length();
+			}
+			ctgStream.close();
+			
+			Prompt.debug("Expected sequence length =  " + String.valueOf(ped - pst + 1) + " bps");
+			Prompt.debug("Imported sequence length =  " + String.valueOf(cseq.length()) + " bps");
+			
+			String blkPath = String.format("%s%s%s_%s_p%d_%s.fasta",
+					PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, ctg, spos, cg);
+			FileStream blkStream = new FileStream(blkPath, 'w');
+			blkStream.println(String.format(">%s%s%s_%s_p%d_%s", PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, ctg, spos, cg));
+			blkStream.println(cseq);
+			
+			blkStream.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
 		
 		AugustusWrapper.runAugustus(ctgPath, pst, ped, famPath, gffPath);
 		
@@ -39,7 +77,7 @@ public class GenePredictionProcess {
 			try {
 				Prompt.talk("Parsing gene prediction result written on : " + ANSIHandler.wrapper(gffPath, 'y'));
 				GffTableParser.parse(pp, ctgPaths.get(i), gffPath);
-			} catch(java.io.IOException e) {
+			} catch(IOException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
