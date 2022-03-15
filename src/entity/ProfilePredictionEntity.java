@@ -92,6 +92,7 @@ public class ProfilePredictionEntity {
 		return null;
 	}
 	
+	public int getOpt() {return opt;}
 	public String getOptSeq() {
 		if(opt < 0) return null;
 		return predSeqs.get(opt);

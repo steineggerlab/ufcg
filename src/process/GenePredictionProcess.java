@@ -46,10 +46,9 @@ public class GenePredictionProcess {
 			Prompt.debug("Expected sequence length =  " + String.valueOf(ped - pst + 1) + " bps");
 			Prompt.debug("Imported sequence length =  " + String.valueOf(cseq.length()) + " bps");
 			
-			String blkPath = String.format("%s%s%s_%s_p%d_%s.fasta",
-					PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, ctg, spos, cg);
+			String blkPath = String.format("%s%sprobe_%s_%s_%s_p%d.block.fasta", PathConfig.OutputPath, GenericConfig.TEMP_HEADER, cg, GenericConfig.ACCESS, ctg, spos);
 			FileStream blkStream = new FileStream(blkPath, 'w');
-			blkStream.println(String.format(">%s%s%s_%s_p%d_%s", PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, ctg, spos, cg));
+			blkStream.println(String.format(">%s_%s_%s_p%d", cg, GenericConfig.ACCESS, ctg, spos));
 			blkStream.println(cseq);
 			
 			blkStream.close();

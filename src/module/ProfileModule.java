@@ -826,6 +826,22 @@ public class ProfileModule {
 				Prompt.print("Writing results on : " + ANSIHandler.wrapper(jsonPath, 'y'));
 				JsonBuildProcess.build(pps, jsonPath);
 				
+				// and FASTA file
+				for(ProfilePredictionEntity pp : pps) {
+					if(!pp.valid()) continue;
+					String faaPath = String.format("%s%sprobe_%s_%s_%d.pro.fasta", PathConfig.OutputPath, GenericConfig.TEMP_HEADER, pp.refBlock.cg, GenericConfig.ACCESS, pps.indexOf(pp));
+					FileStream faaStream = new FileStream(faaPath, 'w');
+					faaStream.println(String.format(">%s_%s_%d_pro", pp.refBlock.cg, GenericConfig.ACCESS, pps.indexOf(pp)));
+					faaStream.println(pp.getOptSeq());
+					faaStream.close();
+					
+					String fnaPath = String.format("%s%sprobe_%s_%s_%d.nuc.fasta", PathConfig.OutputPath, GenericConfig.TEMP_HEADER, pp.refBlock.cg, GenericConfig.ACCESS, pps.indexOf(pp));
+					FileStream fnaStream = new FileStream(fnaPath, 'w');
+					fnaStream.println(String.format(">%s_%s_%d_nuc", pp.refBlock.cg, GenericConfig.ACCESS, pps.indexOf(pp)));
+					fnaStream.println(pp.getDna(pp.getOpt()));
+					fnaStream.close();
+				}
+				
 				for(String contig : contigs) FileStream.wipe(contig, true);
 				contigs = new ArrayList<String>();
 			}
