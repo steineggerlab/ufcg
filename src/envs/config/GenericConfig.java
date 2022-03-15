@@ -194,27 +194,28 @@ public class GenericConfig {
 	};*/
 	public static final String[] FCG_REF = {
 			"ACO1",   "ACO2",   "ACT1",   "CCT2",   "CCT4",   "CCT7",   "CDC21",  "CDC48",  "CPA2",   "DBP1",
-			"DBP2",   "DED1",   "ECM10",  "EFT1",   "FAL1",   "FKS1",   "HRR25",  "HSP60",  "ILV2",   "IMD2",
-			"IMD3",   "IMD4",   "KAR2",   "KGD1",   "LEU1",   "MCM2",   "MCM7",   "MDH1",   "MTR4",   "NBP35",
-			"PHO85",  "PRP43",  "RET1",   "RPB2",   "RPL2B",  "RPL3",   "RPL4A",  "RPL4B",  "RPL8A",  "RPL8B",
-			"RPO21",  "RPP0",   "RPS0A",  "RPS0B",  "RPT1",   "RPT2",   "RPT3",   "RPT5",   "RPT6",   "SAM1",
-			"SAM2",   "SSA1",   "SSA2",   "SSA3",   "SSA4",   "SSB1",   "SSB2",   "SSC1",   "SUP45",  "TCP1",
-			"TEF1",   "TIF1",   "TRP3",   "TUB1",   "TUB2",   "TUB3",   "UBI4",   "URA2"
+			"DBP2",   "ECM10",  "EFT1",   "FAL1",   "FKS1",   "HRR25",  "HSP60",  "ILV2",   "IMD2",   "KAR2",
+			"KGD1",   "LEU1",   "MCM2",   "MCM7",   "MDH1",   "MTR4",   "NBP35",  "PHO85",  "PRP43",  "RET1",
+			"RPB2",   "RPL2B",  "RPL3",   "RPL4A",  "RPL8A",  "RPO21",  "RPP0",   "RPS0A",  "RPT1",   "RPT2",
+			"RPT3",   "RPT5",   "RPT6",   "SAM1",   "SAM2",   "SSA1",   "SSA3",   "SSB1",   "SSC1",   "SUP45",
+			"TCP1",   "TEF1",   "TIF1",   "TRP3",   "TUB1",   "TUB2",   "UBI4",   "URA2"
 	};
 	// In order considering the calculation time of each gene
 	public static final String[] FCG_ORD = {
-			"URA2","KAR2","FKS1","SSB1","ACO2","SSA4","SSA3","CPA2","SSB2","UBI4",
-			"ACO1","MCM7","PRP43","RPO21","RPB2","SSA1","SSA2","MTR4","RET1","KGD1",
-			"RPT5","RPT6","MCM2","EFT1","LEU1","ECM10","ILV2","FAL1","TRP3","IMD4",
-			"DED1","RPT2","CCT4","PHO85","DBP1","SSC1","CDC48","MDH1","HRR25","RPT3",
-			"TIF1","CCT2","TUB2","IMD2","TCP1","HSP60","IMD3","CCT7","SAM1","RPL8B",
-			"RPL4A","RPT1","SAM2","TEF1","RPL8A","TUB1","SUP45","ACT1","RPL4B","TUB3",
-			"DBP2","NBP35","RPL3","RPP0","RPS0A","RPS0B","CDC21","RPL2B"
+			"URA2","KAR2","FKS1","SSB1","ACO2","SSA3","CPA2","UBI4","ACO1","MCM7",
+			"PRP43","RPO21","RPB2","SSA1","MTR4","RET1","KGD1","RPT5","RPT6","MCM2",
+			"EFT1","LEU1","ECM10","ILV2","FAL1","TRP3","RPT2","CCT4","PHO85","DBP1",
+			"SSC1","CDC48","MDH1","HRR25","RPT3","TIF1","CCT2","TUB2","IMD2","TCP1",
+			"HSP60","CCT7","SAM1","RPL4A","RPT1","SAM2","TEF1","RPL8A","TUB1","SUP45",
+			"ACT1","DBP2","NBP35","RPL3","RPP0","RPS0A","CDC21","RPL2B"
 	};
 	public static final String[] FCG_COG = {
-			"C","C","Z","O","O","O","F","M/D/T","E/F","L","L","L","O","J","L","M","T","O","E/H","T","T","T",
-			"O","C","E","L","L","C","L","D","T","J","K","K","J","J","J","J","J","J","K","J","J","J","O","O",
-			"O","O","O","H","H","O","O","O","O","O","O","O","J","O","J","L","E","Z","Z","Z","O","E/F"
+			"C","C","Z","O","O","O","F","M/D/T","E/F","L",
+			"L","O","J","L","M","T","O","E/H","T","O",
+			"C","E","L","L","C","L","D","T","J","K",
+			"K","J","J","J","J","K","J","J","O","O",
+			"O","O","O","H","H","O","O","O","O","J",
+			"O","J","L","E","Z","Z","O","E/F"
 	};
 	public static final String[] FCG_DSC = {
 			"Aconitate hydratase, mitochondrial",
@@ -228,7 +229,6 @@ public class GenericConfig {
 			"Carbamoyl-phosphate synthase arginine-specific large chain",
 			"ATP-dependent RNA helicase DBP1",
 			"ATP-dependent RNA helicase DBP2",
-			"ATP-dependent RNA helicase DED1",
 			"Heat shock protein SSC3",
 			"Elongation factor 2",
 			"ATP-dependent RNA helicase FAL1",
@@ -237,8 +237,6 @@ public class GenericConfig {
 			"Heat shock protein 60, mitochondrial",
 			"Acetolactate synthase catalytic subunit, mitochondrial",
 			"Inosine-5'-monophosphate dehydrogenase 2",
-			"Inosine-5'-monophosphate dehydrogenase 3",
-			"Inosine-5'-monophosphate dehydrogenase 4",
 			"Endoplasmic reticulum chaperone BiP",
 			"2-oxoglutarate dehydrogenase, mitochondrial",
 			"3-isopropylmalate dehydratase",
@@ -254,13 +252,10 @@ public class GenericConfig {
 			"60S ribosomal protein L2-B",
 			"60S ribosomal protein L3",
 			"60S ribosomal protein L4-A",
-			"60S ribosomal protein L4-B",
 			"60S ribosomal protein L8-A",
-			"60S ribosomal protein L8-B",
 			"DNA-directed RNA polymerase II subunit RPB1",
 			"60S acidic ribosomal protein P0",
 			"40S ribosomal protein S0-A",
-			"40S ribosomal protein S0-B",
 			"26S proteasome regulatory subunit 7 homolog",
 			"26S proteasome regulatory subunit 4 homolog",
 			"26S proteasome regulatory subunit 6B homolog",
@@ -269,11 +264,8 @@ public class GenericConfig {
 			"S-adenosylmethionine synthase 1",
 			"S-adenosylmethionine synthase 2",
 			"Heat shock protein SSA1",
-			"Heat shock protein SSA2",
 			"Heat shock protein SSA3",
-			"Heat shock protein SSA4",
 			"Ribosome-associated molecular chaperone SSB1",
-			"Ribosome-associated molecular chaperone SSB2",
 			"Heat shock protein SSC1, mitochondrial",
 			"Eukaryotic peptide chain release factor subunit 1",
 			"T-complex protein 1 subunit alpha",
@@ -282,7 +274,6 @@ public class GenericConfig {
 			"Multifunctional tryptophan biosynthesis protein",
 			"Tubulin alpha-1 chain",
 			"Tubulin beta chain",
-			"Tubulin alpha-3 chain",
 			"Polyubiquitin",
 			"Protein URA2"
 	};
