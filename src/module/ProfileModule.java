@@ -66,7 +66,7 @@ public class ProfileModule {
 		
 		opts.addOption("m", "metadata", true, "metadata path");
 		opts.addOption(null, "metainfo", true, "single file metadata information");
-//		opts.addOption("n", "intron", false, "include intron sequences");
+		opts.addOption("n", "intron", false, "include intron sequences");
 		opts.addOption(null, "profile", true, "core gene profile path");
 		opts.addOption(null, "ppxcfg", true, "AUGUSTUS-PPX config path");
 		opts.addOption("v", "verbose", false, "verbosity");
@@ -140,10 +140,10 @@ public class ProfileModule {
 		/* parse configuration options */
 		if(cmd.hasOption("m"))
 			PathConfig.setMetaPath(cmd.getOptionValue("m"));
-//		if(cmd.hasOption("n")) {
-//			Prompt.talk("Including intron to the result DNA sequences.");
-//			GenericConfig.INTRON = true;
-//		}
+		if(cmd.hasOption("n")) {
+			Prompt.talk("Including intron to the result DNA sequences.");
+			GenericConfig.INTRON = true;
+		}
 		if(cmd.hasOption("metainfo")) {
 			// check confilct
 			if(cmd.hasOption("m") || PathConfig.InputIsFolder) ExceptionHandler.handle(ExceptionHandler.METAINFO_CONFLICT);
@@ -297,6 +297,7 @@ public class ProfileModule {
 		System.out.println(String.format(" %s\t\t%s", "-f", "Force to overwrite the existing files"));
 		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
 		System.out.println(String.format(" %s\t\t%s", "-m", "File to the list containing metadata"));
+		System.out.println(String.format(" %s\t\t%s", "-n", "Include introns from the predicted ORFs to the result sequences (default: false)"));
 		System.out.println("");
 		
 		System.out.println(" To see the advanced options, run with \"profile -hh\".\n");
@@ -638,7 +639,7 @@ public class ProfileModule {
 				}
 			}
 			proceed = false;
-			
+*/			
 			// --intron
 			while(!proceed) {
 				Prompt.print_nnc("Include introns from predicted ORFs? (y/n) : ");
@@ -652,7 +653,7 @@ public class ProfileModule {
 				}
 			}
 			proceed = false;
-*/			
+			
 			// --fbscutoff
 			while(!proceed) {
 				Prompt.print_nnc("Enter the cutoff value for fastBlockSearch process (--fbscutoff, default = 0.5) : ");
