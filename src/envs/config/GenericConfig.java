@@ -424,13 +424,14 @@ public class GenericConfig {
 		}
 		
 		String[] split = list.split(",");
+		/*
 		for(String cg : split) {
 			if(!Arrays.asList(FCG_REF).contains(cg)) {
 				ExceptionHandler.pass(cg);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_GENE_NAME);
 				return 1;
 			}
-		}
+		}*/
 		
 		FCG = split;
 		if(VERB) Prompt.print(String.format("Custom gene set containing %d genes confirmed.", FCG.length));

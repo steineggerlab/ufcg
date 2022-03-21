@@ -233,7 +233,7 @@ public class PathConfig {
 		return 0;
 	}
 	public static boolean checkProfilePath() {
-		int[] cnt = new int[GenericConfig.FCG_REF.length];
+		int[] cnt = new int[GenericConfig.FCG.length];
 		for(int i = 0; i < cnt.length; i++) cnt[i] = -2;
 		
 		String[] cmd = {"/bin/bash", "-c",
@@ -246,7 +246,7 @@ public class PathConfig {
 			while((buf = tmpListStream.readLine()) != null) {
 				if(!buf.endsWith(".hmm") && !buf.endsWith(".blk")) continue;
 				int loc = 0;
-				for(; loc < cnt.length; loc++) if(buf.contains(GenericConfig.FCG_REF[loc])) break;
+				for(; loc < cnt.length; loc++) if(buf.contains(GenericConfig.FCG[loc])) break;
 				if(loc == cnt.length) continue;
 				cnt[loc]++;
 			}
