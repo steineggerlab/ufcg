@@ -14,6 +14,7 @@ import org.apache.commons.cli.UnrecognizedOptionException;
 import envs.config.GenericConfig;
 import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
+import module.AlignModule;
 import module.ProfileModule;
 import module.TreeModule;
 
@@ -36,6 +37,10 @@ public class ModuleHandler {
 	private void handle_profile_rna() {
 		Prompt.talk("UFCG profile v" + UFCGMainPipeline.VERSION);
 		ProfileModule.run(args);
+	}
+	private void handle_align() {
+		Prompt.talk("UFCG profile v" + UFCGMainPipeline.VERSION);
+		AlignModule.run(args);
 	}
 	private void handle_tree() {
 		Prompt.talk("UFCG tree v" + UFCGMainPipeline.VERSION);
@@ -223,6 +228,7 @@ public class ModuleHandler {
 		case UFCGMainPipeline.MODULE_PROFILE_RNA: 	handle_profile_rna(); break;
 		case UFCGMainPipeline.MODULE_TREE: 			handle_tree(); break;
 		case UFCGMainPipeline.MODULE_TREE_FIX: 		handle_tree_fix(); break;
+		case UFCGMainPipeline.MODULE_ALIGN:			handle_align(); break;
 		default: break;
 		}
 	}

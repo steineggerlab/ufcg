@@ -45,6 +45,7 @@ public class UFCGMainPipeline {
 	public static final int MODULE_PROFILE_RNA	= 0x02;
 	public static final int MODULE_TREE			= 0x03;
 	public static final int MODULE_TREE_FIX		= 0x04;
+	public static final int MODULE_ALIGN		= 0x05;
 	
 	/* Print the UFCG logo with version number */
 	private static void printLogo() {
@@ -75,6 +76,7 @@ public class UFCGMainPipeline {
 		if(module.equals("profile-rna"))	return MODULE_PROFILE_RNA;
 		if(module.equals("tree"))			return MODULE_TREE;
 		if(module.equals("tree-fix"))		return MODULE_TREE_FIX;
+		if(module.equals("align"))			return MODULE_ALIGN;
 		
 		if(!module.startsWith("-")) {
 			ExceptionHandler.pass(module);
@@ -151,6 +153,7 @@ public class UFCGMainPipeline {
 				ANSIHandler.wrapper(" Module         Description\n", 'c') +
 									" profile        Extract UFCG profile from genome\n"+
 									" profile-rna    Extract UFCG profile from RNA-seq transcriptome\n"+
+									" align          Produce sequence alignments from UFCG profiles\n"+
 									" tree           Build maximum likelihood tree with UFCG profiles\n"+
 									" tree-fix       Fix UFCG tree or single gene tree\n\n\n"+
 				

@@ -150,6 +150,14 @@ public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 	cleanFiles();
 }
 
+public void jsonsToMsa(int nThreads) throws IOException {
+	testMafft(mafftPath);
+	readJsonsToFastaFiles();
+	alignGenes(nThreads);
+	replaceLabelforAlign();
+	
+}
+
 void checkThirdPartyPrograms(PhylogenyTool phylogenyTool) {
 	testMafft(mafftPath);
 	if(phylogenyTool.equals(PhylogenyTool.fasttree)) testFasttree(fasttreePath);
@@ -990,6 +998,41 @@ void replaceLabel() {
 	}
 	
 	Prompt.print("The final tree marked with GSI was written in : " + ANSIHandler.wrapper(treeLabelGsiFileName, 'B'));
+}
+
+void replaceLabelforAlign() {
+	LabelReplacer replacer = new LabelReplacer();
+	
+	for(String ucg : usedGenes) {
+		
+		// gene files
+		String fastaFile = fastaFileName(ucg);
+		String fastaLabelFile = fastaLabelFileName(ucg);
+		
+		// aligned gene files
+		String alignedGene = alignedFinalGeneFastaFile(ucg);
+		String alignedLabelGene = alignedFinalGeneFastaLabelFile(ucg);
+		
+		replacer.replace_name_delete(fastaFile, fastaLabelFile, replaceMap);
+		replacer.replace_name_delete(alignedGene, alignedLabelGene, replaceMap);
+		
+		File fastaFileZz = new File(fastaFile);
+		if(fastaFileZz.exists()) fastaFileZz.delete();
+		File alignedGeneZz = new File(alignedGene);
+		if(alignedGeneZz.exists()) alignedGeneZz.delete();
+	}
+	
+	if(alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
+		for(String gene : usedGenes) {
+			String nucLabelFasta = outDirectory + runOutDirName + gene + "_nuc.fasta";
+			replacer.replace_name_delete(fastaFileName(gene, AlignMode.nucleotide), nucLabelFasta, replaceMap);
+			
+			File alignedProFasta = new File(alignedFastaFileName(gene));
+			if(alignedProFasta.exists()) {
+				alignedProFasta.delete();
+			}
+		}
+	}
 }
 
 void cleanFiles() {

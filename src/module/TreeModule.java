@@ -78,7 +78,7 @@ public class TreeModule {
 		
 		String runOutDirName = "";
 		int nThreads = 1;
-		AlignMode alignMode = AlignMode.codon;
+		AlignMode alignMode = AlignMode.nucleotide;
 		int filtering = 50;
 		String model = null;
 		int gsi_threshold = 95;
@@ -576,7 +576,7 @@ public class TreeModule {
 	
 	private void printTreeHelp() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - tree", 'G'));
-		System.out.println(ANSIHandler.wrapper(" Align UFCG profiles and reconstruct their phylogenetic relationship", 'g'));
+		System.out.println(ANSIHandler.wrapper(" Reconstruct the phylogenetic relationship with UFCG profiles", 'g'));
 		System.out.println("");
 	
 		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar tree -i <INPUT> -l <LABEL> [...]");
@@ -593,7 +593,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
 		System.out.println(String.format(" %s\t\t%s", "-o", "Define output directory (default: ./output)"));
 		System.out.println(String.format(" %s\t\t%s", "-n", "Name of this run (default: random number)"));
-		System.out.println(String.format(" %s\t\t%s", "-a", "Alignment method [nucleotide, codon, codon12, protein] (default: codon)"));
+		System.out.println(String.format(" %s\t\t%s", "-a", "Alignment method [nucleotide, codon, codon12, protein] (default: nucleotide)"));
 		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
 		System.out.println(String.format(" %s\t\t%s", "-f", "Gap-rich filter percentage threshold [1 - 100] (default: 50)"));
 		System.out.println(String.format(" %s\t\t%s", "-p", "Tree building program [raxml, iqtree, fasttree] (default: iqtree)"));
