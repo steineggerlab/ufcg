@@ -289,6 +289,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
 		System.out.println(String.format(" %s\t\t%s", "-i", "Input directory containing fungal genome assemblies"));
 		System.out.println(String.format(" %s\t\t%s", "-o", "Output directory to store the result files"));
+		System.out.println(String.format(" %s\t\t%s", "-s", "Set of markers to extract - see advanced options for details (default: NUC,PRO,CORE)"));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));
@@ -310,6 +311,17 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal whole genome sequences", 'g'));
 		System.out.println("");
 		
+		System.out.println(ANSIHandler.wrapper("\n Defining set of markers", 'y'));
+		System.out.println(ANSIHandler.wrapper(" Name\t\tDescription", 'c'));
+		System.out.println(String.format(" %s\t\t%s", "NUC", "Nucleotide marker (SSU,ITS1,5.8S,ITS2,LSU)"));
+		System.out.println(String.format(" %s\t\t%s", "PRO", "Conventional protein markers (ACT1,ATP6,CCT8,CMD1,COB,COX2,COX3,NDI1,OLI1,PAH1,PGK1,RPB2,RPO21,TEF1,TOP1,TSR1,TUB1,TUB2)"));
+		System.out.println(String.format(" %s\t\t%s", "CORE", "Core protein markers (52 genes - run <java -jar UFCG.jar --core> to see the list)"));
+		System.out.println(String.format(" %s\t\t%s", "BUSCO", "BUSCO sequences (758 orthologs from fungi_odb10)"));
+		System.out.println("");
+		System.out.println(String.format(" * Provide a comma-separated string consists of following sets (ex: NUC,PRO / PRO,CORE / BUSCO etc.)"));
+		System.out.println(String.format(" * Use specific gene names to extract custom set of protein markers (ex: ACT1,TEF1,TUB1 / CMD1,RPB2,RPO21,TEF1)"));
+		System.out.println("");
+		
 		System.out.println(ANSIHandler.wrapper("\n Dependencies", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
 		System.out.println(String.format(" %s\t%s", "--fastblocksearch", "Path to fastBlockSearch binary"));
@@ -325,7 +337,7 @@ public class ProfileModule {
 		System.out.println(String.format(" %s\t\t%s", "--fbscutoff", "Cutoff value for fastBlockSearch process (default = 0.5)"));
 		System.out.println(String.format(" %s\t\t%s", "--augoffset", "Prediction offset window size for AUGUSTUS process (default = 10000)"));
 		System.out.println(String.format(" %s\t\t%s", "--hmmscore",  "Bitscore cutoff for hmmsearch validation (default = 100)"));
-		System.out.println(String.format(" %s\t\t%s", "--corelist",  "Comma-separated string for a custom set of fungal core genes"));
+//		System.out.println(String.format(" %s\t\t%s", "--corelist",  "Comma-separated string for a custom set of fungal core genes"));
 		System.out.println("");
 		
 		System.exit(0);
@@ -795,6 +807,10 @@ public class ProfileModule {
 					}
 				}
 				
+				/* Div 1. Nucleotide barcode prediction */
+				
+				
+				/* Div 2. Protein barcode prediction */
 				/* Dynamic progress prompt setup */
 				initProg();
 				printProg();
@@ -829,6 +845,8 @@ public class ProfileModule {
 				
 				for(String contig : contigs) FileStream.wipe(contig, true);
 				contigs = new ArrayList<String>();
+				
+				/* Div 3. BUSCO prediction */
 			}
 			
 			/* Clean up temporary files if exist */
