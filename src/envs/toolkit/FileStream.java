@@ -104,7 +104,7 @@ public class FileStream {
 			case 'o': case 'w':
 				writer = new PrintWriter(path); break;
 			case 'a':
-				writer = new PrintWriter(new FileWriter(path, true));
+				writer = new PrintWriter(new FileWriter(path, true)); break;
 			default :
 				System.err.println("Unsupported file stream type : " + type);
 		}

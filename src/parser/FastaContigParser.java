@@ -1,6 +1,7 @@
 package parser;
 
 import entity.GffLocationEntity;
+import entity.MMSeqsSearchResultEntity;
 import envs.config.GenericConfig;
 import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
@@ -55,5 +56,69 @@ public class FastaContigParser {
 		}
 		
 		return loc.fwd ? cDNA : revcomp(cDNA);
+	}
+	
+	public static String parse(MMSeqsSearchResultEntity res, int index) throws java.io.IOException {
+		String seq = "", buf;
+		
+		String contig = res.getContig(index);
+		int start = res.getStart(index), end = res.getEnd(index);
+		
+		/* estimate contig length */
+		int len = 0;
+		
+		// find contig header
+		FileStream stream = new FileStream(res.path, 'r');
+		while(!(buf = stream.readLine()).contains(contig));
+		
+		// trace length
+		for(buf = stream.readLine(); buf != null; buf = stream.readLine()) {
+			if(buf.contains(">")) break;
+			len += buf.length();
+		}
+		
+		/* trim offset */
+		if(start < 0) start = 0;
+		if(end > len) end = len;
+		
+		/* extract sequence block */
+		stream = new FileStream(res.path, 'r');
+		while(!(buf = stream.readLine()).contains(contig));
+		
+		buf = stream.readLine();
+		int sbuf = 0, ebuf = buf.length(), bsize = buf.length();
+		while(true) {
+			if(sbuf >= end) break; // end-point
+			if(ebuf >= start) { // mid-point
+				int s = 0, e = buf.length();
+				if(start > sbuf) s = start - sbuf; // handle starting fragment
+				if(end < ebuf)   e = bsize - ebuf + end; // handle ending fragment
+				seq += buf.substring(s, e);
+			}
+			buf = stream.readLine();
+			sbuf += bsize;
+			ebuf += bsize;
+		}
+		stream.close();
+		
+		/* sanity check
+		System.out.println(seq);
+		System.out.println("");
+		
+		String full = "";
+		stream = new FileStream(res.path, 'r');
+		while(!(buf = stream.readLine()).contains(contig));
+		for(buf = stream.readLine(); buf != null; buf = stream.readLine()) {
+			if(buf.contains(">")) break;
+			full += buf;
+		}
+		stream.close();
+		
+		System.out.println(String.format("Ground truth [%d - %d]", start, end));
+		System.out.println(full.substring(start, end));
+		System.out.println("");
+		*/
+		
+		return seq;
 	}
 }
