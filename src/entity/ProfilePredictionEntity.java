@@ -12,7 +12,15 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class ProfilePredictionEntity {
-	public final BlockProfileEntity refBlock;
+	public static final int ORI_AU = 0x00,
+							ORI_MM = 0x01;
+	public static final int TYPE_NUC = 0x00,
+							TYPE_PRO = 0x01;
+	
+	public BlockProfileEntity refBlock = null;
+	public MMseqsSearchResultEntity mmResult = null;
+	
+	protected int origin, type;
 	protected List<String> predSeqs;
 	protected List<GffLocationEntity> gffLocs;
 	protected int opt = -1;
@@ -21,10 +29,26 @@ public class ProfilePredictionEntity {
 	protected List<String> predGseqs;
 	protected List<Double> evalues, scores;
 	
-	public ProfilePredictionEntity(BlockProfileEntity bp) {
+	public ProfilePredictionEntity(BlockProfileEntity bp, int type) {
 		this.refBlock = bp;
+		this.origin = ORI_AU;
+		this.type = type;
+		
 		this.predSeqs = new ArrayList<String>();
 		this.gffLocs  = new ArrayList<GffLocationEntity>();
+		
+		this.predGenes = new ArrayList<String>(); // predicted protein sequences
+		this.predGseqs = new ArrayList<String>(); // predicted DNA sequences
+		this.evalues   = new ArrayList<Double>();
+		this.scores    = new ArrayList<Double>();
+	}
+	
+	public ProfilePredictionEntity(MMseqsSearchResultEntity res, int type) {
+		this.mmResult = res;
+		this.origin = ORI_MM;
+		this.type = type;
+		
+		this.predSeqs = new ArrayList<String>();
 		
 		this.predGenes = new ArrayList<String>(); // predicted protein sequences
 		this.predGseqs = new ArrayList<String>(); // predicted DNA sequences
@@ -37,7 +61,7 @@ public class ProfilePredictionEntity {
 		List<ProfilePredictionEntity> profiles = new ArrayList<ProfilePredictionEntity>();
 		
 		for(String cg : GenericConfig.FCG) {
-			profiles.add(new ProfilePredictionEntity(new BlockProfileEntity(cg, null)));
+			profiles.add(new ProfilePredictionEntity(new BlockProfileEntity(cg, null), TYPE_PRO));
 		}
 		
 		return profiles;
@@ -53,8 +77,10 @@ public class ProfilePredictionEntity {
 	
 	private String expPath = null;
 	public String export() { // Export predicted sequences in FASTA format
+		String task = origin == ORI_MM ? mmResult.task : refBlock.cg;
+		
 		expPath = String.format("%s%s%s_%s.fasta",
-				PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, refBlock.cg);
+				PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, task);
 		Prompt.talk("Exporting predicted genes to FASTA file : " + ANSIHandler.wrapper(expPath, 'y'));
 		
 		try {
@@ -62,7 +88,7 @@ public class ProfilePredictionEntity {
 			expStream.isTemp();
 			for(int i = 0; i < predSeqs.size(); i++) {
 				expStream.println(String.format(">%s_%s_g%d",
-						GenericConfig.ACCESS, refBlock.cg, i));
+						GenericConfig.ACCESS, task, i));
 				expStream.println(predSeqs.get(i));
 			}
 			expStream.close();
@@ -82,11 +108,17 @@ public class ProfilePredictionEntity {
 		PathConfig.TempIsCustom = tic;
 	}
 	
+	public int getType() {return type;}
+	public int getOrigin() {return origin;}
 	public int nseq() {return predSeqs.size();}
 	public String getSeq(int idx) {return predSeqs.get(idx);}
 	public String getDna(int idx) {
 		try{
-			return FastaContigParser.parse(gffLocs.get(idx));
+			switch(origin) {
+			case ORI_AU: return FastaContigParser.parse(gffLocs.get(idx));
+			case ORI_MM: return FastaContigParser.parse(mmResult, idx);
+			}
+			
 		}
 		catch(java.io.IOException e) {ExceptionHandler.handle(e);}
 		return null;

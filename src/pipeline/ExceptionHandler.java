@@ -27,12 +27,14 @@ public class ExceptionHandler {
 	public static final int CONFIG_PATH_UNDEFINED	= 0x0C;
 	public static final int INVALID_PPX_CONFIG		= 0x0D;
 	public static final int INVALID_PROFILE_PATH	= 0x0E;
+	public static final int INVALID_SEQ_PATH		= 0x1C;
 	public static final int INVALID_META_HEADER		= 0x0F;
 	public static final int INSUFFICIENT_METADATA	= 0x10;
 	public static final int INVALID_METADATA		= 0x11;
 	public static final int INTEGRITY_TEST_FAILED	= 0x12;
 	public static final int METAINFO_CONFLICT		= 0x13;
 	public static final int INVALID_METAINFO		= 0x14;
+	public static final int INVALID_GENE_SET		= 0x1B;
 	
 	// tree
 	public static final int NO_LEAF_OPTION			= 0x15;
@@ -71,6 +73,8 @@ public class ExceptionHandler {
 			System.out.println("No input file given."); break;
 		case NO_OUTPUT:
 			System.out.println("No output directory given."); break;
+		case INVALID_GENE_SET:
+			System.out.println("Invalid gene set given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		case INVALID_FILE:
 			System.out.println("Invalid file given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		case INVALID_DIRECTORY:
@@ -90,7 +94,9 @@ public class ExceptionHandler {
 		case INVALID_PPX_CONFIG:
 			System.out.println("AUGUSTUS-PPX config file is absent or improperly formatted."); break;
 		case INVALID_PROFILE_PATH:
-			System.out.println("Core gene profile directory is incomplete."); break;
+			System.out.println("Gene profile directory is incomplete."); break;
+		case INVALID_SEQ_PATH:
+			System.out.println("Gene sequence directory is incomplete."); break;
 		case INVALID_META_HEADER:
 			System.out.println("Unknown metadata header given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		case INSUFFICIENT_METADATA:

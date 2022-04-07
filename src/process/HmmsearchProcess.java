@@ -13,7 +13,7 @@ import entity.ProfilePredictionEntity;
 import wrapper.HmmsearchWrapper;
 
 public class HmmsearchProcess {
-	private static String checkORF(ProfilePredictionEntity pp, String prtn, String orf) {
+	public static String checkORF(ProfilePredictionEntity pp, String prtn, String orf) {
 		String valid = null;
 		GenomeTranslator.createMap();
 		

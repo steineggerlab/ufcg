@@ -1,7 +1,7 @@
 package parser;
 
 import entity.GffLocationEntity;
-import entity.MMSeqsSearchResultEntity;
+import entity.MMseqsSearchResultEntity;
 import envs.config.GenericConfig;
 import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
@@ -58,7 +58,7 @@ public class FastaContigParser {
 		return loc.fwd ? cDNA : revcomp(cDNA);
 	}
 	
-	public static String parse(MMSeqsSearchResultEntity res, int index) throws java.io.IOException {
+	public static String parse(MMseqsSearchResultEntity res, int index) throws java.io.IOException {
 		String seq = "", buf;
 		
 		String contig = res.getContig(index);
@@ -68,7 +68,7 @@ public class FastaContigParser {
 		int len = 0;
 		
 		// find contig header
-		FileStream stream = new FileStream(res.path, 'r');
+		FileStream stream = new FileStream(res.srcPath, 'r');
 		while(!(buf = stream.readLine()).contains(contig));
 		
 		// trace length
@@ -82,7 +82,7 @@ public class FastaContigParser {
 		if(end > len) end = len;
 		
 		/* extract sequence block */
-		stream = new FileStream(res.path, 'r');
+		stream = new FileStream(res.srcPath, 'r');
 		while(!(buf = stream.readLine()).contains(contig));
 		
 		buf = stream.readLine();

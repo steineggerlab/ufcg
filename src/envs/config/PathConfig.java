@@ -12,6 +12,7 @@ public class PathConfig {
 	public static void setEnvironmentPath(String path) {
 		EnvironmentPath = path;
 		renewProfilePath();
+		renewSeqPath();
 		renewAugustusConfig();
 	}
 	
@@ -76,6 +77,27 @@ public class PathConfig {
 		}
 		
 		HmmsearchPath = path;
+		return 0;
+	}
+	
+	public static String MMseqsPath = "mmseqs";
+	public static int setMMseqsPath(String path) {
+		try {
+			Prompt.talk("MMseqs binary check : " + ANSIHandler.wrapper(path, 'B'));
+			String[] exec = Shell.exec("file -b " + path);
+			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
+				ExceptionHandler.pass(path);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
+				return 1;
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+			return 2;
+		}
+		
+		MMseqsPath = path;
 		return 0;
 	}
 	
@@ -214,7 +236,7 @@ public class PathConfig {
 	private static void renewProfilePath() {ProfilePath = EnvironmentPath + "config/prfl/";}
 	public static int setProfilePath(String path) {		
 		try {
-			Prompt.talk("Core gene profile directory check : " + ANSIHandler.wrapper(path, 'B'));
+			Prompt.talk("Gene profile directory check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
 			if(!exec[0].contains("directory")) {
 				ExceptionHandler.pass(path);
@@ -234,7 +256,7 @@ public class PathConfig {
 	}
 	public static boolean checkProfilePath() {
 		int[] cnt = new int[GenericConfig.FCG.length];
-		for(int i = 0; i < cnt.length; i++) cnt[i] = -2;
+		for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
 		
 		String[] cmd = {"/bin/bash", "-c",
 				"ls -1 " + ProfilePath + " > " + TempPath + GenericConfig.TEMP_HEADER + "prfl.list"};
@@ -244,7 +266,58 @@ public class PathConfig {
 			tmpListStream.isTemp();
 			String buf;
 			while((buf = tmpListStream.readLine()) != null) {
-				if(!buf.endsWith(".hmm") && !buf.endsWith(".blk")) continue;
+				if(!buf.endsWith(".blk")) continue;
+				int loc = 0;
+				for(; loc < cnt.length; loc++) if(buf.contains(GenericConfig.FCG[loc])) break;
+				if(loc == cnt.length) continue;
+				cnt[loc]++;
+			}
+			tmpListStream.wipe(true);
+			
+			for(int c : cnt) if(c < 0) return false;
+		}
+		catch(java.io.IOException e) {
+			e.printStackTrace();
+			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+		}
+		return true;
+	}
+	
+	public static String SeqPath = EnvironmentPath + "config/seq/";
+	private static void renewSeqPath() {SeqPath = EnvironmentPath + "config/seq/";}
+	public static int setSeqPath(String path) {		
+		try {
+			Prompt.talk("Gene sequence directory check : " + ANSIHandler.wrapper(path, 'B'));
+			String[] exec = Shell.exec("file -b " + path);
+			if(!exec[0].contains("directory")) {
+				ExceptionHandler.pass(path);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+				return 1;
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+			return 2;
+		}
+		
+		SeqPath = path;
+		if(!SeqPath.endsWith("/")) SeqPath += "/";
+		return 0;
+	}
+	public static boolean checkSeqPath() {
+		int[] cnt = new int[GenericConfig.FCG.length];
+		for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
+		
+		String[] cmd = {"/bin/bash", "-c",
+				"ls -1 " + SeqPath + " > " + TempPath + GenericConfig.TEMP_HEADER + "seq.list"};
+		Shell.exec(cmd);
+		try {
+			FileStream tmpListStream = new FileStream(TempPath + GenericConfig.TEMP_HEADER + "seq.list", 'r');
+			tmpListStream.isTemp();
+			String buf;
+			while((buf = tmpListStream.readLine()) != null) {
+				if(!buf.endsWith(".fa")) continue;
 				int loc = 0;
 				for(; loc < cnt.length; loc++) if(buf.contains(GenericConfig.FCG[loc])) break;
 				if(loc == cnt.length) continue;

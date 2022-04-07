@@ -10,18 +10,20 @@ import pipeline.ExceptionHandler;
 import envs.toolkit.FileStream;
 
 import entity.BlockProfileEntity;
+import entity.MMseqsSearchResultEntity;
 import entity.ProfilePredictionEntity;
 import entity.QueryEntity;
 
 import process.FastBlockSearchProcess;
 import process.ContigDragProcess;
 import process.GenePredictionProcess;
-import process.HmmsearchProcess;
+//import process.HmmsearchProcess;
 import process.JsonBuildProcess;
-
+import process.MMseqsEasySearchProcess;
 import wrapper.FastBlockSearchWrapper;
 import wrapper.AugustusWrapper;
 import wrapper.HmmsearchWrapper;
+import wrapper.MMseqsWrapper;
 
 import java.io.File;
 import java.io.BufferedReader;
@@ -56,6 +58,7 @@ public class ProfileModule {
 		
 		opts.addOption("i", "input", true, "input path");
 		opts.addOption("o", "output", true, "output path");
+		opts.addOption("s", "set", true, "set of genes to extract");
 		opts.addOption("k", "keep", true, "intermediate path");
 		opts.addOption("f", "force", false, "force delete");
 		opts.addOption("t", "thread",  true, "number of cpu threads");
@@ -63,18 +66,20 @@ public class ProfileModule {
 		opts.addOption(null, "fastblocksearch", true, "fastBlockSearch binary");
 		opts.addOption(null, "augustus", true, "AUGUSTUS binary");
 		opts.addOption(null, "hmmsearch", true, "hmmsearch binary");
+		opts.addOption(null, "mmseqs", true, "MMseqs2 binary");
 		
 		opts.addOption("m", "metadata", true, "metadata path");
 		opts.addOption(null, "metainfo", true, "single file metadata information");
 		opts.addOption("n", "intron", false, "include intron sequences");
-		opts.addOption(null, "profile", true, "core gene profile path");
+		opts.addOption(null, "prflpath", true, "gene profile path");
+		opts.addOption(null, "seqpath", true, "gene sequence path");
 		opts.addOption(null, "ppxcfg", true, "AUGUSTUS-PPX config path");
 		opts.addOption("v", "verbose", false, "verbosity");
 		
 		opts.addOption(null, "fbscutoff", true, "fastBlockSearch cutoff");
 		opts.addOption(null, "augoffset", true, "AUGUSTUS prediction offset");
 		opts.addOption(null, "hmmscore", true, "hmmsearch score cutoff");
-		opts.addOption(null, "corelist", true, "custom core gene list");
+		opts.addOption(null, "evalue", true, "e-value cutoff");
 		
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
@@ -124,6 +129,14 @@ public class ProfileModule {
 		if(cmd.hasOption("o"))
 			PathConfig.setOutputPath(cmd.getOptionValue("o"));
 		else ExceptionHandler.handle(ExceptionHandler.NO_OUTPUT);
+		
+		if(cmd.hasOption("s"))
+			GenericConfig.setGeneset(cmd.getOptionValue("s"));
+		if(GenericConfig.solveGeneset() != 0) {
+			ExceptionHandler.pass(GenericConfig.GENESET);
+			ExceptionHandler.handle(ExceptionHandler.INVALID_GENE_SET);
+		}
+		
 		if(cmd.hasOption("k"))
 			PathConfig.setTempPath(cmd.getOptionValue("k"));
 		if(cmd.hasOption("t"))
@@ -136,6 +149,8 @@ public class ProfileModule {
 			PathConfig.setAugustusPath(cmd.getOptionValue("augustus"));
 		if(cmd.hasOption("hmmsearch"))
 			PathConfig.setHmmsearchPath(cmd.getOptionValue("hmmsearch"));
+		if(cmd.hasOption("mmseqs"))
+			PathConfig.setMMseqsPath(cmd.getOptionValue("mmseqs"));
 		
 		/* parse configuration options */
 		if(cmd.hasOption("m"))
@@ -149,8 +164,14 @@ public class ProfileModule {
 			if(cmd.hasOption("m") || PathConfig.InputIsFolder) ExceptionHandler.handle(ExceptionHandler.METAINFO_CONFLICT);
 			PathConfig.MetaString = cmd.getOptionValue("metainfo");
 		}
-		if(cmd.hasOption("profile"))
+		
+		if(cmd.hasOption("prflpath")) {
 			PathConfig.setProfilePath(cmd.getOptionValue("profile"));
+		}
+		if(cmd.hasOption("seqpath")) {
+			PathConfig.setSeqPath(cmd.getOptionValue("profile"));
+		}
+		
 		if(cmd.hasOption("ppxcfg"))
 			PathConfig.setAugustusConfig(cmd.getOptionValue("ppxcfg"));
 		
@@ -161,8 +182,10 @@ public class ProfileModule {
 			GenericConfig.setAugustusPredictionOffset(cmd.getOptionValue("augoffset"));
 		if(cmd.hasOption("hmmscore"))
 			GenericConfig.setHmmsearchScoreCutoff(cmd.getOptionValue("hmmscore"));
-		if(cmd.hasOption("corelist"))
-			GenericConfig.setCustomCoreList(cmd.getOptionValue("corelist"));
+		if(cmd.hasOption("evalue"))
+			GenericConfig.setEvalueCutoff(cmd.getOptionValue("evalue"));
+//		if(cmd.hasOption("corelist"))
+//			GenericConfig.setCustomCoreList(cmd.getOptionValue("corelist"));
 		
 		/* successfully parsed */
 		Prompt.talk(ANSIHandler.wrapper("SUCCESS", 'g') + " : Option parsing");
@@ -191,8 +214,15 @@ public class ProfileModule {
 			ExceptionHandler.pass(PathConfig.HmmsearchPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}
+		if(!MMseqsWrapper.solve()) {
+			ExceptionHandler.pass(PathConfig.MMseqsPath);
+			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
+		}
 		if(!PathConfig.checkProfilePath()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_PROFILE_PATH);
+		}
+		if(!PathConfig.checkSeqPath()) {
+			ExceptionHandler.handle(ExceptionHandler.INVALID_SEQ_PATH);
 		}
 		
 		Prompt.talk(ANSIHandler.wrapper("SUCCESS", 'g') + " : Dependency solving");
@@ -289,11 +319,11 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
 		System.out.println(String.format(" %s\t\t%s", "-i", "Input directory containing fungal genome assemblies"));
 		System.out.println(String.format(" %s\t\t%s", "-o", "Output directory to store the result files"));
-		System.out.println(String.format(" %s\t\t%s", "-s", "Set of markers to extract - see advanced options for details (default: NUC,PRO,CORE)"));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
+		System.out.println(String.format(" %s\t\t%s", "-s", "Set of markers to extract - see advanced options for details (default: PRO)"));
 		System.out.println(String.format(" %s\t\t%s", "-k", "Directory to keep the temporary files (default: use /tmp and do not keep)"));
 		System.out.println(String.format(" %s\t\t%s", "-f", "Force to overwrite the existing files"));
 		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
@@ -313,13 +343,12 @@ public class ProfileModule {
 		
 		System.out.println(ANSIHandler.wrapper("\n Defining set of markers", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Name\t\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "NUC", "Nucleotide marker (SSU,ITS1,5.8S,ITS2,LSU)"));
-		System.out.println(String.format(" %s\t\t%s", "PRO", "Conventional protein markers (ACT1,ATP6,CCT8,CMD1,COB,COX2,COX3,NDI1,OLI1,PAH1,PGK1,RPB2,RPO21,TEF1,TOP1,TSR1,TUB1,TUB2)"));
-		System.out.println(String.format(" %s\t\t%s", "CORE", "Core protein markers (52 genes - run <java -jar UFCG.jar --core> to see the list)"));
-		System.out.println(String.format(" %s\t\t%s", "BUSCO", "BUSCO sequences (758 orthologs from fungi_odb10)"));
+		System.out.println(String.format(" %s\t\t%s", "NUC", "Extract nucleotide marker sequences (Partial SSU/ITS1/5.8S/ITS2/Partial LSU)"));
+		System.out.println(String.format(" %s\t\t%s", "PRO", "Extract protein marker sequences (70 genes - run " + ANSIHandler.wrapper("java -jar UFCG.jar --core", 'B') + " to see the full list)"));
+		System.out.println(String.format(" %s\t\t%s", "BUSCO", "Extract BUSCO sequences (758 orthologs from fungi_odb10)"));
 		System.out.println("");
-		System.out.println(String.format(" * Provide a comma-separated string consists of following sets (ex: NUC,PRO / PRO,CORE / BUSCO etc.)"));
-		System.out.println(String.format(" * Use specific gene names to extract custom set of protein markers (ex: ACT1,TEF1,TUB1 / CMD1,RPB2,RPO21,TEF1)"));
+		System.out.println(String.format(" * Provide a comma-separated string consists of following sets (ex: NUC,PRO / PRO,BUSCO etc.)"));
+		System.out.println(String.format(" * Use specific gene names to extract custom set of markers (ex: ACT1,TEF1,TUB1 / NUC,CMD1,RPB2)"));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Dependencies", 'y'));
@@ -327,16 +356,19 @@ public class ProfileModule {
 		System.out.println(String.format(" %s\t%s", "--fastblocksearch", "Path to fastBlockSearch binary"));
 		System.out.println(String.format(" %s\t\t%s", "--augustus", "Path to AUGUSTUS binary"));
 		System.out.println(String.format(" %s\t\t%s", "--hmmsearch", "Path to hmmsearch binary"));
+		System.out.println(String.format(" %s\t\t%s", "--mmseqs", "Path to MMseqs binary"));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
 		System.out.println(String.format(" %s\t\t%s", "--metainfo",  "Comma-separated metadata string for a single file input"));
-		System.out.println(String.format(" %s\t\t%s", "--profile",   "Path to the core genome profiles (default: ./config/prfl)"));
+		System.out.println(String.format(" %s\t\t%s", "--prflpath",   "Path to the directory containing gene profiles (default: ./config/prfl)"));
+		System.out.println(String.format(" %s\t\t%s", "--seqpath",   "Path to the directory containing gene sequences (default: ./config/seq)"));
 		System.out.println(String.format(" %s\t\t%s", "--ppxcfg",    "Path to the AUGUSTUS-PPX config file (default: ./config/ppx.cfg"));
 		System.out.println(String.format(" %s\t\t%s", "--fbscutoff", "Cutoff value for fastBlockSearch process (default = 0.5)"));
 		System.out.println(String.format(" %s\t\t%s", "--augoffset", "Prediction offset window size for AUGUSTUS process (default = 10000)"));
 		System.out.println(String.format(" %s\t\t%s", "--hmmscore",  "Bitscore cutoff for hmmsearch validation (default = 100)"));
+		System.out.println(String.format(" %s\t\t%s", "--evalue",    "E-value cutoff for validation (default = 1e-30)"));
 //		System.out.println(String.format(" %s\t\t%s", "--corelist",  "Comma-separated string for a custom set of fungal core genes"));
 		System.out.println("");
 		
@@ -389,6 +421,19 @@ public class ProfileModule {
 			if(PathConfig.setOutputPath(buf) == 0) {
 				proceed = true;
 				command += " --output " + buf;
+			}
+		}
+		proceed = false;
+		
+		// --set
+		while(!proceed) {
+			Prompt.print_nnc("Enter the set of genes to use (--set) : ");
+			buf = stream.readLine();
+			if(buf.length() == 0) continue;
+			GenericConfig.setGeneset(buf);
+			if(GenericConfig.solveGeneset() == 0) {
+				proceed = true;
+				command += " --set " + buf;
 			}
 		}
 		proceed = false;
@@ -701,19 +746,6 @@ public class ProfileModule {
 				}
 			}
 			proceed = false;
-			
-			// --corelist
-			while(!proceed) {
-				Prompt.print_nnc("Enter your custom set of fungal core genes. Type 'x' to use the default set. (--corelist) : ");
-				buf = stream.readLine();
-				if(buf.length() == 0) continue;
-				if(buf.startsWith("x")) break;
-				if(GenericConfig.setCustomCoreList(buf) == 0) {
-					proceed = true;
-					command += " --corelist " + buf;
-				}
-			}
-			proceed = false;
 		}
 		
 		/* Final confirmation */
@@ -807,46 +839,64 @@ public class ProfileModule {
 					}
 				}
 				
-				/* Div 1. Nucleotide barcode prediction */
-				
-				
-				/* Div 2. Protein barcode prediction */
-				/* Dynamic progress prompt setup */
-				initProg();
-				printProg();
-				
-				/* Iterate through genes and run extract session
-				 * Single iteration consists of three phases:
-				 * 		1. SEARCH -> 2. PREDICT -> 3. VALIDATE
-				 */
-				/* Multithreading with ExecutorService (from ver 0.3) */
-				nSgl = 0; nMul = 0; nUid = 0;
 				List<ProfilePredictionEntity> pps = new ArrayList<ProfilePredictionEntity>();
-				
-				ExecutorService executorService = Executors.newFixedThreadPool(GenericConfig.ThreadPoolSize);
-				List<Future<ProfilePredictionEntity>> futures = new ArrayList<Future<ProfilePredictionEntity>>();
-				
-				for(int g = 0; g < GenericConfig.FCG.length; g++) {
-					CreateProfile creator = new ProfileModule().new CreateProfile(g);
-					futures.add(executorService.submit(creator));
-					Thread.sleep(500);
+				/* Step 1. Nucleotide barcode prediction */
+				if(GenericConfig.NUC) {
+					Prompt.print("Extracting nucleotide markers...");
+					
+					// Run MMseqs easy-search
+					MMseqsEasySearchProcess.setTask("ITS");
+					MMseqsSearchResultEntity res = MMseqsEasySearchProcess.search(PathConfig.SeqPath + "ITS.fa", PathConfig.InputIsFolder ? PathConfig.InputPath + GenericConfig.FILENAME : PathConfig.InputPath, PathConfig.TempPath, 500, 500, true);
+					res.reduce();
+					ProfilePredictionEntity pp = MMseqsEasySearchProcess.parse(res);
+					res.remove();
+					if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + "ITS.fa", PathConfig.TempPath);
+					pps.add(pp);
 				}
-
-				executorService.shutdown();
-				for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
+				
+				/* Step 2. Protein barcode prediction */
+				if(GenericConfig.PRO) {
+					Prompt.print("Extracting protein markers...");
+					/* Dynamic progress prompt setup */
+					initProg();
+					printProg();
+					
+					/* Iterate through genes and run extract session
+					 * Single iteration consists of three phases:
+					 * 		1. SEARCH -> 2. PREDICT -> 3. VALIDATE
+					 */
+					/* Multithreading with ExecutorService (from ver 0.3) */
+					nSgl = 0; nMul = 0; nUid = 0;
+					
+					ExecutorService executorService = Executors.newFixedThreadPool(GenericConfig.ThreadPoolSize);
+					List<Future<ProfilePredictionEntity>> futures = new ArrayList<Future<ProfilePredictionEntity>>();
+					
+					for(int g = 0; g < GenericConfig.FCG.length; g++) {
+						CreateProfile creator = new ProfileModule().new CreateProfile(g);
+						futures.add(executorService.submit(creator));
+						Thread.sleep(500);
+					}
+	
+					executorService.shutdown();
+					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
+					
+					Prompt.dynamic(ANSIHandler.wrapper(" DONE", 'g') + "\n");
+					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
+							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
+					
+					for(String contig : contigs) FileStream.wipe(contig, true);
+					contigs = new ArrayList<String>();
+				}
+				
+				/* Step 3. BUSCO prediction */
+				if(GenericConfig.BUSCO) {
+					Prompt.print("Extracting BUSCOs...");
+				}
 				
 				/* Write the entire result on a single JSON file */
-				Prompt.dynamic(ANSIHandler.wrapper(" DONE", 'g') + "\n");
-				Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
-						ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 				String jsonPath = PathConfig.OutputPath + GenericConfig.ACCESS + ".ucg";
 				Prompt.print("Writing results on : " + ANSIHandler.wrapper(jsonPath, 'y'));
 				JsonBuildProcess.build(pps, jsonPath);
-				
-				for(String contig : contigs) FileStream.wipe(contig, true);
-				contigs = new ArrayList<String>();
-				
-				/* Div 3. BUSCO prediction */
 			}
 			
 			/* Clean up temporary files if exist */
@@ -921,7 +971,7 @@ public class ProfileModule {
 			Prompt.talk(ANSIHandler.wrapper("[Phase 1 : Searching]", 'p'));
 			String seqPath = PathConfig.InputIsFolder ? PathConfig.InputPath + GenericConfig.FILENAME : PathConfig.InputPath;
 			/* Run fastBlockSearch on assembly to find gene containing location (contig, position) */
-			BlockProfileEntity bp = FastBlockSearchProcess.handle(seqPath, PathConfig.ProfilePath + "uucg_fungi_" + cg + ".blk", cg);
+			BlockProfileEntity bp = FastBlockSearchProcess.handle(seqPath, PathConfig.ProfilePath + cg + ".blk", cg);
 			/* Drag required contigs from assembly and store their paths */
 			List<String> ctgPaths = ContigDragProcess.drag(seqPath, bp);
 			
@@ -935,7 +985,7 @@ public class ProfileModule {
 			updateProg(g, ANSIHandler.wrapper("V", 'R')); printProg();
 			Prompt.talk(ANSIHandler.wrapper("[Phase 3 : Validation]", 'R'));
 			/* Run hmmsearch and find target gene among the predicted genes */
-			if(pp.nseq() > 0) HmmsearchProcess.search(pp, PathConfig.ProfilePath + "uucg_fungi_" + cg + ".hmm");
+			if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + cg + ".fa", PathConfig.TempPath);
 			/* Implementation note.
 			 *		Previously, contigs were removed right after AUGUSTUS finishes the prediction.
 			 *		However, to extract the cDNA sequence for the gene, contig should remain intact.

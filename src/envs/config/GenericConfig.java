@@ -4,8 +4,11 @@ import pipeline.ExceptionHandler;
 import pipeline.UFCGMainPipeline;
 import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
+
 import java.util.Arrays;
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
 
 public class GenericConfig {
 	/* Running project status */
@@ -182,6 +185,30 @@ public class GenericConfig {
 		}
 	}
 	
+	public static double EvalueCutoff = 1e-30;
+	public static void setEvalueCutoff(double cutoff) {
+		EvalueCutoff = cutoff;
+	}
+	public static int setEvalueCutoff(String val) {
+		try {
+			Prompt.talk("Custom e-value cutoff check : " + ANSIHandler.wrapper(val, 'B'));
+			double cutoff = Double.parseDouble(val);
+			
+			if(cutoff <= .0) {
+				ExceptionHandler.pass(cutoff);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+			}
+			
+			setHmmsearchScoreCutoff(cutoff);
+			return 0;
+		}
+		catch(NumberFormatException nfe) {
+			ExceptionHandler.pass(val + " (Numerical value expected)");
+			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+			return 1;
+		}
+	}
+	
 	// Reference Fungal Core Gene
 /*	public static final String[] FCG_ALT = {
 			"ACC1",   "ALA1",   "ASN1",   "ASP1",   "BMS1",   "BUD7",   "CDC48",  "CHS2",   "CYR1",
@@ -203,6 +230,7 @@ public class GenericConfig {
 	// In order considering the calculation time of each gene
 	public static final String[] FCG_ORD = {
 			"URA2","KAR2","FKS1","SSB1","ACO2","SSA3","CPA2","UBI4","ACO1","MCM7",
+			"ATP6","CCT8","CMD1","COB","COX2","COX3","NDI1","OLI1","PAH1","PGK1","TOP1","TSR1",
 			"PRP43","RPO21","RPB2","SSA1","MTR4","RET1","KGD1","RPT5","RPT6","MCM2",
 			"EFT1","LEU1","ECM10","ILV2","FAL1","TRP3","RPT2","CCT4","PHO85","DBP1",
 			"SSC1","CDC48","MDH1","HRR25","RPT3","TIF1","CCT2","TUB2","IMD2","TCP1",
@@ -411,9 +439,31 @@ public class GenericConfig {
 			
 	};
 			
-	
+	/* Gene set definition */
+	public static String GENESET = "PRO";
 	public static String[] FCG = FCG_ORD; // core genes for this process
-	public static int setCustomCoreList(String list) {
+	public static void setGeneset(String geneset) {GENESET = geneset;}
+	
+	public static boolean NUC = false, PRO = false, BUSCO = false;
+	public static int solveGeneset() {
+		List<String> pros = new ArrayList<String>(); // custom protein marker set
+		for(String ele : GENESET.split(",")) {
+			if(ele.equals("NUC")) NUC = true;
+			else if(ele.equals("PRO")) PRO = true;
+			else if(ele.equals("BUSCO")) BUSCO = true;
+			else if(!Arrays.asList(FCG_ORD).contains(ele)) return 1; // not allowing non-core protein markers
+			else {
+				PRO = true;
+				pros.add(ele);
+			}
+		}
+		
+		if(!(NUC | PRO | BUSCO)) return 1; // invalid if nothing is detected
+		if(pros.size() > 0) FCG = Arrays.copyOf(pros.toArray(), pros.toArray().length, String[].class); // use custom proteins if detected
+		return 0;
+	}
+	
+/*	public static int setCustomCoreList(String list) {
 		Prompt.talk("Custom core gene list check : " + ANSIHandler.wrapper(list, 'B'));
 		
 		if(!list.contains(",")) {
@@ -424,19 +474,18 @@ public class GenericConfig {
 		}
 		
 		String[] split = list.split(",");
-		/*
-		for(String cg : split) {
-			if(!Arrays.asList(FCG_REF).contains(cg)) {
-				ExceptionHandler.pass(cg);
-				ExceptionHandler.handle(ExceptionHandler.INVALID_GENE_NAME);
-				return 1;
-			}
-		}*/
+//		for(String cg : split) {
+//			if(!Arrays.asList(FCG_REF).contains(cg)) {
+//				ExceptionHandler.pass(cg);
+//				ExceptionHandler.handle(ExceptionHandler.INVALID_GENE_NAME);
+//				return 1;
+//			}
+//		}
 		
 		FCG = split;
 		if(VERB) Prompt.print(String.format("Custom gene set containing %d genes confirmed.", FCG.length));
 		return 0;
-	}
+	} */
 	
 	public static String geneString() {
 		String gstr = "";

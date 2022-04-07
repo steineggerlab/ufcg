@@ -188,6 +188,8 @@ public class QueryEntity {
 	public int checkResultFileExistence() {
 		String[] exec = Shell.exec("file -b " + PathConfig.OutputPath + this.accession + ".ucg");
 		if(exec[0].contains("text")) return 1;
+		if(exec[0].contains("JSON")) return 1;
+		if(exec[0].contains("data")) return 1;
 		return 0;
 	}
 	

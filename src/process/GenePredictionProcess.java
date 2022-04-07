@@ -28,7 +28,7 @@ public class GenePredictionProcess {
 	
 	// convert block profile to protein prediction profiles
 	public static ProfilePredictionEntity blockPredict(BlockProfileEntity bp, List<String> ctgPaths){
-		ProfilePredictionEntity pp = new ProfilePredictionEntity(bp);
+		ProfilePredictionEntity pp = new ProfilePredictionEntity(bp, ProfilePredictionEntity.TYPE_PRO);
 		
 		for(int i = 0; i < bp.getCnt(); i++) {
 			Prompt.talk(String.format("AUGUSTUS is predicting genes... (contig %s, position %d-%d)",
