@@ -26,7 +26,7 @@ import envs.toolkit.TimeKeeper;
 import process.ContigDragProcess;
 import process.FastBlockSearchProcess;
 import process.GenePredictionProcess;
-import process.HmmsearchProcess;
+import process.MMseqsEasySearchProcess;
 
 public class Benchmarker {
 	public final String PATH;
@@ -38,14 +38,14 @@ public class Benchmarker {
 	int mark(String gene) throws java.io.IOException {
 		Long itime = System.currentTimeMillis();
 		
-		BlockProfileEntity bp = FastBlockSearchProcess.handle(PATH, PathConfig.ProfilePath + "uucg_fungi_" + gene + ".blk", gene);
+		BlockProfileEntity bp = FastBlockSearchProcess.handle(PATH, PathConfig.ModelPath + gene + ".hmm", gene);
 		
 		Long dragtime = System.currentTimeMillis();
 		List<String> ctgPaths = ContigDragProcess.drag(PATH, bp);
 		dragtime = System.currentTimeMillis() - dragtime;
 		
 		ProfilePredictionEntity pp = GenePredictionProcess.blockPredict(bp, ctgPaths);
-		if(pp.nseq() > 0) HmmsearchProcess.search(pp, PathConfig.ProfilePath + "uucg_fungi_" + gene + ".hmm");
+		if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + gene + ".fa", PathConfig.TempPath);
 		
 		if(!pp.valid()) return -1;
 		return Integer.valueOf(String.valueOf(System.currentTimeMillis() - itime - dragtime));

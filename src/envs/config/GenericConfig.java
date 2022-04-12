@@ -3,7 +3,9 @@ package envs.config;
 import pipeline.ExceptionHandler;
 import pipeline.UFCGMainPipeline;
 import envs.toolkit.ANSIHandler;
+import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
+import envs.toolkit.Shell;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -230,12 +232,12 @@ public class GenericConfig {
 	// In order considering the calculation time of each gene
 	public static final String[] FCG_ORD = {
 			"URA2","KAR2","FKS1","SSB1","ACO2","SSA3","CPA2","UBI4","ACO1","MCM7",
-			"ATP6","CCT8","CMD1","COB","COX2","COX3","NDI1","OLI1","PAH1","PGK1","TOP1","TSR1",
 			"PRP43","RPO21","RPB2","SSA1","MTR4","RET1","KGD1","RPT5","RPT6","MCM2",
 			"EFT1","LEU1","ECM10","ILV2","FAL1","TRP3","RPT2","CCT4","PHO85","DBP1",
 			"SSC1","CDC48","MDH1","HRR25","RPT3","TIF1","CCT2","TUB2","IMD2","TCP1",
 			"HSP60","CCT7","SAM1","RPL4A","RPT1","SAM2","TEF1","RPL8A","TUB1","SUP45",
-			"ACT1","DBP2","NBP35","RPL3","RPP0","RPS0A","CDC21","RPL2B"
+			"ACT1","DBP2","NBP35","RPL3","RPP0","RPS0A","CDC21","RPL2B",
+			"ATP6","CCT8","CMD1","COB","COX2","COX3","NDI1","OLI1","PAH1","PGK1","TOP1","TSR1",
 	};
 	public static final String[] FCG_COG = {
 			"C","C","Z","O","O","O","F","M/D/T","E/F","L",
@@ -444,7 +446,12 @@ public class GenericConfig {
 	public static String[] FCG = FCG_ORD; // core genes for this process
 	public static void setGeneset(String geneset) {GENESET = geneset;}
 	
+	public static final int TARGET_NUC = 0x01,
+							TARGET_PRO = 0x02,
+							TARGET_BUSCO = 0x03;
+	
 	public static boolean NUC = false, PRO = false, BUSCO = false;
+	public static int TARGET = 0;
 	public static int solveGeneset() {
 		List<String> pros = new ArrayList<String>(); // custom protein marker set
 		for(String ele : GENESET.split(",")) {
@@ -460,6 +467,65 @@ public class GenericConfig {
 		
 		if(!(NUC | PRO | BUSCO)) return 1; // invalid if nothing is detected
 		if(pros.size() > 0) FCG = Arrays.copyOf(pros.toArray(), pros.toArray().length, String[].class); // use custom proteins if detected
+		return 0;
+	}
+	
+	public static String[] QUERY_GENES = null; // query genes
+	public static void setQueryGenes(String[] q, int target) {QUERY_GENES = q; TARGET = target;}
+	
+	public static String[] BUSCOS = null;
+	public static int getBuscos() {
+		List<String> bids = new ArrayList<String>();
+		
+		// get list from sequence directory
+		String[] lsseq = {"/bin/bash", "-c",
+				"ls -1 " + PathConfig.SeqPath + "/busco > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.seq.list"};
+		Shell.exec(lsseq);
+		try {
+			FileStream tmpListStream = new FileStream(PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.seq.list", 'r');
+			tmpListStream.isTemp();
+			String buf;
+			while((buf = tmpListStream.readLine()) != null) {
+				if(!buf.endsWith(".fa")) continue;
+				bids.add(buf.substring(0, buf.indexOf('.')));
+			}
+			
+			tmpListStream.wipe(true);
+			BUSCOS = Arrays.copyOf(bids.toArray(), bids.toArray().length, String[].class);
+		}
+		catch(java.io.IOException e) {
+			e.printStackTrace();
+			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+		}
+		
+		// validate list using model directory
+		String[] lsmodel = {"/bin/bash", "-c",
+				"ls -1 " + PathConfig.ModelPath + "/busco > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.model.list"};
+		Shell.exec(lsmodel);
+		try {
+			int[] cnt = new int[BUSCOS.length];
+			for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
+			
+			FileStream tmpListStream = new FileStream(PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.model.list", 'r');
+			tmpListStream.isTemp();
+			String buf;
+			while((buf = tmpListStream.readLine()) != null) {
+				if(!buf.endsWith(".hmm")) continue;
+				int loc = 0;
+				for(; loc < cnt.length; loc++) if(buf.contains(BUSCOS[loc])) break;
+				if(loc == cnt.length) continue;
+				cnt[loc]++;
+			}
+			tmpListStream.wipe(true);
+			
+			for(int c : cnt) if(c < 0) return 1;
+		}
+		catch(java.io.IOException e) {
+			e.printStackTrace();
+			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+		}
+		
+		Prompt.print("Number of BUSCOs to extract : " + ANSIHandler.wrapper(String.valueOf(BUSCOS.length), 'B'));
 		return 0;
 	}
 	

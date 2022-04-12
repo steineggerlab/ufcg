@@ -26,7 +26,7 @@ public class ExceptionHandler {
 	public static final int DEPENDENCY_UNSOLVED		= 0x0B;
 	public static final int CONFIG_PATH_UNDEFINED	= 0x0C;
 	public static final int INVALID_PPX_CONFIG		= 0x0D;
-	public static final int INVALID_PROFILE_PATH	= 0x0E;
+	public static final int INVALID_MODEL_PATH		= 0x0E;
 	public static final int INVALID_SEQ_PATH		= 0x1C;
 	public static final int INVALID_META_HEADER		= 0x0F;
 	public static final int INSUFFICIENT_METADATA	= 0x10;
@@ -35,6 +35,7 @@ public class ExceptionHandler {
 	public static final int METAINFO_CONFLICT		= 0x13;
 	public static final int INVALID_METAINFO		= 0x14;
 	public static final int INVALID_GENE_SET		= 0x1B;
+	public static final int BUSCO_UNSOLVED			= 0x1D;
 	
 	// tree
 	public static final int NO_LEAF_OPTION			= 0x15;
@@ -93,8 +94,8 @@ public class ExceptionHandler {
 			System.out.println("AUGUSTUS_CONFIG_PATH undefined or imporoperly defined."); break;
 		case INVALID_PPX_CONFIG:
 			System.out.println("AUGUSTUS-PPX config file is absent or improperly formatted."); break;
-		case INVALID_PROFILE_PATH:
-			System.out.println("Gene profile directory is incomplete."); break;
+		case INVALID_MODEL_PATH:
+			System.out.println("Block profile model directory is incomplete."); break;
 		case INVALID_SEQ_PATH:
 			System.out.println("Gene sequence directory is incomplete."); break;
 		case INVALID_META_HEADER:
@@ -123,6 +124,8 @@ public class ExceptionHandler {
 			System.out.println("Tree config file (config/tree.cfg) is not properly set."); break;
 		case INVALID_ALIGN_MODE:
 			System.out.println("Invalid align mode given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
+		case BUSCO_UNSOLVED:
+			System.out.println("Failed to import BUSCOs. Please check BUSCO sequence/model directories."); break;
 		}
 		
 		if(!GenericConfig.INTERACT || exception == EXCEPTION) {

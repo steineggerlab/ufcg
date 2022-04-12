@@ -11,7 +11,7 @@ public class PathConfig {
 	public static String EnvironmentPath = "";
 	public static void setEnvironmentPath(String path) {
 		EnvironmentPath = path;
-		renewProfilePath();
+		renewModelPath();
 		renewSeqPath();
 		renewAugustusConfig();
 	}
@@ -232,9 +232,9 @@ public class PathConfig {
 		return 0;
 	}
 	
-	public static String ProfilePath = EnvironmentPath + "config/prfl/";
-	private static void renewProfilePath() {ProfilePath = EnvironmentPath + "config/prfl/";}
-	public static int setProfilePath(String path) {		
+	public static String ModelPath = EnvironmentPath + "config/model/";
+	private static void renewModelPath() {ModelPath = EnvironmentPath + "config/model/";}
+	public static int setModelPath(String path) {		
 		try {
 			Prompt.talk("Gene profile directory check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
@@ -250,23 +250,23 @@ public class PathConfig {
 			return 2;
 		}
 		
-		ProfilePath = path;
-		if(!ProfilePath.endsWith("/")) ProfilePath += "/";
+		ModelPath = path;
+		if(!ModelPath.endsWith("/")) ModelPath += "/";
 		return 0;
 	}
-	public static boolean checkProfilePath() {
+	public static boolean checkModelPath() {
 		int[] cnt = new int[GenericConfig.FCG.length];
 		for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
 		
 		String[] cmd = {"/bin/bash", "-c",
-				"ls -1 " + ProfilePath + " > " + TempPath + GenericConfig.TEMP_HEADER + "prfl.list"};
+				"ls -1 " + ModelPath + "/pro > " + TempPath + GenericConfig.TEMP_HEADER + "model.list"};
 		Shell.exec(cmd);
 		try {
-			FileStream tmpListStream = new FileStream(TempPath + GenericConfig.TEMP_HEADER + "prfl.list", 'r');
+			FileStream tmpListStream = new FileStream(TempPath + GenericConfig.TEMP_HEADER + "model.list", 'r');
 			tmpListStream.isTemp();
 			String buf;
 			while((buf = tmpListStream.readLine()) != null) {
-				if(!buf.endsWith(".blk")) continue;
+				if(!buf.endsWith(".hmm")) continue;
 				int loc = 0;
 				for(; loc < cnt.length; loc++) if(buf.contains(GenericConfig.FCG[loc])) break;
 				if(loc == cnt.length) continue;
@@ -310,7 +310,7 @@ public class PathConfig {
 		for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
 		
 		String[] cmd = {"/bin/bash", "-c",
-				"ls -1 " + SeqPath + " > " + TempPath + GenericConfig.TEMP_HEADER + "seq.list"};
+				"ls -1 " + SeqPath + "/pro > " + TempPath + GenericConfig.TEMP_HEADER + "seq.list"};
 		Shell.exec(cmd);
 		try {
 			FileStream tmpListStream = new FileStream(TempPath + GenericConfig.TEMP_HEADER + "seq.list", 'r');

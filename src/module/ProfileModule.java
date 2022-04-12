@@ -136,6 +136,9 @@ public class ProfileModule {
 			ExceptionHandler.pass(GenericConfig.GENESET);
 			ExceptionHandler.handle(ExceptionHandler.INVALID_GENE_SET);
 		}
+		if(GenericConfig.BUSCO)
+			if(GenericConfig.getBuscos() != 0)
+				ExceptionHandler.handle(ExceptionHandler.BUSCO_UNSOLVED);
 		
 		if(cmd.hasOption("k"))
 			PathConfig.setTempPath(cmd.getOptionValue("k"));
@@ -165,11 +168,11 @@ public class ProfileModule {
 			PathConfig.MetaString = cmd.getOptionValue("metainfo");
 		}
 		
-		if(cmd.hasOption("prflpath")) {
-			PathConfig.setProfilePath(cmd.getOptionValue("profile"));
+		if(cmd.hasOption("modelpath")) {
+			PathConfig.setModelPath(cmd.getOptionValue("modelpath"));
 		}
 		if(cmd.hasOption("seqpath")) {
-			PathConfig.setSeqPath(cmd.getOptionValue("profile"));
+			PathConfig.setSeqPath(cmd.getOptionValue("seqpath"));
 		}
 		
 		if(cmd.hasOption("ppxcfg"))
@@ -218,8 +221,8 @@ public class ProfileModule {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}
-		if(!PathConfig.checkProfilePath()) {
-			ExceptionHandler.handle(ExceptionHandler.INVALID_PROFILE_PATH);
+		if(!PathConfig.checkModelPath()) {
+			ExceptionHandler.handle(ExceptionHandler.INVALID_MODEL_PATH);
 		}
 		if(!PathConfig.checkSeqPath()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_SEQ_PATH);
@@ -362,7 +365,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
 		System.out.println(String.format(" %s\t\t%s", "--metainfo",  "Comma-separated metadata string for a single file input"));
-		System.out.println(String.format(" %s\t\t%s", "--prflpath",   "Path to the directory containing gene profiles (default: ./config/prfl)"));
+		System.out.println(String.format(" %s\t\t%s", "--modelpath", "Path to the directory containing gene block profile models (default: ./config/model)"));
 		System.out.println(String.format(" %s\t\t%s", "--seqpath",   "Path to the directory containing gene sequences (default: ./config/seq)"));
 		System.out.println(String.format(" %s\t\t%s", "--ppxcfg",    "Path to the AUGUSTUS-PPX config file (default: ./config/ppx.cfg"));
 		System.out.println(String.format(" %s\t\t%s", "--fbscutoff", "Cutoff value for fastBlockSearch process (default = 0.5)"));
@@ -587,27 +590,27 @@ public class ProfileModule {
 		}
 		proceed = false;
 		
-		/* locate config/prfl directory; request custom folder if failed */
-		// --profile
-		String ptype = Shell.exec("file -b " + jarPath + "config/prfl/")[0];
+		/* locate config/model directory; request custom folder if failed */
+		// --modelpath
+		String ptype = Shell.exec("file -b " + jarPath + "config/model/")[0];
 		boolean flag = ptype.contains("directory") && !ptype.contains("cannot");
 		if(!flag) {
 			Prompt.print("Default core gene profile directory not found.");
 			while(!proceed) {
-				Prompt.print_nnc("Enter your custom core gene profile directory (--profile) : ");
+				Prompt.print_nnc("Enter your custom core gene profile directory (--modelpath) : ");
 				buf = stream.readLine();
 				if(buf.length() == 0) continue;
-				if(PathConfig.setProfilePath(buf) == 0) {
+				if(PathConfig.setModelPath(buf) == 0) {
 					proceed = true;
-					command += " --profile " + buf;
+					command += " --modelpath " + buf;
 				}
 			}
 			proceed = false;
 		}
 		
 		/* profile directory validation */
-		if(!PathConfig.checkProfilePath()) {
-			ExceptionHandler.handle(ExceptionHandler.INVALID_PROFILE_PATH);
+		if(!PathConfig.checkModelPath()) {
+			ExceptionHandler.handle(ExceptionHandler.INVALID_MODEL_PATH);
 			Prompt.print("Please check the path and content of your core gene profile directory and relaunch the program.\n");
 			System.exit(0);
 		}
@@ -846,17 +849,22 @@ public class ProfileModule {
 					
 					// Run MMseqs easy-search
 					MMseqsEasySearchProcess.setTask("ITS");
-					MMseqsSearchResultEntity res = MMseqsEasySearchProcess.search(PathConfig.SeqPath + "ITS.fa", PathConfig.InputIsFolder ? PathConfig.InputPath + GenericConfig.FILENAME : PathConfig.InputPath, PathConfig.TempPath, 500, 500, true);
+					MMseqsSearchResultEntity res = MMseqsEasySearchProcess.search(PathConfig.SeqPath + "nuc" + File.separator + "ITS.fa", PathConfig.InputIsFolder ? PathConfig.InputPath + GenericConfig.FILENAME : PathConfig.InputPath, PathConfig.TempPath, 500, 500, true);
 					res.reduce();
 					ProfilePredictionEntity pp = MMseqsEasySearchProcess.parse(res);
 					res.remove();
-					if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + "ITS.fa", PathConfig.TempPath);
+					if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + "nuc" + File.separator + "ITS.fa", PathConfig.TempPath);
 					pps.add(pp);
+					
+					if(pp.valid()) Prompt.print(ANSIHandler.wrapper("SUCCESS", 'g') + " : ITS sequence successfully extracted.");
+					else Prompt.print(ANSIHandler.wrapper("FAILED", 'r') + " : ITS sequence not found.");
 				}
 				
 				/* Step 2. Protein barcode prediction */
 				if(GenericConfig.PRO) {
 					Prompt.print("Extracting protein markers...");
+					GenericConfig.setQueryGenes(GenericConfig.FCG, GenericConfig.TARGET_PRO);
+					
 					/* Dynamic progress prompt setup */
 					initProg();
 					printProg();
@@ -871,7 +879,7 @@ public class ProfileModule {
 					ExecutorService executorService = Executors.newFixedThreadPool(GenericConfig.ThreadPoolSize);
 					List<Future<ProfilePredictionEntity>> futures = new ArrayList<Future<ProfilePredictionEntity>>();
 					
-					for(int g = 0; g < GenericConfig.FCG.length; g++) {
+					for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) {
 						CreateProfile creator = new ProfileModule().new CreateProfile(g);
 						futures.add(executorService.submit(creator));
 						Thread.sleep(500);
@@ -891,6 +899,37 @@ public class ProfileModule {
 				/* Step 3. BUSCO prediction */
 				if(GenericConfig.BUSCO) {
 					Prompt.print("Extracting BUSCOs...");
+					GenericConfig.setQueryGenes(GenericConfig.BUSCOS, GenericConfig.TARGET_BUSCO);
+					
+					/* Dynamic progress prompt setup */
+					initProg();
+					printProg();
+					
+					/* Iterate through genes and run extract session
+					 * Single iteration consists of three phases:
+					 * 		1. SEARCH -> 2. PREDICT -> 3. VALIDATE
+					 */
+					/* Multithreading with ExecutorService (from ver 0.3) */
+					nSgl = 0; nMul = 0; nUid = 0;
+					
+					ExecutorService executorService = Executors.newFixedThreadPool(GenericConfig.ThreadPoolSize);
+					List<Future<ProfilePredictionEntity>> futures = new ArrayList<Future<ProfilePredictionEntity>>();
+					
+					for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) {
+						CreateProfile creator = new ProfileModule().new CreateProfile(g);
+						futures.add(executorService.submit(creator));
+						Thread.sleep(500);
+					}
+	
+					executorService.shutdown();
+					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
+					
+					Prompt.dynamic(ANSIHandler.wrapper(" DONE", 'g') + "\n");
+					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
+							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
+					
+					for(String contig : contigs) FileStream.wipe(contig, true);
+					contigs = new ArrayList<String>();
 				}
 				
 				/* Write the entire result on a single JSON file */
@@ -917,23 +956,31 @@ public class ProfileModule {
 	static List<Status> progress = new LinkedList<Status>();
 	private static class Status {
 		private String stat;
+		private Integer proc; // 0: pending; 1: processing; 2: finished
 		private Status() {
 			this.stat = ANSIHandler.wrapper("X", 'K');
+			this.proc = 0;
 		}
-		private void updateStat(String stat) {
+		private void updateStat(String stat, int proc) {
 			this.stat = stat;
+			this.proc = proc;
 		}
 	}
 	
 	static void initProg() {
 		progress.clear();
-		for(int g = 0; g < GenericConfig.FCG.length; g++) progress.add(new Status());
+		for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) progress.add(new Status());
 	}
-	static void updateProg(int g, String ch) {
-		progress.get(g).updateStat(ch);
+	static void updateProg(int g, String ch, Integer proc) {
+		progress.get(g).updateStat(ch, proc);
 	}
 	
 	static void printProg() {
+		if(GenericConfig.QUERY_GENES.length > 100) {
+			printProgSimple();
+			return;
+		}
+		
 		String build = "PROGRESS : [";
 		
 		try{
@@ -951,9 +998,37 @@ public class ProfileModule {
 		Prompt.dynamicHeader(build);
 	}
 	
+	static void printProgSimple() {
+		String build = "PROGRESS : [";
+		int pend = 0, proc = 0, fin = 0;
+		try{
+			for(Status s : progress) {
+				switch(s.proc) {
+				case 0: pend++; break;
+				case 1: proc++; break;
+				case 2: fin++; break;
+				}
+			}
+			
+			build += "Pending : " + ANSIHandler.wrapper(String.valueOf(pend), 'K');
+			build += " / Processing : " + ANSIHandler.wrapper(String.valueOf(proc), 'Y');
+			build += " / Finished : " + ANSIHandler.wrapper(String.valueOf(fin), 'G');
+		}
+		catch(java.util.ConcurrentModificationException cme) {
+			return;
+		}
+		catch(NullPointerException npe) {
+			return;
+		}
+		
+		build += "]";
+		Prompt.dynamic("\r");
+		Prompt.dynamicHeader(build);
+	}
+	
 	static List<String> contigs = new ArrayList<String>();
 	static int nSgl, nMul, nUid;
-	private class CreateProfile implements Callable<ProfilePredictionEntity> {	
+	private class CreateProfile implements Callable<ProfilePredictionEntity> {
 		private int g;
 		public CreateProfile(int gid) {
 			this.g = gid;
@@ -961,31 +1036,37 @@ public class ProfileModule {
 		
 		public ProfilePredictionEntity call() throws Exception {
 			/* Prepare gene and set prompt */
-			String cg = GenericConfig.FCG[g];
+			String cg = GenericConfig.QUERY_GENES[g];
+			String dir = null;
+			switch(GenericConfig.TARGET) {
+			case GenericConfig.TARGET_PRO: dir = "pro"; break;
+			case GenericConfig.TARGET_BUSCO: dir = "busco"; break;
+			}
+			
 //			Prompt.dynamic(ANSIHandler.wrapper(String.format("%-6s", cg), 'Y') + " >> [" + progress);
 			Prompt.talk("Extracting gene " + ANSIHandler.wrapper(cg, 'Y') + 
-					String.format(" [%d/%d]", g+1, GenericConfig.FCG.length) + " from the query genome...");
+					String.format(" [%d/%d]", g+1, GenericConfig.QUERY_GENES.length) + " from the query genome...");
 
 			/* Phase 1. SEARCH */
-			updateProg(g, ANSIHandler.wrapper("S", 'p')); printProg();
+			updateProg(g, ANSIHandler.wrapper("S", 'p'), 1); printProg();
 			Prompt.talk(ANSIHandler.wrapper("[Phase 1 : Searching]", 'p'));
 			String seqPath = PathConfig.InputIsFolder ? PathConfig.InputPath + GenericConfig.FILENAME : PathConfig.InputPath;
 			/* Run fastBlockSearch on assembly to find gene containing location (contig, position) */
-			BlockProfileEntity bp = FastBlockSearchProcess.handle(seqPath, PathConfig.ProfilePath + cg + ".blk", cg);
+			BlockProfileEntity bp = FastBlockSearchProcess.handle(seqPath, PathConfig.ModelPath + dir + File.separator + cg + ".hmm", cg);
 			/* Drag required contigs from assembly and store their paths */
 			List<String> ctgPaths = ContigDragProcess.drag(seqPath, bp);
 			
 			/* Phase 2. PREDICT */
-			updateProg(g, ANSIHandler.wrapper("P", 'c')); printProg();
+			updateProg(g, ANSIHandler.wrapper("P", 'c'), 1); printProg();
 			Prompt.talk(ANSIHandler.wrapper("[Phase 2 : Prediction]", 'c'));
 			/* Run AUGUSTUS on the block found in Phase 1 */
 			ProfilePredictionEntity pp = GenePredictionProcess.blockPredict(bp, ctgPaths);
 			
 			/* Phase 3. VALIDATE */
-			updateProg(g, ANSIHandler.wrapper("V", 'R')); printProg();
+			updateProg(g, ANSIHandler.wrapper("V", 'R'), 1); printProg();
 			Prompt.talk(ANSIHandler.wrapper("[Phase 3 : Validation]", 'R'));
 			/* Run hmmsearch and find target gene among the predicted genes */
-			if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + cg + ".fa", PathConfig.TempPath);
+			if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + dir + File.separator + cg + ".fa", PathConfig.TempPath);
 			/* Implementation note.
 			 *		Previously, contigs were removed right after AUGUSTUS finishes the prediction.
 			 *		However, to extract the cDNA sequence for the gene, contig should remain intact.
@@ -1019,7 +1100,7 @@ public class ProfileModule {
 						" gene " + ANSIHandler.wrapper(cg, 'Y'));
 			}
 			
-			updateProg(g, result);
+			updateProg(g, result, 2);
 			printProg();
 			return pp;
 		}
