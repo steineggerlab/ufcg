@@ -6,6 +6,7 @@ import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
 //import envs.toolkit.TimeKeeper;
 import envs.toolkit.Shell;
+import envs.toolkit.TimeKeeper;
 import pipeline.ExceptionHandler;
 import envs.toolkit.FileStream;
 
@@ -888,7 +889,7 @@ public class ProfileModule {
 					executorService.shutdown();
 					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 					
-					Prompt.dynamic(ANSIHandler.wrapper(" DONE", 'g') + "\n");
+					Prompt.dynamic(ANSIHandler.wrapper(" DONE                ", 'g') + "\n");
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 					
@@ -924,7 +925,7 @@ public class ProfileModule {
 					executorService.shutdown();
 					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 					
-					Prompt.dynamic(ANSIHandler.wrapper(" DONE", 'g') + "\n");
+					Prompt.dynamic(ANSIHandler.wrapper(" DONE               ", 'g') + "\n");
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 					
@@ -954,9 +955,11 @@ public class ProfileModule {
 	}
 	
 	static List<Status> progress = new LinkedList<Status>();
+	static TimeKeeper tk = null;
 	private static class Status {
 		private String stat;
 		private Integer proc; // 0: pending; 1: processing; 2: finished
+		
 		private Status() {
 			this.stat = ANSIHandler.wrapper("X", 'K');
 			this.proc = 0;
@@ -970,6 +973,7 @@ public class ProfileModule {
 	static void initProg() {
 		progress.clear();
 		for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) progress.add(new Status());
+		tk = new TimeKeeper();
 	}
 	static void updateProg(int g, String ch, Integer proc) {
 		progress.get(g).updateStat(ch, proc);
@@ -982,9 +986,13 @@ public class ProfileModule {
 		}
 		
 		String build = "PROGRESS : [";
+	//	int fin = 0;
 		
 		try{
-			for(Status s : progress) build += s.stat;
+			for(Status s : progress) {
+				build += s.stat;
+	//			if(s.proc == 2) fin++;
+			}
 		}
 		catch(java.util.ConcurrentModificationException cme) {
 			return;
@@ -994,6 +1002,7 @@ public class ProfileModule {
 		}
 		
 		build += "]";
+	//	build += " ETA : " + tk.eta(fin, progress.size());
 		Prompt.dynamic("\r");
 		Prompt.dynamicHeader(build);
 	}
@@ -1022,6 +1031,8 @@ public class ProfileModule {
 		}
 		
 		build += "]";
+		build += " ETA : " + tk.eta(fin, progress.size()) + "        ";
+		
 		Prompt.dynamic("\r");
 		Prompt.dynamicHeader(build);
 	}

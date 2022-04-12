@@ -11,7 +11,7 @@ public class TimeKeeper {
 	}
 
 	public int timePass(){
-		return (int) (System.nanoTime() - iniTime) / 1000000;
+		return (int) ((System.nanoTime() - iniTime) / 1000000);
 	}
 	
 	private String convert(long time) {

@@ -525,7 +525,7 @@ public class GenericConfig {
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
 		}
 		
-		Prompt.print("Number of BUSCOs to extract : " + ANSIHandler.wrapper(String.valueOf(BUSCOS.length), 'B'));
+		Prompt.talk("Number of BUSCOs to extract : " + ANSIHandler.wrapper(String.valueOf(BUSCOS.length), 'B'));
 		return 0;
 	}
 	
