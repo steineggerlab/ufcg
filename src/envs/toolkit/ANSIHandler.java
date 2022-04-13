@@ -14,9 +14,11 @@ public class ANSIHandler {
 	public static final String BBLACK	= "\u001B[30;1m";	// length 7
 	public static final String BRED		= "\u001B[31;1m";
 	public static final String BGREEN	= "\u001B[32;1m";
-	public static final String BYELLOW  = "\u001B[33;1m";	
+	public static final String BYELLOW  = "\u001B[33;1m";
 	public static final String BBLUE	= "\u001B[34;1m";
+	public static final String BPURPLE	= "\u001B[35;1m";
 	public static final String BCYAN	= "\u001B[36;1m";
+	public static final String BWHITE	= "\u001B[37;1m";
 	
 	
 	
@@ -37,7 +39,9 @@ public class ANSIHandler {
 		case 'G': return BGREEN;
 		case 'Y': return BYELLOW;
 		case 'B': return BBLUE;
+		case 'P': return BPURPLE;
 		case 'C': return BCYAN;
+		case 'W': return BWHITE;
 		default : return null;
 		}
 	}

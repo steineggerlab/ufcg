@@ -14,7 +14,7 @@ public class Prompt {
 	
 	// universal standard for prompt line print
 	public static void print_univ(String head, String message, char color) {
-		System.out.println(buildMessage(head, message, color));
+		if(!GenericConfig.TEST) System.out.println(buildMessage(head, message, color));
 	}
 	
 	public static void print(String head, String message){
@@ -35,11 +35,17 @@ public class Prompt {
 	public static void debug(String message) { 
 		debug("DEBUG", message);
 	}
+	public static void test(String head, String message) {
+		if(GenericConfig.TEST) System.out.println(buildMessage(head, message, 'W'));
+	}
+	public static void test(String message) { 
+		test("TEST", message);
+	}
 	
 	
 	// print with no new-line character
 	public static void print_nnc(String head, String message){
-		System.out.print(buildMessage(head, message, 'C'));
+		if(!GenericConfig.TEST) System.out.print(buildMessage(head, message, 'C'));
 	}
 	public static void print_nnc(String message){ print_nnc(GenericConfig.PHEAD, message); }
 	public static void dynamicHeader(String message) { if(!GenericConfig.VERB) print_nnc(message);}

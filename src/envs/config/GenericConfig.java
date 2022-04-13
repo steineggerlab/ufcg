@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class GenericConfig {
+	public static final boolean TEST = false; // Testing?
 	/* Running project status */
 	public static String PHEAD = ""; 		// Prompt header
 	public static int HLEN = 0;				// Prompt maximum header length
@@ -48,7 +49,7 @@ public class GenericConfig {
 	public static boolean VERB = false; 	// Program verbosity
 	public static boolean NOCOLOR = false;  // No color escapes
 	public static boolean TSTAMP = true;   // Print timestamp
-	public static boolean INTRON = false;   // Include intron
+	public static boolean INTRON = true;   // Include intron
 	public static boolean INTERACT = false; // Interactive mode
 	public static boolean FORCE = false;    // Force to delete existing file
 	
@@ -109,7 +110,7 @@ public class GenericConfig {
 			return 0;
 		}
 		catch(NumberFormatException nfe) {
-			ExceptionHandler.pass(val + " (Numerical value expected)");
+			ExceptionHandler.pass(val + " (Integer value expected)");
 			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			return 1;
 		}
@@ -133,7 +134,31 @@ public class GenericConfig {
 			return 0;
 		}
 		catch(NumberFormatException nfe) {
-			ExceptionHandler.pass(val + " (Numerical value expected)");
+			ExceptionHandler.pass(val + " (Floating point value expected)");
+			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+			return 1;
+		}
+	}
+	
+	public static int FastBlockSearchHits = 5;
+	public static void setFastBlockSearchHits(int hits) {
+		FastBlockSearchHits = hits;
+	}
+	public static int setFastBlockSearchHits(String val) {
+		try {
+			Prompt.talk("Custom fastBlockSearch hits check : " + ANSIHandler.wrapper(val, 'B'));
+			int hits = Integer.parseInt(val);
+			
+			if(hits <= 0) {
+				ExceptionHandler.pass(hits);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+			}
+			
+			setFastBlockSearchHits(hits);
+			return 0;
+		}
+		catch(NumberFormatException nfe) {
+			ExceptionHandler.pass(val + " (Integer value expected)");
 			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			return 1;
 		}
@@ -181,7 +206,7 @@ public class GenericConfig {
 			return 0;
 		}
 		catch(NumberFormatException nfe) {
-			ExceptionHandler.pass(val + " (Numerical value expected)");
+			ExceptionHandler.pass(val + " (Floating point value expected)");
 			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			return 1;
 		}
@@ -205,7 +230,7 @@ public class GenericConfig {
 			return 0;
 		}
 		catch(NumberFormatException nfe) {
-			ExceptionHandler.pass(val + " (Numerical value expected)");
+			ExceptionHandler.pass(val + " (Floating point value expected)");
 			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			return 1;
 		}

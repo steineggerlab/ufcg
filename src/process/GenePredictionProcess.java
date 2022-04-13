@@ -21,6 +21,7 @@ public class GenePredictionProcess {
 		if(pst < 0) pst = 0;
 		int ped = epos + GenericConfig.AugustusPredictionOffset;
 		
+		Prompt.test(String.format("%d - [%d - %d] - %d", pst, spos, epos, ped));
 		AugustusWrapper.runAugustus(ctgPath, pst, ped, famPath, gffPath);
 		
 		return gffPath;

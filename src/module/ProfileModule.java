@@ -60,26 +60,27 @@ public class ProfileModule {
 		opts.addOption("i", "input", true, "input path");
 		opts.addOption("o", "output", true, "output path");
 		opts.addOption("s", "set", true, "set of genes to extract");
-		opts.addOption("k", "keep", true, "intermediate path");
-		opts.addOption("f", "force", false, "force delete");
+		opts.addOption("w", "write", true, "intermediate path");
+		opts.addOption("k", "keep", true, "keep temp files");
+		opts.addOption("f", "force", true, "force delete");
 		opts.addOption("t", "thread",  true, "number of cpu threads");
 		
 		opts.addOption(null, "fastblocksearch", true, "fastBlockSearch binary");
 		opts.addOption(null, "augustus", true, "AUGUSTUS binary");
-		opts.addOption(null, "hmmsearch", true, "hmmsearch binary");
+//		opts.addOption(null, "hmmsearch", true, "hmmsearch binary");
 		opts.addOption(null, "mmseqs", true, "MMseqs2 binary");
 		
 		opts.addOption("m", "metadata", true, "metadata path");
 		opts.addOption(null, "metainfo", true, "single file metadata information");
-		opts.addOption("n", "intron", false, "include intron sequences");
+		opts.addOption("n", "intron", true, "include intron sequences");
 		opts.addOption(null, "prflpath", true, "gene profile path");
 		opts.addOption(null, "seqpath", true, "gene sequence path");
 		opts.addOption(null, "ppxcfg", true, "AUGUSTUS-PPX config path");
-		opts.addOption("v", "verbose", false, "verbosity");
 		
 		opts.addOption(null, "fbscutoff", true, "fastBlockSearch cutoff");
+		opts.addOption(null, "fbshits", true, "fastBlockSearch hit count");
 		opts.addOption(null, "augoffset", true, "AUGUSTUS prediction offset");
-		opts.addOption(null, "hmmscore", true, "hmmsearch score cutoff");
+//		opts.addOption(null, "hmmscore", true, "hmmsearch score cutoff");
 		opts.addOption(null, "evalue", true, "e-value cutoff");
 		
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
@@ -108,13 +109,13 @@ public class ProfileModule {
 		}
 		
 		/* parse user friendly options; return ID and finish routine if necessary */
-		if(cmd.hasOption("v"))		 GenericConfig.VERB = true;
-		if(cmd.hasOption("u"))		 GenericConfig.INTERACT = true;
+		if(cmd.hasOption("v"))       GenericConfig.VERB = true;
+		if(cmd.hasOption("u"))       GenericConfig.INTERACT = true;
 		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
 		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
-		if(cmd.hasOption("h")) 		 return -1;
-		if(cmd.hasOption("hh"))		 return -2;
-		if(cmd.hasOption("f"))		 GenericConfig.FORCE = true;
+		if(cmd.hasOption("h"))       return -1;
+		if(cmd.hasOption("hh"))	     return -2;
+		if(cmd.hasOption("f")) if(!cmd.getOptionValue("f").equals("0")) GenericConfig.FORCE = true;
 		
 		if(GenericConfig.INTERACT) return 1; 
 		else {
@@ -141,8 +142,11 @@ public class ProfileModule {
 			if(GenericConfig.getBuscos() != 0)
 				ExceptionHandler.handle(ExceptionHandler.BUSCO_UNSOLVED);
 		
+		if(cmd.hasOption("w"))
+			PathConfig.setTempPath(cmd.getOptionValue("w"));
 		if(cmd.hasOption("k"))
-			PathConfig.setTempPath(cmd.getOptionValue("k"));
+			if(!cmd.getOptionValue("k").equals("0"))
+				PathConfig.TempIsCustom = true;
 		if(cmd.hasOption("t"))
 			GenericConfig.setThreadPoolSize(cmd.getOptionValue("t"));
 		
@@ -160,8 +164,10 @@ public class ProfileModule {
 		if(cmd.hasOption("m"))
 			PathConfig.setMetaPath(cmd.getOptionValue("m"));
 		if(cmd.hasOption("n")) {
-			Prompt.talk("Including intron to the result DNA sequences.");
-			GenericConfig.INTRON = true;
+			if(cmd.getOptionValue("n").equals("0")) {
+				Prompt.talk("Excluding intron to the result DNA sequences.");
+				GenericConfig.INTRON = false;
+			}
 		}
 		if(cmd.hasOption("metainfo")) {
 			// check confilct
@@ -182,6 +188,8 @@ public class ProfileModule {
 		/* parse advanced options */
 		if(cmd.hasOption("fbscutoff"))
 			GenericConfig.setFastBlockSearchCutoff(cmd.getOptionValue("fbscutoff"));
+		if(cmd.hasOption("fbshits"))
+			GenericConfig.setFastBlockSearchHits(cmd.getOptionValue("fbshits"));
 		if(cmd.hasOption("augoffset"))
 			GenericConfig.setAugustusPredictionOffset(cmd.getOptionValue("augoffset"));
 //		if(cmd.hasOption("hmmscore"))
@@ -321,18 +329,19 @@ public class ProfileModule {
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "-i", "Input directory containing fungal genome assemblies"));
-		System.out.println(String.format(" %s\t\t%s", "-o", "Output directory to store the result files"));
+		System.out.println(String.format(" %s\t\t%s", "-i STR", "Input directory containing fungal genome assemblies"));
+		System.out.println(String.format(" %s\t\t%s", "-o STR", "Output directory to store the result files"));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "-s", "Set of markers to extract - see advanced options for details (default: PRO)"));
-		System.out.println(String.format(" %s\t\t%s", "-k", "Directory to keep the temporary files (default: use /tmp and do not keep)"));
-		System.out.println(String.format(" %s\t\t%s", "-f", "Force to overwrite the existing files"));
-		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
-		System.out.println(String.format(" %s\t\t%s", "-m", "File to the list containing metadata"));
-		System.out.println(String.format(" %s\t\t%s", "-n", "Include introns from the predicted ORFs to the result sequences (default: false)"));
+		System.out.println(String.format(" %s\t\t%s", "-s STR", "Set of markers to extract - see advanced options for details [PRO]"));
+		System.out.println(String.format(" %s\t\t%s", "-w STR", "Directory to write the temporary files [/tmp]"));
+		System.out.println(String.format(" %s\t%s", "-k BOOL", "Keep the temporary products [0]"));
+		System.out.println(String.format(" %s\t%s", "-f BOOL", "Force to overwrite the existing files [0]"));
+		System.out.println(String.format(" %s\t\t%s", "-t INT", "Number of CPU threads to use [1]"));
+		System.out.println(String.format(" %s\t\t%s", "-m STR", "File to the list containing metadata"));
+		System.out.println(String.format(" %s\t%s", "-n BOOL", "Include introns from the predicted ORFs to the result sequences [1]"));
 		System.out.println("");
 		
 		System.out.println(" To see the advanced options, run with \"profile -hh\".\n");
@@ -357,22 +366,23 @@ public class ProfileModule {
 		
 		System.out.println(ANSIHandler.wrapper("\n Dependencies", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
-		System.out.println(String.format(" %s\t%s", "--fastblocksearch", "Path to fastBlockSearch binary"));
-		System.out.println(String.format(" %s\t\t%s", "--augustus", "Path to AUGUSTUS binary"));
+		System.out.println(String.format(" %s\t%s", "--fastblocksearch STR", "Path to fastBlockSearch binary [fastBlockSearch]"));
+		System.out.println(String.format(" %s\t\t%s", "--augustus STR", "Path to AUGUSTUS binary [augustus]"));
 //		System.out.println(String.format(" %s\t\t%s", "--hmmsearch", "Path to hmmsearch binary"));
-		System.out.println(String.format(" %s\t\t%s", "--mmseqs", "Path to MMseqs binary"));
+		System.out.println(String.format(" %s\t\t%s", "--mmseqs STR", "Path to MMseqs2 binary [mmseqs]"));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "--metainfo",  "Comma-separated metadata string for a single file input"));
-		System.out.println(String.format(" %s\t\t%s", "--modelpath", "Path to the directory containing gene block profile models (default: ./config/model)"));
-		System.out.println(String.format(" %s\t\t%s", "--seqpath",   "Path to the directory containing gene sequences (default: ./config/seq)"));
-		System.out.println(String.format(" %s\t\t%s", "--ppxcfg",    "Path to the AUGUSTUS-PPX config file (default: ./config/ppx.cfg"));
-		System.out.println(String.format(" %s\t\t%s", "--fbscutoff", "Cutoff value for fastBlockSearch process (default = 0.5)"));
-		System.out.println(String.format(" %s\t\t%s", "--augoffset", "Prediction offset window size for AUGUSTUS process (default = 10000)"));
+		System.out.println(String.format(" %s\t\t%s", "--metainfo STR",  "Comma-separated metadata string for a single file input"));
+		System.out.println(String.format(" %s\t%s", "--modelpath STR", "Path to the directory containing gene block profile models [./config/model]"));
+		System.out.println(String.format(" %s\t\t%s", "--seqpath STR",   "Path to the directory containing gene sequences [./config/seq]"));
+		System.out.println(String.format(" %s\t\t%s", "--ppxcfg STR",    "Path to the AUGUSTUS-PPX config file [./config/ppx.cfg]"));
+		System.out.println(String.format(" %s\t%s", "--fbscutoff FLOAT", "Cutoff value for fastBlockSearch process [0.5]"));
+		System.out.println(String.format(" %s\t\t%s", "--fbshits INT" ,  "Use this amount of top hits from fastBlockSearch results [5]"));
+		System.out.println(String.format(" %s\t%s", "--augoffset INT", "Prediction offset window size for AUGUSTUS process [10000]"));
 //		System.out.println(String.format(" %s\t\t%s", "--hmmscore",  "Bitscore cutoff for hmmsearch validation (default = 100)"));
-		System.out.println(String.format(" %s\t\t%s", "--evalue",    "E-value cutoff for validation (default = 1e-30)"));
+		System.out.println(String.format(" %s\t\t%s", "--evalue FLOAT",    "E-value cutoff for validation [1e-30]"));
 //		System.out.println(String.format(" %s\t\t%s", "--corelist",  "Comma-separated string for a custom set of fungal core genes"));
 		System.out.println("");
 		
@@ -1064,6 +1074,7 @@ public class ProfileModule {
 			String seqPath = PathConfig.InputIsFolder ? PathConfig.InputPath + GenericConfig.FILENAME : PathConfig.InputPath;
 			/* Run fastBlockSearch on assembly to find gene containing location (contig, position) */
 			BlockProfileEntity bp = FastBlockSearchProcess.handle(seqPath, PathConfig.ModelPath + dir + File.separator + cg + ".hmm", cg);
+			bp.reduce(GenericConfig.FastBlockSearchHits);
 			/* Drag required contigs from assembly and store their paths */
 			List<String> ctgPaths = ContigDragProcess.drag(seqPath, bp);
 			

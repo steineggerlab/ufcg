@@ -37,8 +37,8 @@ import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class UFCGMainPipeline {
-	public static final String VERSION = "0.2 alpha";
-	public static final String RELEASE_DATE = "Jan. 2022";
+	public static final String VERSION = " alpha";
+	public static final String RELEASE_DATE = "2022";
 	
 	public static final int NO_MODULE			= 0x00;
 	public static final int MODULE_PROFILE		= 0x01;
@@ -59,6 +59,7 @@ public class UFCGMainPipeline {
 		System.out.println(header + ANSIHandler.wrapper(" / /_/ // __/ / /___/ /_/ /", 'G'));
 		System.out.print  (header + ANSIHandler.wrapper(" \\____//_/    \\____/\\____/",  'G'));
 		System.out.println(ANSIHandler.wrapper(" v" + VERSION, 'g'));
+		if(GenericConfig.TEST) System.out.println(header + ANSIHandler.wrapper(" TEST MODE", 'W'));
 //		System.out.println(header + ANSIHandler.wrapper("                          /_/   ",      'Y') 
 //			+ ANSIHandler.wrapper("by LEB, SNU", 'B'));
 //		System.out.println(ANSIHandler.wrapper(" Profiling Fungi with " + String.valueOf(GenericConfig.FCG_REF.length) + 

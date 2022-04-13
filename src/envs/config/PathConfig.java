@@ -200,7 +200,6 @@ public class PathConfig {
 		}
 		
 		TempPath = path;
-		TempIsCustom = true;
 		if(!TempPath.endsWith("/")) TempPath += "/";
 		GenericConfig.TEMP_HEADER = "";				
 		
