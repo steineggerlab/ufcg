@@ -6,7 +6,8 @@ import envs.config.GenericConfig;
 import envs.config.PathConfig;
 import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
-import process.HmmsearchProcess;
+//import process.HmmsearchProcess;
+import process.MMseqsEasySearchProcess;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -185,7 +186,7 @@ public class MMseqsSearchResultEntity {
 				int loc = entry.loc;
 				String prtn = pp.getSeq(loc), orf = pp.getDna(loc), valid = null;
 				if(!GenericConfig.INTRON) {
-					if((valid = HmmsearchProcess.checkORF(pp, prtn, orf)) == null) continue;
+					if((valid = MMseqsEasySearchProcess.checkORF(pp, prtn, orf)) == null) continue;
 				}
 				else valid = orf;
 				pp.addGene(prtn);

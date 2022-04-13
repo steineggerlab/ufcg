@@ -5,6 +5,7 @@ import envs.config.PathConfig;
 import envs.toolkit.ExecHandler;
 import envs.toolkit.Shell;
 
+@Deprecated
 public class HmmsearchWrapper extends ExecHandler {
 	public HmmsearchWrapper() {
 		super.init(PathConfig.HmmsearchPath);

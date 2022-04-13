@@ -1,15 +1,63 @@
 package process;
 
 import java.io.File;
+import java.util.Random;
 
 import entity.MMseqsSearchResultEntity;
 import entity.ProfilePredictionEntity;
 import envs.config.GenericConfig;
+import envs.toolkit.ANSIHandler;
 import envs.toolkit.FileStream;
+import envs.toolkit.GenomeTranslator;
+import envs.toolkit.Prompt;
 import pipeline.ExceptionHandler;
 import wrapper.MMseqsWrapper;
 
 public class MMseqsEasySearchProcess {
+	public static String checkORF(ProfilePredictionEntity pp, String prtn, String orf) {
+		String valid = null;
+		GenomeTranslator.createMap();
+		
+		if(!GenomeTranslator.equal(prtn + "*", GenomeTranslator.transeq(orf))) {
+			int frame = GenomeTranslator.frame(orf, prtn);
+			valid = orf.substring(frame);
+			
+			boolean stop = orf.endsWith("TAA") || orf.endsWith("TAG") || orf.endsWith("TGA");
+			if(stop && (valid.length() != prtn.length() * 3 + 3)) stop = false;
+			
+			Prompt.talk(String.format("Invalid ORF detected : %s @ %-6s\tFrame : %s  Stop : %s  Gap : %d", GenericConfig.TAXON, pp.refBlock.cg,
+					frame == 0 ? ANSIHandler.wrapper("O", 'g') : ANSIHandler.wrapper("X", 'r'),
+					stop ? ANSIHandler.wrapper("O", 'g') : ANSIHandler.wrapper("X", 'r'),
+					prtn.length() * 3 + 3 - orf.length()));
+			
+			if(frame < 0) {
+				Prompt.talk(ANSIHandler.wrapper("ORF fix failed: ", 'r') + "could not find the valid reading frame.");
+				return null;
+			}
+			if(!stop) {
+				if(valid.length() < prtn.length() * 3) {
+					Prompt.talk(ANSIHandler.wrapper("ORF fix failed: ", 'r') + "could not find the locus for a stop codon.");
+				}
+				valid = valid.substring(0, prtn.length() * 3);
+				switch(new Random().nextInt(3)) {
+				case 0: valid += "TAA"; break;
+				case 1: valid += "TAG"; break;
+				case 2: valid += "TGA"; break;
+				}
+			}
+			
+			String tsln = GenomeTranslator.transeq(valid);
+			if(GenomeTranslator.equal(prtn + "*",  tsln)) Prompt.talk(ANSIHandler.wrapper("ORF successfully fixed", 'w'));
+			else {
+				Prompt.talk(ANSIHandler.wrapper("ORF fix failed: ", 'r') + "fixed ORF does not produce the valid product.");
+				return null;
+			}
+		}
+		else valid = orf;
+		
+		return valid;
+	}
+	
 	static String TASK = null;
 	public static void setTask(String task) {TASK = task;}
 	

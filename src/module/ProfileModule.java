@@ -23,7 +23,7 @@ import process.JsonBuildProcess;
 import process.MMseqsEasySearchProcess;
 import wrapper.FastBlockSearchWrapper;
 import wrapper.AugustusWrapper;
-import wrapper.HmmsearchWrapper;
+//import wrapper.HmmsearchWrapper;
 import wrapper.MMseqsWrapper;
 
 import java.io.File;
@@ -151,8 +151,8 @@ public class ProfileModule {
 			PathConfig.setFastBlockSearchPath(cmd.getOptionValue("fastblocksearch"));
 		if(cmd.hasOption("augustus"))
 			PathConfig.setAugustusPath(cmd.getOptionValue("augustus"));
-		if(cmd.hasOption("hmmsearch"))
-			PathConfig.setHmmsearchPath(cmd.getOptionValue("hmmsearch"));
+//		if(cmd.hasOption("hmmsearch"))
+//			PathConfig.setHmmsearchPath(cmd.getOptionValue("hmmsearch"));
 		if(cmd.hasOption("mmseqs"))
 			PathConfig.setMMseqsPath(cmd.getOptionValue("mmseqs"));
 		
@@ -184,8 +184,8 @@ public class ProfileModule {
 			GenericConfig.setFastBlockSearchCutoff(cmd.getOptionValue("fbscutoff"));
 		if(cmd.hasOption("augoffset"))
 			GenericConfig.setAugustusPredictionOffset(cmd.getOptionValue("augoffset"));
-		if(cmd.hasOption("hmmscore"))
-			GenericConfig.setHmmsearchScoreCutoff(cmd.getOptionValue("hmmscore"));
+//		if(cmd.hasOption("hmmscore"))
+//			GenericConfig.setHmmsearchScoreCutoff(cmd.getOptionValue("hmmscore"));
 		if(cmd.hasOption("evalue"))
 			GenericConfig.setEvalueCutoff(cmd.getOptionValue("evalue"));
 //		if(cmd.hasOption("corelist"))
@@ -214,10 +214,10 @@ public class ProfileModule {
 		if(!AugustusWrapper.checkConfigFile()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_PPX_CONFIG);
 		}
-		if(!HmmsearchWrapper.solve()) {
-			ExceptionHandler.pass(PathConfig.HmmsearchPath);
-			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
-		}
+//		if(!HmmsearchWrapper.solve()) {
+//			ExceptionHandler.pass(PathConfig.HmmsearchPath);
+//			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
+//		}
 		if(!MMseqsWrapper.solve()) {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
@@ -359,7 +359,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
 		System.out.println(String.format(" %s\t%s", "--fastblocksearch", "Path to fastBlockSearch binary"));
 		System.out.println(String.format(" %s\t\t%s", "--augustus", "Path to AUGUSTUS binary"));
-		System.out.println(String.format(" %s\t\t%s", "--hmmsearch", "Path to hmmsearch binary"));
+//		System.out.println(String.format(" %s\t\t%s", "--hmmsearch", "Path to hmmsearch binary"));
 		System.out.println(String.format(" %s\t\t%s", "--mmseqs", "Path to MMseqs binary"));
 		System.out.println("");
 		
@@ -371,7 +371,7 @@ public class ProfileModule {
 		System.out.println(String.format(" %s\t\t%s", "--ppxcfg",    "Path to the AUGUSTUS-PPX config file (default: ./config/ppx.cfg"));
 		System.out.println(String.format(" %s\t\t%s", "--fbscutoff", "Cutoff value for fastBlockSearch process (default = 0.5)"));
 		System.out.println(String.format(" %s\t\t%s", "--augoffset", "Prediction offset window size for AUGUSTUS process (default = 10000)"));
-		System.out.println(String.format(" %s\t\t%s", "--hmmscore",  "Bitscore cutoff for hmmsearch validation (default = 100)"));
+//		System.out.println(String.format(" %s\t\t%s", "--hmmscore",  "Bitscore cutoff for hmmsearch validation (default = 100)"));
 		System.out.println(String.format(" %s\t\t%s", "--evalue",    "E-value cutoff for validation (default = 1e-30)"));
 //		System.out.println(String.format(" %s\t\t%s", "--corelist",  "Comma-separated string for a custom set of fungal core genes"));
 		System.out.println("");
@@ -534,7 +534,7 @@ public class ProfileModule {
 		}
 		proceed = false;
 		if(solvedPath != null) command += " --augustus " + solvedPath;
-		
+/*		
 		// --hmmsearch
 		solvedPath = null;
 		while(!proceed) {
@@ -555,7 +555,7 @@ public class ProfileModule {
 		}
 		proceed = false;
 		if(solvedPath != null) command += " --hmmsearch " + solvedPath;
-		
+*/		
 		/* set runtime configurations */
 		// --cpu
 		while(!proceed) {
@@ -893,8 +893,8 @@ public class ProfileModule {
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 					
-					for(String contig : contigs) FileStream.wipe(contig, true);
-					contigs = new ArrayList<String>();
+				//	for(String contig : contigs) FileStream.wipe(contig, true);
+				//	contigs = new ArrayList<String>();
 				}
 				
 				/* Step 3. BUSCO prediction */
