@@ -2,10 +2,12 @@ package envs.toolkit;
 
 import java.util.ArrayList;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.IOException;
 
 public class Shell {
+	private ProcessBuilder processBuilder = null;
 	private Process process = null;
 	private BufferedReader reader = null;
 
@@ -14,7 +16,11 @@ public class Shell {
 	public void execute(String command) {
 		Prompt.debug("exec: " + ANSIHandler.wrapper(command, 'B')); 
 		try{
-			process = Runtime.getRuntime().exec(command);
+			processBuilder = new ProcessBuilder();
+			processBuilder.command("/bin/bash", "-c", command);
+			processBuilder.redirectErrorStream(true);
+			
+			process = processBuilder.start();
 			process.waitFor();
 		}
 		catch(IOException ioe) {
@@ -29,7 +35,50 @@ public class Shell {
 	public void execute(String[] cmdarray) {
 		Prompt.debug("exec: " + ANSIHandler.wrapper(String.join(" ", cmdarray), 'B')); 
 		try{
-			process = Runtime.getRuntime().exec(cmdarray);
+			processBuilder = new ProcessBuilder();
+			processBuilder.command("/bin/bash", "-c", String.join(" ", cmdarray));
+			processBuilder.redirectErrorStream(true);
+			
+			process = processBuilder.start();
+			process.waitFor();
+		}
+		catch(IOException ioe) {
+			ioe.printStackTrace(); System.exit(1);
+		}
+		catch(InterruptedException ire) {
+			ire.printStackTrace(); System.exit(1);
+		}
+		reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+	}
+	public void executeFrom(String command, File dir) {
+		Prompt.debug("exec: " + ANSIHandler.wrapper(dir.getAbsolutePath(), 'g') + "$ " + ANSIHandler.wrapper(command, 'B')); 
+		try{
+			processBuilder = new ProcessBuilder();
+			processBuilder.command("/bin/bash", "-c", command);
+			processBuilder.directory(dir);
+			processBuilder.redirectErrorStream(true);
+			
+			process = processBuilder.start();
+			process.waitFor();
+		}
+		catch(IOException ioe) {
+			ioe.printStackTrace(); System.exit(1);
+		}
+		catch(InterruptedException ire) {
+			ire.printStackTrace(); System.exit(1);
+		}
+		
+		reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+	}
+	public void executeFrom(String[] cmdarray, File dir) {
+		Prompt.debug("exec: " + ANSIHandler.wrapper(dir.getAbsolutePath(), 'g') + "$ " + ANSIHandler.wrapper(String.join(" ", cmdarray), 'B'));  
+		try{
+			processBuilder = new ProcessBuilder();
+			processBuilder.command("/bin/bash", "-c", String.join(" ", cmdarray));
+			processBuilder.directory(dir);
+			processBuilder.redirectErrorStream(true);
+			
+			process = processBuilder.start();
 			process.waitFor();
 		}
 		catch(IOException ioe) {

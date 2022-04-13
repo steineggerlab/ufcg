@@ -34,7 +34,7 @@ public abstract class ExecHandler {
 	}
 	
 	protected String[] exec() {
-		String[] carr = {"/bin/bash", "-c", buildCmd()};
+		String carr = buildCmd();
 		return Shell.exec(carr);
 	}
 }

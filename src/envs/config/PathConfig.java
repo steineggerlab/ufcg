@@ -258,8 +258,7 @@ public class PathConfig {
 		int[] cnt = new int[GenericConfig.FCG.length];
 		for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
 		
-		String[] cmd = {"/bin/bash", "-c",
-				"ls -1 " + ModelPath + "/pro > " + TempPath + GenericConfig.TEMP_HEADER + "model.list"};
+		String cmd = "ls -1 " + ModelPath + "pro > " + TempPath + GenericConfig.TEMP_HEADER + "model.list";
 		Shell.exec(cmd);
 		try {
 			FileStream tmpListStream = new FileStream(TempPath + GenericConfig.TEMP_HEADER + "model.list", 'r');
@@ -309,8 +308,7 @@ public class PathConfig {
 		int[] cnt = new int[GenericConfig.FCG.length];
 		for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
 		
-		String[] cmd = {"/bin/bash", "-c",
-				"ls -1 " + SeqPath + "/pro > " + TempPath + GenericConfig.TEMP_HEADER + "seq.list"};
+		String cmd = "ls -1 " + SeqPath + "pro > " + TempPath + GenericConfig.TEMP_HEADER + "seq.list";
 		Shell.exec(cmd);
 		try {
 			FileStream tmpListStream = new FileStream(TempPath + GenericConfig.TEMP_HEADER + "seq.list", 'r');

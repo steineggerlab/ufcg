@@ -83,8 +83,7 @@ public class QueryEntity {
 		
 		// fetch filenames from input directory
 		if(PathConfig.InputIsFolder) {
-			String[] cmd = {"/bin/bash", "-c",
-					"ls -1 " + PathConfig.InputPath + " > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "file.list"};
+			String cmd = "ls -1 " + PathConfig.InputPath + " > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "file.list";
 			Shell.exec(cmd);
 			FileStream tmpListStream = new FileStream(PathConfig.TempPath + GenericConfig.TEMP_HEADER + "file.list", 'r');
 			tmpListStream.isTemp();

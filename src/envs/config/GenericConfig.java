@@ -478,9 +478,8 @@ public class GenericConfig {
 		List<String> bids = new ArrayList<String>();
 		
 		// get list from sequence directory
-		String[] lsseq = {"/bin/bash", "-c",
-				"ls -1 " + PathConfig.SeqPath + "/busco > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.seq.list"};
-		Shell.exec(lsseq);
+		String cmd = "ls -1 " + PathConfig.SeqPath + "busco > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.seq.list";
+		Shell.exec(cmd);
 		try {
 			FileStream tmpListStream = new FileStream(PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.seq.list", 'r');
 			tmpListStream.isTemp();
@@ -499,9 +498,8 @@ public class GenericConfig {
 		}
 		
 		// validate list using model directory
-		String[] lsmodel = {"/bin/bash", "-c",
-				"ls -1 " + PathConfig.ModelPath + "/busco > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.model.list"};
-		Shell.exec(lsmodel);
+		cmd = "ls -1 " + PathConfig.ModelPath + "busco > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.model.list";
+		Shell.exec(cmd);
 		try {
 			int[] cnt = new int[BUSCOS.length];
 			for(int i = 0; i < cnt.length; i++) cnt[i] = -1;

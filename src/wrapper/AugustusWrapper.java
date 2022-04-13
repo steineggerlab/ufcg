@@ -41,8 +41,7 @@ public class AugustusWrapper extends ExecHandler {
 	
 	// solve dependency
 	public static boolean solve() {
-		String[] cmd = {"/bin/bash", "-c",
-				PathConfig.AugustusPath + " /dev/null 2>&1"};
+		String cmd = PathConfig.AugustusPath + " /dev/null 2>&1";
 		String[] raw = Shell.exec(cmd);
 		if(raw[0].contains("not found")) return false;
 		
@@ -54,8 +53,7 @@ public class AugustusWrapper extends ExecHandler {
 	}
 	
 	public static boolean checkConfigPath() {
-		String[] cmd = {"/bin/bash", "-c",
-				PathConfig.AugustusPath + " --species=rhizopus_oryzae /dev/null 2>&1"};
+		String cmd = PathConfig.AugustusPath + " --species=rhizopus_oryzae /dev/null 2>&1";
 		String[] raw = Shell.exec(cmd);
 		
 		int error_loc = 0;
@@ -65,8 +63,7 @@ public class AugustusWrapper extends ExecHandler {
 	}
 	
 	public static boolean checkConfigFile() {
-		String[] cmd = {"/bin/bash", "-c",
-				PathConfig.AugustusPath + " --optCfgFile=" + PathConfig.AugustusConfig + " /dev/null 2>&1"};
+		String cmd = PathConfig.AugustusPath + " --optCfgFile=" + PathConfig.AugustusConfig + " /dev/null 2>&1";
 		String[] raw = Shell.exec(cmd);
 		
 		int error_loc = 0;
