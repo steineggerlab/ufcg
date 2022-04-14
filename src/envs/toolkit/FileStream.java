@@ -92,6 +92,17 @@ public class FileStream {
 		for(String path : TMP_PATHS) {
 			if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) wipe(path);
 		}
+		init();
+	}
+	
+	public static String filesToWipe() {
+		String res = "";
+		if(PathConfig.TempIsCustom) return res;
+		if(TMP_PATHS == null) return res;
+		for(String path : TMP_PATHS) {
+			if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) res += path + " ";
+		}
+		return res;
 	}
 	
 //	public static List<FileStream> ACTIVE_STREAM = new LinkedList<FileStream>();

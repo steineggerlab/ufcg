@@ -947,11 +947,11 @@ public class ProfileModule {
 				String jsonPath = PathConfig.OutputPath + GenericConfig.ACCESS + ".ucg";
 				Prompt.print("Writing results on : " + ANSIHandler.wrapper(jsonPath, 'y'));
 				JsonBuildProcess.build(pps, jsonPath);
+				
+				if(!PathConfig.TempIsCustom) Prompt.talk("Cleaning temporary files up...");
+				Prompt.test(FileStream.filesToWipe());
+				FileStream.wipeOut();
 			}
-			
-			/* Clean up temporary files if exist */
-			if(!PathConfig.TempIsCustom) Prompt.talk("Cleaning temporary files up...");
-			FileStream.wipeOut();
 		}
 		catch(Exception e) {
 			/* Exception handling route; exit with status 1 */
