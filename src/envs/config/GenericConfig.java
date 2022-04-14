@@ -247,12 +247,14 @@ public class GenericConfig {
 			"UBA1",   "UTP20",  "VPS13",  "XPO1"
 	};*/
 	public static final String[] FCG_REF = {
-			"ACO1",   "ACO2",   "ACT1",   "CCT2",   "CCT4",   "CCT7",   "CDC21",  "CDC48",  "CPA2",   "DBP1",
-			"DBP2",   "ECM10",  "EFT1",   "FAL1",   "FKS1",   "HRR25",  "HSP60",  "ILV2",   "IMD2",   "KAR2",
-			"KGD1",   "LEU1",   "MCM2",   "MCM7",   "MDH1",   "MTR4",   "NBP35",  "PHO85",  "PRP43",  "RET1",
-			"RPB2",   "RPL2B",  "RPL3",   "RPL4A",  "RPL8A",  "RPO21",  "RPP0",   "RPS0A",  "RPT1",   "RPT2",
-			"RPT3",   "RPT5",   "RPT6",   "SAM1",   "SAM2",   "SSA1",   "SSA3",   "SSB1",   "SSC1",   "SUP45",
-			"TCP1",   "TEF1",   "TIF1",   "TRP3",   "TUB1",   "TUB2",   "UBI4",   "URA2"
+			"ACO1",   "ACO2",   "ACT1",   "ATP6",   "CCT2",   "CCT4",   "CCT7",   "CCT8",   "CDC21",  "CDC48",
+			"CMD1",   "COB",    "COX1",   "COX2",   "COX3",   "CPA2",   "DBP1",   "DBP2",   "ECM10",  "EFT1",
+			"FAL1",   "FKS1",   "HRR25",  "HSP60",  "ILV2",   "IMD2",   "KAR2",   "KGD1",   "LEU1",   "MCM2",
+			"MCM7",   "MDH1",   "MTR4",   "NBP35",  "NDI1",   "OLI1",   "PAH1",   "PGK1",   "PHO85",  "PRP43",
+			"RET1",   "RPB2",   "RPL2B",  "RPL3",   "RPL4A",  "RPL8A",  "RPO21",  "RPP0",   "RPS0A",  "RPT1",
+			"RPT2",   "RPT3",   "RPT5",   "RPT6",   "SAM1",   "SAM2",   "SSA1",   "SSA3",   "SSB1",   "SSC1",
+			"SUP45",  "TCP1",   "TEF1",   "TIF1",   "TOP1",   "TRP3",   "TSR1",   "TUB1",   "TUB2",   "UBI4",
+			"URA2"
 	};
 	// In order considering the calculation time of each gene
 	public static final String[] FCG_ORD = {
@@ -273,64 +275,84 @@ public class GenericConfig {
 			"O","J","L","E","Z","Z","O","E/F"
 	};
 	public static final String[] FCG_DSC = {
-			"Aconitate hydratase, mitochondrial",
-			"Homocitrate dehydratase, mitochondrial",
+			"Aconitate hydratase",
+			"Aconitate hydratase",
 			"Actin",
-			"T-complex protein 1 subunit beta",
-			"T-complex protein 1 subunit delta",
-			"T-complex protein 1 subunit eta",
+			"F1F0 ATP synthase subunit",
+			"Chaperonin-containing T-complex subunit",
+			"Chaperonin-containing T-complex subunit",
+			"Chaperonin-containing T-complex subunit",
+			"Chaperonin-containing T-complex subunit",
 			"Thymidylate synthase",
-			"Cell division control protein 48",
-			"Carbamoyl-phosphate synthase arginine-specific large chain",
-			"ATP-dependent RNA helicase DBP1",
-			"ATP-dependent RNA helicase DBP2",
-			"Heat shock protein SSC3",
+			"AAA family ATPase",
+			
+			"Calmodulin",
+			"Cytochrome b",
+			"Cytochrome c oxidase subunit",
+			"Cytochrome c oxidase subunit",
+			"Cytochrome c oxidase subunit",
+			"Carbamoyl-phosphate synthase",
+			"DEAD-box ATP-dependent RNA helicase",
+			"DEAD-box ATP-dependent RNA helicase",
+			"Hsp70 family ATPase",
 			"Elongation factor 2",
-			"ATP-dependent RNA helicase FAL1",
-			"1,3-beta-glucan synthase component FKS1",
-			"Casein kinase I homolog HRR25",
-			"Heat shock protein 60, mitochondrial",
-			"Acetolactate synthase catalytic subunit, mitochondrial",
-			"Inosine-5'-monophosphate dehydrogenase 2",
-			"Endoplasmic reticulum chaperone BiP",
-			"2-oxoglutarate dehydrogenase, mitochondrial",
+			
+			"ATP-dependent RNA helicase",
+			"1,3-beta-D-glucan synthase",
+			"Serine/threonine protein kinase",
+			"Chaperone ATPase",
+			"Acetolactate synthase catalytic subunit",
+			"IMP dehydrogenase",
+			"Hsp70 family ATPase",
+			"Alpha-ketoglutarate dehydrogenase",
 			"3-isopropylmalate dehydratase",
-			"DNA replication licensing factor MCM2",
-			"DNA replication licensing factor MCM7",
-			"Malate dehydrogenase, mitochondrial",
-			"ATP-dependent RNA helicase DOB1",
-			"Cytosolic Fe-S cluster assembly factor NBP35",
-			"Cyclin-dependent protein kinase PHO85",
-			"Pre-mRNA-splicing factor ATP-dependent RNA helicase PRP43",
-			"DNA-directed RNA polymerase III subunit RPC2",
-			"DNA-directed RNA polymerase II subunit RPB2",
-			"60S ribosomal protein L2-B",
-			"60S ribosomal protein L3",
-			"60S ribosomal protein L4-A",
-			"60S ribosomal protein L8-A",
-			"DNA-directed RNA polymerase II subunit RPB1",
-			"60S acidic ribosomal protein P0",
-			"40S ribosomal protein S0-A",
-			"26S proteasome regulatory subunit 7 homolog",
-			"26S proteasome regulatory subunit 4 homolog",
-			"26S proteasome regulatory subunit 6B homolog",
-			"26S proteasome regulatory subunit 6A",
-			"26S proteasome regulatory subunit 8 homolog",
-			"S-adenosylmethionine synthase 1",
-			"S-adenosylmethionine synthase 2",
-			"Heat shock protein SSA1",
-			"Heat shock protein SSA3",
-			"Ribosome-associated molecular chaperone SSB1",
-			"Heat shock protein SSC1, mitochondrial",
-			"Eukaryotic peptide chain release factor subunit 1",
-			"T-complex protein 1 subunit alpha",
-			"Elongation factor 1-alpha",
-			"ATP-dependent RNA helicase eIF4A",
-			"Multifunctional tryptophan biosynthesis protein",
-			"Tubulin alpha-1 chain",
-			"Tubulin beta chain",
-			"Polyubiquitin",
-			"Protein URA2"
+			"MCM DNA helicase complex subunit",
+
+			"Mini-chromosome maintenance complex subunit",
+			"Malate dehydrogenase",
+			"ATP-dependent RNA helicase",
+			"Fe-S cluster-binding ATPase",
+			"NADH-ubiquinone reductase",
+			"F0 ATP synthase subunit",
+			"Phosphatidate phosphatase",
+			"Phosphoglycerate kinase",
+			"Cyclin-dependent serine/threonine-protein kinase",
+			"DEAH-box ATP-dependent RNA helicase",
+
+			"DNA-directed RNA polymerase III core subunit",
+			"DNA-directed RNA polymerase II core subunit",
+			"Ribosomal 60S subunit",
+			"Ribosomal 60S subunit",
+			"Ribosomal 60S subunit",
+			"Ribosomal 60S subunit",
+			"DNA-directed RNA polymerase II core subunit",
+			"Ribosomal protein P0",
+			"Ribosomal 40S subunit",
+			"Proteasome regulatory particle base subunit",
+
+			"Proteasome regulatory particle base subunit",
+			"Proteasome regulatory particle base subunit",
+			"Proteasome regulatory particle base subunit",
+			"Proteasome regulatory particle base subunit",
+			"Methionine adenosyltransferase",
+			"Methionine adenosyltransferase",
+			"Hsp70 family ATPase",
+			"Hsp70 family ATPase",
+			"Hsp70 family ATPase",
+			"Hsp70 family ATPase",
+
+			"Translation termination factor eRF1",
+			"Chaperonin-containing T-complex alpha subunit",
+			"Translation elongation factor EF-1 alpha",
+			"Translation initiation factor eIF4A",
+			"DNA topoisomerase 1",
+			"Bifunctional anthranilate synthase/indole-3-glycerol-phosphate synthase",
+			"Ribosome maturation factor",
+			"Alpha-tubulin",
+			"Beta-tubulin",
+			"Ubiquitin",
+
+			"Bifunctional carbamoylphosphate synthetase/aspartate transcarbamylase"
 	};
 	
 	// Tree models
@@ -468,7 +490,7 @@ public class GenericConfig {
 			
 	/* Gene set definition */
 	public static String GENESET = "PRO";
-	public static String[] FCG = FCG_ORD; // core genes for this process
+	public static String[] FCG = FCG_REF; // core genes for this process
 	public static void setGeneset(String geneset) {GENESET = geneset;}
 	
 	public static final int TARGET_NUC = 0x01,
@@ -483,7 +505,7 @@ public class GenericConfig {
 			if(ele.equals("NUC")) NUC = true;
 			else if(ele.equals("PRO")) PRO = true;
 			else if(ele.equals("BUSCO")) BUSCO = true;
-			else if(!Arrays.asList(FCG_ORD).contains(ele)) return 1; // not allowing non-core protein markers
+			// else if(!Arrays.asList(FCG_REF).contains(ele)) return 1; // not allowing non-core protein markers
 			else {
 				PRO = true;
 				pros.add(ele);

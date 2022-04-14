@@ -189,10 +189,10 @@ public class UFCGMainPipeline {
 	
 	/* Core gene route; exit with status 0 */
 	private static void printCore() {
-		System.out.println(ANSIHandler.wrapper("  Gene  \tCOG \t    Function", 'Y'));
+		System.out.println(ANSIHandler.wrapper("  Gene  \tFunction", 'Y'));
 		for(int i = 0; i < GenericConfig.FCG_REF.length; i++) {
 			System.out.print(ANSIHandler.wrapper(String.format("  %-6s\t", GenericConfig.FCG_REF[i]), 'C'));
-			System.out.print(String.format("%-4s\t    ", GenericConfig.FCG_COG[i]));
+		//	System.out.print(String.format("%-4s\t    ", GenericConfig.FCG_COG[i]));
 			System.out.println(GenericConfig.FCG_DSC[i]);
 		}
 		System.out.println("");
