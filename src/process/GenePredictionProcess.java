@@ -14,14 +14,13 @@ import java.util.List;
 
 public class GenePredictionProcess {
 	// Predict gene from given contig and positions, return path to output gff file
-	private static String predict(String ctgPath, String ctg, int spos, int epos, String famPath, String cg) {
+	private static String predict(String ctgPath, String ctg, int loc, String famPath, String cg) {
 		String gffPath = String.format("%s%s%s_%s_p%d_%s.gff",
-				PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, ctg, spos, cg);
-		int pst = spos - GenericConfig.AugustusPredictionOffset;
+				PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, ctg, loc, cg);
+		int pst = loc - GenericConfig.AugustusPredictionOffset;
 		if(pst < 0) pst = 0;
-		int ped = epos + GenericConfig.AugustusPredictionOffset;
+		int ped = loc + GenericConfig.AugustusPredictionOffset;
 		
-		Prompt.test(String.format("%d - [%d - %d] - %d", pst, spos, epos, ped));
 		AugustusWrapper.runAugustus(ctgPath, pst, ped, famPath, gffPath);
 		
 		return gffPath;
@@ -32,9 +31,11 @@ public class GenePredictionProcess {
 		ProfilePredictionEntity pp = new ProfilePredictionEntity(bp, ProfilePredictionEntity.TYPE_PRO);
 		
 		for(int i = 0; i < bp.getCnt(); i++) {
+		//	Prompt.test("Prediction window detected : " + bp.getBlkPath());
+			if(bp.getEpos(i) - bp.getSpos(i) > 20000) Prompt.test(bp.getPosString(i));
 			Prompt.talk(String.format("AUGUSTUS is predicting genes... (contig %s, position %d-%d)",
 					bp.getCtg(i), bp.getSpos(i), bp.getEpos(i)));
-			String gffPath = predict(ctgPaths.get(i), bp.getCtg(i), bp.getSpos(i), bp.getEpos(i), bp.getFam(), bp.cg);
+			String gffPath = predict(ctgPaths.get(i), bp.getCtg(i), bp.getMedian(i), bp.getFamPath(), bp.cg);
 			FileStream.isTemp(gffPath);
 			
 			try {

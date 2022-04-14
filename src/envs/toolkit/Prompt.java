@@ -23,6 +23,9 @@ public class Prompt {
 	public static void print(String message){
 		print(GenericConfig.PHEAD, message);
 	}
+	public static void warn(String message){
+		print_univ("WARN", message, 'Y');
+	}
 	public static void talk(String head, String message) {
 		if(GenericConfig.VERB) print_univ(head, message, 'c');
 	}

@@ -996,12 +996,12 @@ public class ProfileModule {
 		}
 		
 		String build = "PROGRESS : [";
-	//	int fin = 0;
+		int fin = 0;
 		
 		try{
 			for(Status s : progress) {
 				build += s.stat;
-	//			if(s.proc == 2) fin++;
+				if(s.proc == 2) fin++;
 			}
 		}
 		catch(java.util.ConcurrentModificationException cme) {
@@ -1012,7 +1012,7 @@ public class ProfileModule {
 		}
 		
 		build += "]";
-	//	build += " ETA : " + tk.eta(fin, progress.size());
+		build += " ETA : " + tk.eta(fin, progress.size()) + "        ";
 		Prompt.dynamic("\r");
 		Prompt.dynamicHeader(build);
 	}
@@ -1055,76 +1055,82 @@ public class ProfileModule {
 			this.g = gid;
 		}
 		
-		public ProfilePredictionEntity call() throws Exception {
-			/* Prepare gene and set prompt */
-			String cg = GenericConfig.QUERY_GENES[g];
-			String dir = null;
-			switch(GenericConfig.TARGET) {
-			case GenericConfig.TARGET_PRO: dir = "pro"; break;
-			case GenericConfig.TARGET_BUSCO: dir = "busco"; break;
-			}
-			
-//			Prompt.dynamic(ANSIHandler.wrapper(String.format("%-6s", cg), 'Y') + " >> [" + progress);
-			Prompt.talk("Extracting gene " + ANSIHandler.wrapper(cg, 'Y') + 
-					String.format(" [%d/%d]", g+1, GenericConfig.QUERY_GENES.length) + " from the query genome...");
-
-			/* Phase 1. SEARCH */
-			updateProg(g, ANSIHandler.wrapper("S", 'p'), 1); printProg();
-			Prompt.talk(ANSIHandler.wrapper("[Phase 1 : Searching]", 'p'));
-			String seqPath = PathConfig.InputIsFolder ? PathConfig.InputPath + GenericConfig.FILENAME : PathConfig.InputPath;
-			/* Run fastBlockSearch on assembly to find gene containing location (contig, position) */
-			BlockProfileEntity bp = FastBlockSearchProcess.handle(seqPath, PathConfig.ModelPath + dir + File.separator + cg + ".hmm", cg);
-			bp.reduce(GenericConfig.FastBlockSearchHits);
-			/* Drag required contigs from assembly and store their paths */
-			List<String> ctgPaths = ContigDragProcess.drag(seqPath, bp);
-			
-			/* Phase 2. PREDICT */
-			updateProg(g, ANSIHandler.wrapper("P", 'c'), 1); printProg();
-			Prompt.talk(ANSIHandler.wrapper("[Phase 2 : Prediction]", 'c'));
-			/* Run AUGUSTUS on the block found in Phase 1 */
-			ProfilePredictionEntity pp = GenePredictionProcess.blockPredict(bp, ctgPaths);
-			
-			/* Phase 3. VALIDATE */
-			updateProg(g, ANSIHandler.wrapper("V", 'R'), 1); printProg();
-			Prompt.talk(ANSIHandler.wrapper("[Phase 3 : Validation]", 'R'));
-			/* Run hmmsearch and find target gene among the predicted genes */
-			if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + dir + File.separator + cg + ".fa", PathConfig.TempPath);
-			/* Implementation note.
-			 *		Previously, contigs were removed right after AUGUSTUS finishes the prediction.
-			 *		However, to extract the cDNA sequence for the gene, contig should remain intact.
-			 *		Therefore, contigs will be removed all together after the entire extraction process.
-			 */
-			for(String ctgPath : ctgPaths) if(!contigs.contains(ctgPath)) contigs.add(ctgPath);
-			
-			/* Record obtained result */
-			String result = "";
-			if(pp.valid()) {
-				if(pp.multiple()) {
-					/* Multiple copies */
-					nMul++;
-					result = ANSIHandler.wrapper("O", 'G');
-					Prompt.talk("Query genome contains " + ANSIHandler.wrapper("duplicated", 'G') +
-								" copies of gene " + ANSIHandler.wrapper(cg, 'Y'));
+		public ProfilePredictionEntity call() {
+			try {
+				/* Prepare gene and set prompt */
+				String cg = GenericConfig.QUERY_GENES[g];
+				String dir = null;
+				switch(GenericConfig.TARGET) {
+				case GenericConfig.TARGET_PRO: dir = "pro"; break;
+				case GenericConfig.TARGET_BUSCO: dir = "busco"; break;
+				}
+				
+	//			Prompt.dynamic(ANSIHandler.wrapper(String.format("%-6s", cg), 'Y') + " >> [" + progress);
+				Prompt.talk("Extracting gene " + ANSIHandler.wrapper(cg, 'Y') + 
+						String.format(" [%d/%d]", g+1, GenericConfig.QUERY_GENES.length) + " from the query genome...");
+	
+				/* Phase 1. SEARCH */
+				updateProg(g, ANSIHandler.wrapper("S", 'p'), 1); printProg();
+				Prompt.talk(ANSIHandler.wrapper("[Phase 1 : Searching]", 'p'));
+				String seqPath = PathConfig.InputIsFolder ? PathConfig.InputPath + GenericConfig.FILENAME : PathConfig.InputPath;
+				/* Run fastBlockSearch on assembly to find gene containing location (contig, position) */
+				BlockProfileEntity bp = FastBlockSearchProcess.handle(seqPath, PathConfig.ModelPath + dir + File.separator + cg + ".hmm", cg);
+				bp.reduce(GenericConfig.FastBlockSearchHits);
+				/* Drag required contigs from assembly and store their paths */
+				List<String> ctgPaths = ContigDragProcess.drag(seqPath, bp);
+				
+				/* Phase 2. PREDICT */
+				updateProg(g, ANSIHandler.wrapper("P", 'c'), 1); printProg();
+				Prompt.talk(ANSIHandler.wrapper("[Phase 2 : Prediction]", 'c'));
+				/* Run AUGUSTUS on the block found in Phase 1 */
+				ProfilePredictionEntity pp = GenePredictionProcess.blockPredict(bp, ctgPaths);
+				
+				/* Phase 3. VALIDATE */
+				updateProg(g, ANSIHandler.wrapper("V", 'R'), 1); printProg();
+				Prompt.talk(ANSIHandler.wrapper("[Phase 3 : Validation]", 'R'));
+				/* Run hmmsearch and find target gene among the predicted genes */
+				if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + dir + File.separator + cg + ".fa", PathConfig.TempPath);
+				/* Implementation note.
+				 *		Previously, contigs were removed right after AUGUSTUS finishes the prediction.
+				 *		However, to extract the cDNA sequence for the gene, contig should remain intact.
+				 *		Therefore, contigs will be removed all together after the entire extraction process.
+				 */
+				for(String ctgPath : ctgPaths) if(!contigs.contains(ctgPath)) contigs.add(ctgPath);
+				
+				/* Record obtained result */
+				String result = "";
+				if(pp.valid()) {
+					if(pp.multiple()) {
+						/* Multiple copies */
+						nMul++;
+						result = ANSIHandler.wrapper("O", 'G');
+						Prompt.talk("Query genome contains " + ANSIHandler.wrapper("duplicated", 'G') +
+									" copies of gene " + ANSIHandler.wrapper(cg, 'Y'));
+					}
+					else {
+						/* Single copy */
+						nSgl++;
+						result = ANSIHandler.wrapper("O", 'g');
+						Prompt.talk("Query genome contains a " + ANSIHandler.wrapper("single", 'g') +
+								" copy of gene " + ANSIHandler.wrapper(cg, 'Y'));
+					}
 				}
 				else {
-					/* Single copy */
-					nSgl++;
-					result = ANSIHandler.wrapper("O", 'g');
-					Prompt.talk("Query genome contains a " + ANSIHandler.wrapper("single", 'g') +
-							" copy of gene " + ANSIHandler.wrapper(cg, 'Y'));
+					/* Extraction failed */
+					nUid++;
+					result = ANSIHandler.wrapper("X", 'r');
+					Prompt.talk("Query genome is " + ANSIHandler.wrapper("missing", 'r') +
+							" gene " + ANSIHandler.wrapper(cg, 'Y'));
 				}
-			}
-			else {
-				/* Extraction failed */
-				nUid++;
-				result = ANSIHandler.wrapper("X", 'r');
-				Prompt.talk("Query genome is " + ANSIHandler.wrapper("missing", 'r') +
-						" gene " + ANSIHandler.wrapper(cg, 'Y'));
+				
+				updateProg(g, result, 2);
+				printProg();
+				return pp;
+			} catch(Exception e) {
+				ExceptionHandler.handle(e);
 			}
 			
-			updateProg(g, result, 2);
-			printProg();
-			return pp;
+			return null;
 		}
 	}
 }

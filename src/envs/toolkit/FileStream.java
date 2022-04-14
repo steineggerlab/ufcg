@@ -1,6 +1,7 @@
 package envs.toolkit;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class FileStream {
 	
 	public static void wipe(String path) {
 		if(PathConfig.TempIsCustom) return;
+		if(!PATH_MAP.containsKey(path)) return;
 		int map = (int) PATH_MAP.get(path);
 		if(map < 0 || map >= TMP_STATUS.size()) return;
 		
@@ -97,7 +99,7 @@ public class FileStream {
 	public PrintWriter 		writer = null;
 	public final String 	PATH;
 	
-	public FileStream(String path, char type) throws IOException {
+	public FileStream(String path, char type) throws IOException, FileNotFoundException {
 		this.PATH = path;
 		switch(type){
 			case 'i': case 'r':
