@@ -124,7 +124,7 @@ public class TreeModule {
 
 			if (arg.get("-f")!=null) {
 				filtering = Integer.parseInt(arg.get("-f"));
-				if (filtering > 100 || filtering <= 0) {
+				if (filtering > 100 || filtering < 0) {
 					ExceptionHandler.pass(filtering);
 					ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 				}
@@ -595,7 +595,7 @@ public class TreeModule {
 		System.out.println(String.format(" %s\t\t%s", "-n", "Name of this run (default: random number)"));
 		System.out.println(String.format(" %s\t\t%s", "-a", "Alignment method [nucleotide, codon, codon12, protein] (default: nucleotide)"));
 		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
-		System.out.println(String.format(" %s\t\t%s", "-f", "Gap-rich filter percentage threshold [1 - 100] (default: 50)"));
+		System.out.println(String.format(" %s\t\t%s", "-f", "Gap-rich filter percentage threshold [0 - 100] (default: 50)"));
 		System.out.println(String.format(" %s\t\t%s", "-p", "Tree building program [raxml, iqtree, fasttree] (default: iqtree)"));
 		System.out.println(String.format(" %s\t\t%s", "-m", "ML tree inference model (default: JTT+ for proteins, GTR+ for nucleotides)"));
 		System.out.println(String.format(" %s\t\t%s", "-g", "GSI value threshold [1 - 100] (default: 95)"));

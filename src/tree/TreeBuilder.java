@@ -142,7 +142,8 @@ public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 	checkThirdPartyPrograms(tool);
 	readJsonsToFastaFiles();
 	alignGenes(nThreads); // 
-	concatenateAlignedGenesRemoveGaps(); 
+	removeGaps();
+	concatenateAlignedGenes(); 
 	inferTree(tool, nThreads); // fasttree or raxml
 	inferGeneTrees(tool, nThreads);
 	calculateGsi();
@@ -154,6 +155,7 @@ public void jsonsToMsa(int nThreads) throws IOException {
 	testMafft(mafftPath);
 	readJsonsToFastaFiles();
 	alignGenes(nThreads);
+	removeGaps();
 	replaceLabelforAlign();
 	
 }
@@ -499,7 +501,33 @@ void alignGenes(int nThreads) {
 }
 
 
-void concatenateAlignedGenesRemoveGaps() {
+void removeGaps() {
+	Prompt.print("Removing gap columns with threshold " + String.valueOf(filtering) + "%...");
+	
+	List<String> fileList = new ArrayList<String>();
+
+	for (String gene : usedGenes) {
+		fileList.add(alignedFinalGeneFastaFile(gene));
+	}
+
+	for (String fileName : fileList) {
+		FastaSeqList fsl = new FastaSeqList();
+		fsl.importFile(fileName);
+		
+		String fasta = fsl.getString();
+		fasta = removeGapColumns(fasta);
+		
+		try {
+			FileWriter fw = new FileWriter(fileName);
+			fw.append(fasta);
+			fw.close();
+		} catch(java.io.IOException e) {
+			ExceptionHandler.handle(e);
+		}
+	}
+}
+
+void concatenateAlignedGenes() {
 	
 	Prompt.print("Concatenating aligned genes...");
 	

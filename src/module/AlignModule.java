@@ -115,7 +115,7 @@ public class AlignModule {
 			name = cmd.getOptionValue("n");
 		if(cmd.hasOption("-f")) {
 			filter = Integer.parseInt(cmd.getOptionValue("f"));
-			if (filter > 100 || filter <= 0) {
+			if (filter > 100 || filter < 0) {
 				ExceptionHandler.pass(filter);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			}
@@ -185,7 +185,7 @@ public class AlignModule {
 		System.out.println(String.format(" %s\t\t%s", "-n", "Name of this run (default: random number)"));
 		System.out.println(String.format(" %s\t\t%s", "-a", "Alignment method [nucleotide, codon, codon12, protein] (default: nucleotide)"));
 		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
-		System.out.println(String.format(" %s\t\t%s", "-f", "Gap-rich filter percentage threshold [1 - 100] (default: 50)"));
+		System.out.println(String.format(" %s\t\t%s", "-f", "Gap-rich filter percentage threshold [0 - 100] (default: 50)"));
 		System.out.println("");
 		
 		System.exit(0);
