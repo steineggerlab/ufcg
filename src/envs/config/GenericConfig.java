@@ -37,7 +37,7 @@ public class GenericConfig {
 		case UFCGMainPipeline.MODULE_PROFILE: return "profile";
 		case UFCGMainPipeline.MODULE_PROFILE_RNA: return "profile-rna";
 		case UFCGMainPipeline.MODULE_TREE: return "tree";
-		case UFCGMainPipeline.MODULE_TREE_FIX: return "tree-fix";
+		case UFCGMainPipeline.MODULE_PRUNE: return "prune";
 		default: return "";
 		}
 	}

@@ -357,7 +357,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper("\n Defining set of markers", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Name\t\tDescription", 'c'));
 		System.out.println(String.format(" %s\t\t%s", "NUC", "Extract nucleotide marker sequences (Partial SSU/ITS1/5.8S/ITS2/Partial LSU)"));
-		System.out.println(String.format(" %s\t\t%s", "PRO", "Extract protein marker sequences (70 genes - run " + ANSIHandler.wrapper("java -jar UFCG.jar --core", 'B') + " to see the full list)"));
+		System.out.println(String.format(" %s\t\t%s", "PRO", "Extract protein marker sequences (Run " + ANSIHandler.wrapper("java -jar UFCG.jar --core", 'B') + " to see the full list)"));
 		System.out.println(String.format(" %s\t\t%s", "BUSCO", "Extract BUSCO sequences (758 orthologs from fungi_odb10)"));
 		System.out.println("");
 		System.out.println(String.format(" * Provide a comma-separated string consists of following sets (ex: NUC,PRO / PRO,BUSCO etc.)"));

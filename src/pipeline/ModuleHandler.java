@@ -12,7 +12,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
 
 import envs.config.GenericConfig;
-import envs.toolkit.ANSIHandler;
+//import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
 import module.AlignModule;
 import module.ProfileModule;
@@ -152,11 +152,11 @@ public class ModuleHandler {
 			}
 		}
 		
-		Prompt.debug("Running : " + ANSIHandler.wrapper("tree.jar " + String.join(" ", argList), 'B'));
+	//	Prompt.debug("Running : " + ANSIHandler.wrapper("tree.jar " + String.join(" ", argList), 'B'));
 		TreeModule.run(argList.toArray(new String[argList.size()]));
 	}
-	private void handle_tree_fix() {
-		Prompt.talk("UFCG tree-fix v" + UFCGMainPipeline.VERSION);
+	private void handle_prune() {
+		Prompt.talk("UFCG prune v" + UFCGMainPipeline.VERSION);
 		
 		/* option argument setup */
 		Options opts = new Options();
@@ -217,7 +217,7 @@ public class ModuleHandler {
 			}
 		}
 		
-		Prompt.debug("Running : " + ANSIHandler.wrapper("tree.jar " + String.join(" ", argList), 'B'));
+	//	Prompt.debug("Running : " + ANSIHandler.wrapper("tree.jar " + String.join(" ", argList), 'B'));
 		TreeModule.run(argList.toArray(new String[argList.size()]));
 	}
 	
@@ -227,7 +227,7 @@ public class ModuleHandler {
 		case UFCGMainPipeline.MODULE_PROFILE: 		handle_profile(); break;
 		case UFCGMainPipeline.MODULE_PROFILE_RNA: 	handle_profile_rna(); break;
 		case UFCGMainPipeline.MODULE_TREE: 			handle_tree(); break;
-		case UFCGMainPipeline.MODULE_TREE_FIX: 		handle_tree_fix(); break;
+		case UFCGMainPipeline.MODULE_PRUNE: 		handle_prune(); break;
 		case UFCGMainPipeline.MODULE_ALIGN:			handle_align(); break;
 		default: break;
 		}

@@ -44,7 +44,7 @@ public class UFCGMainPipeline {
 	public static final int MODULE_PROFILE		= 0x01;
 	public static final int MODULE_PROFILE_RNA	= 0x02;
 	public static final int MODULE_TREE			= 0x03;
-	public static final int MODULE_TREE_FIX		= 0x04;
+	public static final int MODULE_PRUNE		= 0x04;
 	public static final int MODULE_ALIGN		= 0x05;
 	
 	/* Print the UFCG logo with version number */
@@ -76,7 +76,7 @@ public class UFCGMainPipeline {
 		if(module.equals("profile")) 		return MODULE_PROFILE;
 		if(module.equals("profile-rna"))	return MODULE_PROFILE_RNA;
 		if(module.equals("tree"))			return MODULE_TREE;
-		if(module.equals("tree-fix"))		return MODULE_TREE_FIX;
+		if(module.equals("prune"))			return MODULE_PRUNE;
 		if(module.equals("align"))			return MODULE_ALIGN;
 		
 		if(!module.startsWith("-")) {
@@ -152,11 +152,14 @@ public class UFCGMainPipeline {
 				
 				ANSIHandler.wrapper(" Available Modules\n", 'Y') +
 				ANSIHandler.wrapper(" Module         Description\n", 'c') +
+									"\n" +
 									" profile        Extract UFCG profile from genome\n"+
 									" profile-rna    Extract UFCG profile from RNA-seq transcriptome\n"+
+									" train          Train and generate sequence model\n"+
+									"\n" +
 									" align          Produce sequence alignments from UFCG profiles\n"+
 									" tree           Build maximum likelihood tree with UFCG profiles\n"+
-									" tree-fix       Fix UFCG tree or single gene tree\n\n\n"+
+									" prune          Rebuild UFCG tree or single gene tree\n\n\n"+
 				
 				ANSIHandler.wrapper(" Miscellaneous\n", 'Y') +
 				ANSIHandler.wrapper(" Argument       Description\n", 'c') +

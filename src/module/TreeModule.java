@@ -47,7 +47,7 @@ public class TreeModule {
 		// Help route
 		if (proc.paramList.contains("-h") || proc.paramList.contains("--help")) {
 			if(method.equals("align")) proc.printTreeHelp();
-			if(method.equals("replace")) proc.printTreeFixHelp();
+			if(method.equals("replace")) proc.printPruneHelp();
 		}
 		
 		proc.getProgramPath();
@@ -604,12 +604,12 @@ public class TreeModule {
 		
 		System.exit(0);
 	}
-	private void printTreeFixHelp() {
-		System.out.println(ANSIHandler.wrapper(" UFCG - tree-fix", 'G'));
+	private void printPruneHelp() {
+		System.out.println(ANSIHandler.wrapper(" UFCG - prune", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Fix UFCG tree labels or get a single gene tree", 'g'));
 		System.out.println("");
 	
-		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar tree-fix -i <INPUT> -g <GENE> -l <LABEL>");
+		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar prune -i <INPUT> -g <GENE> -l <LABEL>");
 		System.out.println("");
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
