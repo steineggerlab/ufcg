@@ -16,6 +16,7 @@ import envs.config.GenericConfig;
 import envs.toolkit.Prompt;
 import module.AlignModule;
 import module.ProfileModule;
+import module.ProfileRnaModule;
 import module.TreeModule;
 
 public class ModuleHandler {
@@ -35,8 +36,8 @@ public class ModuleHandler {
 		ProfileModule.run(args);
 	}
 	private void handle_profile_rna() {
-		Prompt.talk("UFCG profile v" + UFCGMainPipeline.VERSION);
-		ProfileModule.run(args);
+		Prompt.talk("UFCG profile-rna v" + UFCGMainPipeline.VERSION);
+		ProfileRnaModule.run(args);
 	}
 	private void handle_align() {
 		Prompt.talk("UFCG profile v" + UFCGMainPipeline.VERSION);

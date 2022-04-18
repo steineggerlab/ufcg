@@ -107,7 +107,7 @@ public class ExceptionHandler {
 		case INTEGRITY_TEST_FAILED:
 			System.out.println("Bad file integrity : " + OBJ.toString()); break;
 		case METAINFO_CONFLICT:
-			System.out.println("--metainfo option cannot be given with the directory input or --metadata option."); break;
+			System.out.println("--info option cannot be given with the directory input or -m/--metadata option."); break;
 		case INVALID_METAINFO:
 			System.out.println("Metadata information is improperly formatted."); break;
 		case UNKNOWN_MODULE:

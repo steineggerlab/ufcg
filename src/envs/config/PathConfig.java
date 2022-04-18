@@ -101,6 +101,27 @@ public class PathConfig {
 		return 0;
 	}
 	
+	public static String TrinityPath = "Trinity";
+	public static int setTrinityPath(String path) {
+		try {
+			Prompt.talk("Trinity binary check : " + ANSIHandler.wrapper(path, 'B'));
+			String[] exec = Shell.exec("file -b " + path);
+			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
+				ExceptionHandler.pass(path);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
+				return 1;
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+			return 2;
+		}
+		
+		TrinityPath = path;
+		return 0;
+	}
+	
 	/* Runtime I/O configuration */
 	public static String  InputPath = null;
 	public static boolean InputIsFolder = false;
@@ -128,6 +149,22 @@ public class PathConfig {
 		if(InputIsFolder) {
 			if(!InputPath.endsWith("/")) InputPath += "/";
 		}	
+		return 0;
+	}
+	public static int checkInputFile(String path) {
+		try {
+			Prompt.talk("Input file check : " + ANSIHandler.wrapper(path, 'B'));
+			String[] exec = Shell.exec("file -b " + path);
+			Prompt.talk("Input argument : " + ANSIHandler.wrapper(exec[0], 'B'));
+			if(exec[0].contains("directory") | exec[0].startsWith("cannot")) {
+				ExceptionHandler.pass(path);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_FILE);
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+		}
 		return 0;
 	}
 	

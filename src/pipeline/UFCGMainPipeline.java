@@ -37,8 +37,8 @@ import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class UFCGMainPipeline {
-	public static final String VERSION = " alpha";
-	public static final String RELEASE_DATE = "2022";
+	public static final String VERSION = "0.3 beta";
+	public static final String RELEASE_DATE = "Apr 2022";
 	
 	public static final int NO_MODULE			= 0x00;
 	public static final int MODULE_PROFILE		= 0x01;
@@ -152,7 +152,6 @@ public class UFCGMainPipeline {
 				
 				ANSIHandler.wrapper(" Available Modules\n", 'Y') +
 				ANSIHandler.wrapper(" Module         Description\n", 'c') +
-									"\n" +
 									" profile        Extract UFCG profile from genome\n"+
 									" profile-rna    Extract UFCG profile from RNA-seq transcriptome\n"+
 									" train          Train and generate sequence model\n"+

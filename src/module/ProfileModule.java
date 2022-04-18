@@ -71,7 +71,7 @@ public class ProfileModule {
 		opts.addOption(null, "mmseqs", true, "MMseqs2 binary");
 		
 		opts.addOption("m", "metadata", true, "metadata path");
-		opts.addOption(null, "metainfo", true, "single file metadata information");
+		opts.addOption(null, "info", true, "single file metadata information");
 		opts.addOption("n", "intron", true, "include intron sequences");
 		opts.addOption(null, "prflpath", true, "gene profile path");
 		opts.addOption(null, "seqpath", true, "gene sequence path");
@@ -169,10 +169,10 @@ public class ProfileModule {
 				GenericConfig.INTRON = false;
 			}
 		}
-		if(cmd.hasOption("metainfo")) {
+		if(cmd.hasOption("info")) {
 			// check confilct
 			if(cmd.hasOption("m") || PathConfig.InputIsFolder) ExceptionHandler.handle(ExceptionHandler.METAINFO_CONFLICT);
-			PathConfig.MetaString = cmd.getOptionValue("metainfo");
+			PathConfig.MetaString = cmd.getOptionValue("info");
 		}
 		
 		if(cmd.hasOption("modelpath")) {
@@ -374,7 +374,7 @@ public class ProfileModule {
 		
 		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "--metainfo STR",  "Comma-separated metadata string for a single file input"));
+		System.out.println(String.format(" %s\t\t%s", "--info STR",  "Comma-separated metadata string for a single file input"));
 		System.out.println(String.format(" %s\t%s", "--modelpath STR", "Path to the directory containing gene block profile models [./config/model]"));
 		System.out.println(String.format(" %s\t\t%s", "--seqpath STR",   "Path to the directory containing gene sequences [./config/seq]"));
 		System.out.println(String.format(" %s\t\t%s", "--ppxcfg STR",    "Path to the AUGUSTUS-PPX config file [./config/ppx.cfg]"));
