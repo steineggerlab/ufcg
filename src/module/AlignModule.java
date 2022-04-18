@@ -173,19 +173,19 @@ public class AlignModule {
 		System.out.println("");
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "-i", "Input directory containing UFCG profiles"));
-		System.out.println(String.format(" %s\t\t%s", "-o", "Output directory for alignments"));
+		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -i           Input directory containing UFCG profiles", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -o           Output directory for alignments", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "-l", "Label format, comma-separated string containing one or more of the following keywords: (default: label)"));
-		System.out.println(String.format(" %s\t\t%s", "  ", "[uid, acc, label, taxon, strain, type, taxonomy]"));
-		System.out.println(String.format(" %s\t\t%s", "-n", "Name of this run (default: random number)"));
-		System.out.println(String.format(" %s\t\t%s", "-a", "Alignment method [nucleotide, codon, codon12, protein] (default: nucleotide)"));
-		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
-		System.out.println(String.format(" %s\t\t%s", "-f", "Gap-rich filter percentage threshold [0 - 100] (default: 50)"));
+		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -l           Label format, comma-separated string containing one or more of the following keywords: (default: label)", 'x'));
+		System.out.println(ANSIHandler.wrapper("              [uid, acc, label, taxon, strain, type, taxonomy]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n           Name of this run (default: random number)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -a           Alignment method [nucleotide, codon, codon12, protein] (default: nucleotide)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -t           Number of CPU threads to use (default: 1)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -f           Gap-rich filter percentage threshold [0 - 100] (default: 50)", 'x'));
 		System.out.println("");
 		
 		System.exit(0);

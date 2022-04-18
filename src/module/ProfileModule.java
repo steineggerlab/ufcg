@@ -328,20 +328,20 @@ public class ProfileModule {
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "-i STR", "Input directory containing fungal genome assemblies"));
-		System.out.println(String.format(" %s\t\t%s", "-o STR", "Output directory to store the result files"));
+		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -i STR       Input directory containing fungal genome assemblies", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -o STR       Output directory to store the result files", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "-s STR", "Set of markers to extract - see advanced options for details [PRO]"));
-		System.out.println(String.format(" %s\t\t%s", "-w STR", "Directory to write the temporary files [/tmp]"));
-		System.out.println(String.format(" %s\t%s", "-k BOOL", "Keep the temporary products [0]"));
-		System.out.println(String.format(" %s\t%s", "-f BOOL", "Force to overwrite the existing files [0]"));
-		System.out.println(String.format(" %s\t\t%s", "-t INT", "Number of CPU threads to use [1]"));
-		System.out.println(String.format(" %s\t\t%s", "-m STR", "File to the list containing metadata"));
-		System.out.println(String.format(" %s\t%s", "-n BOOL", "Include introns from the predicted ORFs to the result sequences [1]"));
+		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -s STR       Set of markers to extract - see advanced options for details [PRO]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -w STR       Directory to write the temporary files [/tmp]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -k BOOL      Keep the temporary products [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -f BOOL      Force to overwrite the existing files [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -t INT       Number of CPU threads to use [1]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -m STR       File to the list containing metadata", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n BOOL      Include introns from the predicted ORFs to the result sequences [1]", 'x'));
 		System.out.println("");
 		
 		System.out.println(" To see the advanced options, run with \"profile -hh\".\n");
@@ -355,35 +355,32 @@ public class ProfileModule {
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Defining set of markers", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Name\t\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "NUC", "Extract nucleotide marker sequences (Partial SSU/ITS1/5.8S/ITS2/Partial LSU)"));
-		System.out.println(String.format(" %s\t\t%s", "PRO", "Extract protein marker sequences (Run " + ANSIHandler.wrapper("java -jar UFCG.jar --core", 'B') + " to see the full list)"));
-		System.out.println(String.format(" %s\t\t%s", "BUSCO", "Extract BUSCO sequences (758 orthologs from fungi_odb10)"));
+		System.out.println(ANSIHandler.wrapper(" Name      Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" NUC       Extract nucleotide marker sequences (Partial SSU/ITS1/5.8S/ITS2/Partial LSU)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" PRO       Extract protein marker sequences (Run " + ANSIHandler.wrapper("java -jar UFCG.jar --core", 'B') + " to see the full list)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" BUSCO     Extract BUSCO sequences (758 orthologs from fungi_odb10)", 'x'));
 		System.out.println("");
-		System.out.println(String.format(" * Provide a comma-separated string consists of following sets (ex: NUC,PRO / PRO,BUSCO etc.)"));
-		System.out.println(String.format(" * Use specific gene names to extract custom set of markers (ex: ACT1,TEF1,TUB1 / NUC,CMD1,RPB2)"));
+		System.out.println(ANSIHandler.wrapper(" * Provide a comma-separated string consists of following sets (ex: NUC,PRO / PRO,BUSCO etc.)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" * Use specific gene names to extract custom set of markers (ex: ACT1,TEF1,TUB1 / NUC,CMD1,RPB2)", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Dependencies", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
-		System.out.println(String.format(" %s\t%s", "--fastblocksearch STR", "Path to fastBlockSearch binary [fastBlockSearch]"));
-		System.out.println(String.format(" %s\t\t%s", "--augustus STR", "Path to AUGUSTUS binary [augustus]"));
-//		System.out.println(String.format(" %s\t\t%s", "--hmmsearch", "Path to hmmsearch binary"));
-		System.out.println(String.format(" %s\t\t%s", "--mmseqs STR", "Path to MMseqs2 binary [mmseqs]"));
+		System.out.println(ANSIHandler.wrapper(" Argument                 Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" --fastblocksearch STR    Path to fastBlockSearch binary [fastBlockSearch]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --augustus STR           Path to AUGUSTUS binary [augustus]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --mmseqs STR             Path to MMseqs2 binary [mmseqs]", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "--info STR",  "Comma-separated metadata string for a single file input"));
-		System.out.println(String.format(" %s\t%s", "--modelpath STR", "Path to the directory containing gene block profile models [./config/model]"));
-		System.out.println(String.format(" %s\t\t%s", "--seqpath STR",   "Path to the directory containing gene sequences [./config/seq]"));
-		System.out.println(String.format(" %s\t\t%s", "--ppxcfg STR",    "Path to the AUGUSTUS-PPX config file [./config/ppx.cfg]"));
-		System.out.println(String.format(" %s\t%s", "--fbscutoff FLOAT", "Cutoff value for fastBlockSearch process [0.5]"));
-		System.out.println(String.format(" %s\t\t%s", "--fbshits INT" ,  "Use this amount of top hits from fastBlockSearch results [5]"));
-		System.out.println(String.format(" %s\t%s", "--augoffset INT", "Prediction offset window size for AUGUSTUS process [10000]"));
-//		System.out.println(String.format(" %s\t\t%s", "--hmmscore",  "Bitscore cutoff for hmmsearch validation (default = 100)"));
-		System.out.println(String.format(" %s\t\t%s", "--evalue FLOAT",    "E-value cutoff for validation [1e-30]"));
-//		System.out.println(String.format(" %s\t\t%s", "--corelist",  "Comma-separated string for a custom set of fungal core genes"));
+		System.out.println(ANSIHandler.wrapper(" Argument                 Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" --info STR               Comma-separated metadata string for a single file input", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --modelpath STR          Path to the directory containing gene block profile models [./config/model]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --seqpath STR            Path to the directory containing gene sequences [./config/seq]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --ppxcfg STR             Path to the AUGUSTUS-PPX config file [./config/ppx.cfg]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --fbscutoff FLOAT        Cutoff value for fastBlockSearch process [0.5]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --fbshits INT            Use this amount of top hits from fastBlockSearch results [5]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --augoffset INT          Prediction offset window size for AUGUSTUS process [10000]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --evalue FLOAT           E-value cutoff for validation [1e-30]", 'x'));
 		System.out.println("");
 		
 		System.exit(0);

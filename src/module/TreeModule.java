@@ -583,23 +583,23 @@ public class TreeModule {
 		System.out.println("");
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "-i", "Input directory containing UFCG profiles"));
-		System.out.println(String.format(" %s\t\t%s", "-l", "Tree label format, comma-separated string containing one or more of the following keywords:"));
-		System.out.println(String.format(" %s\t\t%s", "  ", "[uid, acc, label, taxon, strain, type, taxonomy]"));
+		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -i           Input directory containing UFCG profiles ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -l           Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
+		System.out.println(ANSIHandler.wrapper("              [uid, acc, label, taxon, strain, type, taxonomy] ", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "-o", "Define output directory (default: ./output)"));
-		System.out.println(String.format(" %s\t\t%s", "-n", "Name of this run (default: random number)"));
-		System.out.println(String.format(" %s\t\t%s", "-a", "Alignment method [nucleotide, codon, codon12, protein] (default: nucleotide)"));
-		System.out.println(String.format(" %s\t\t%s", "-t", "Number of CPU threads to use (default: 1)"));
-		System.out.println(String.format(" %s\t\t%s", "-f", "Gap-rich filter percentage threshold [0 - 100] (default: 50)"));
-		System.out.println(String.format(" %s\t\t%s", "-p", "Tree building program [raxml, iqtree, fasttree] (default: iqtree)"));
-		System.out.println(String.format(" %s\t\t%s", "-m", "ML tree inference model (default: JTT+ for proteins, GTR+ for nucleotides)"));
-		System.out.println(String.format(" %s\t\t%s", "-g", "GSI value threshold [1 - 100] (default: 95)"));
-		System.out.println(String.format(" %s\t\t%s", "-x", "Maximum number of gene tree executors [1 - threads] (default: equal to -t; lower if RAM usage is excessive)"));
+		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -o           Define output directory (default: ./output) ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n           Name of this run (default: random number) ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -a           Alignment method [nucleotide, codon, codon12, protein] (default: nucleotide) ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -t           Number of CPU threads to use (default: 1) ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -f           Gap-rich filter percentage threshold [0 - 100] (default: 50) ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -p           Tree building program [raxml, iqtree, fasttree] (default: iqtree) ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -m           ML tree inference model (default: JTT+ for proteins, GTR+ for nucleotides) ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -g           GSI value threshold [1 - 100] (default: 95) ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -x           Maximum number of gene tree executors [1 - threads] (default: equal to -t; lower if RAM usage is excessive) ", 'x'));
 		System.out.println("");
 		
 		System.exit(0);
@@ -613,11 +613,11 @@ public class TreeModule {
 		System.out.println("");
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "-i", "Input .trm file provided by tree module"));
-		System.out.println(String.format(" %s\t\t%s", "-g", "Gene name - \"UFCG\" for a UFCG tree, proper gene name for a single gene tree"));
-		System.out.println(String.format(" %s\t\t%s", "-l", "Tree label format, comma-separated string containing one or more of the following keywords:"));
-		System.out.println(String.format(" %s\t\t%s", "  ", "[uid, acc, label, taxon, strain, type, taxonomy]"));
+		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -i           Input .trm file provided by tree module ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -g           Gene name - \"UFCG\" for a UFCG tree, proper gene name for a single gene tree ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -l           Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
+		System.out.println(ANSIHandler.wrapper("              [uid, acc, label, taxon, strain, type, taxonomy] ", 'x'));
 		System.out.println("");
 		
 		System.exit(0);

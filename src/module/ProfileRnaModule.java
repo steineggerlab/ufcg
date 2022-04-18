@@ -232,23 +232,23 @@ public class ProfileRnaModule {
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t\t%s", "-p INT", "Paired or unpaired reads (paired: 1; unpaired: 0)"));
-		System.out.println(String.format(" %s\t\t%s", "-i STR *", "File containing single reads in FASTQ/FASTA format"));
-		System.out.println(String.format(" %s\t%s", "-l STR -r STR *", "File containing left/right reads in FASTQ/FASTA format"));
-		System.out.println(String.format(" %s\t\t\t%s", "-o STR", "Output gene profile path (.ucg extension is recommended)"));
-		System.out.println(String.format("* Select one of above"));
+		System.out.println(ANSIHandler.wrapper(" Argument           Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -p INT             Paired or unpaired reads (paired: 1; unpaired: 0)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -i STR *           File containing single reads in FASTQ/FASTA format", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -l STR -r STR *    File containing left/right reads in FASTQ/FASTA format", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -o STR             Output gene profile path (.ucg extension is recommended)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" * Select one of above", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Configurations", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument\t\tDescription", 'c'));
-		System.out.println(String.format(" %s\t\t%s", "--info STR", "Comma-separated metadata string (Filename*, Label*, Accession*, Taxon, NCBI, Strain, Taxonomy) [Filename,Filename,Filename]"));
-		System.out.println(String.format(" %s\t\t%s", "--trinity STR", "Path to Trinity binary [Trinity]"));
+		System.out.println(ANSIHandler.wrapper(" Argument           Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" --info STR         Comma-separated metadata string (Filename*, Label*, Accession*, Taxon, NCBI, Strain, Taxonomy) [Filename,Filename,Filename]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --trinity STR      Path to Trinity binary [Trinity]", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Notes", 'y'));
-		System.out.println(" Currently, profile-rna module is only capable of extracting protein markers. (-s PRO)");
-		System.out.println(" Other options except -s, -m are shared with the profile module. To check them, run with \"profile -h\".\n");
+		System.out.println(" * Currently, profile-rna module is only capable of extracting protein markers. (-s PRO)");
+		System.out.println(" * Other options except -s, -m are shared with the profile module. To check them, run with \"profile -h\".\n");
 		
 		System.exit(0);
 	}
