@@ -25,6 +25,10 @@ public class TrinityWrapper extends ExecHandler {
 		super.addArg("--single", file);
 	}
 	
+	void setMaxMemory(long maxMemory) {
+		super.addArg("--max-memory", String.valueOf(maxMemory));
+	}
+	
 	void setCPU(int cpu) {
 		super.addArg("--CPU", String.valueOf(cpu));
 	}
@@ -37,21 +41,23 @@ public class TrinityWrapper extends ExecHandler {
 		super.addArg("--run_as_paired");
 	}
 	
-	public static void runSingle(String seqType, String single, int cpu, String out, boolean paired) {
+	public static void runSingle(String seqType, String single, long mem, int cpu, String out, boolean paired) {
 		TrinityWrapper tr = new TrinityWrapper();
 		tr.setSeqType(seqType);
 		tr.setSingle(single);
+		tr.setMaxMemory(mem);
 		tr.setCPU(cpu);
 		tr.setOutput(out);
 		if(paired) tr.setRunAsPaired();
 		tr.exec();
 	}
 	
-	public static void runDual(String seqType, String left, String right, int cpu, String out) {
+	public static void runDual(String seqType, String left, String right, long mem, int cpu, String out) {
 		TrinityWrapper tr = new TrinityWrapper();
 		tr.setSeqType(seqType);
 		tr.setLeft(left);
 		tr.setRight(right);
+		tr.setMaxMemory(mem);
 		tr.setCPU(cpu);
 		tr.setOutput(out);
 		tr.exec();

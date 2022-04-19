@@ -9,16 +9,28 @@ public class MMseqsWrapper extends ExecHandler {
 		super.init(PathConfig.MMseqsPath);
 	}
 	
-	void setModule(String module) {
-		super.addArg(module);
-	}
-	
-	void setSearchType(int type) {
+	public void setSearchType(int type) {
 		super.addArg("--search-type", String.valueOf(type));
 	}
 	
-	void setEvalue(double evalue) {
+	public void setEvalue(double evalue) {
 		super.addArg("-e", String.valueOf(evalue));
+	}
+	
+	public void setSens(double sens) {
+		super.addArg("-s", String.valueOf(sens));
+	}
+	
+	public void setThreads(int threads) {
+		super.addArg("--threads", String.valueOf(threads));
+	}
+	
+	public void setFormatOutput(String formatOutput) {
+		super.addArg("--format-output", formatOutput);
+	}
+	
+	void setModule(String module) {
+		super.addArg(module);
 	}
 	
 	// add file or db
@@ -26,26 +38,56 @@ public class MMseqsWrapper extends ExecHandler {
 		super.addArg(file);
 	}
 	
-	public static void runEasySearch(int type, String query, String target, String result, String tmpdir) {
-		MMseqsWrapper mm = new MMseqsWrapper();
-		mm.setModule("easy-search");
-		mm.setSearchType(type);
-		mm.addFile(query);
-		mm.addFile(target);
-		mm.addFile(result);
-		mm.addFile(tmpdir);
-		mm.exec();
+	public void setEasySearch(String query, String target, String result, String tmpdir) {
+		setModule("easy-search");
+		addFile(query);
+		addFile(target);
+		addFile(result);
+		addFile(tmpdir);
 	}
-	public static void runEasySearch(int type, double evalue, String query, String target, String result, String tmpdir) {
-		MMseqsWrapper mm = new MMseqsWrapper();
-		mm.setModule("easy-search");
-		mm.setSearchType(type);
-		mm.setEvalue(evalue);
-		mm.addFile(query);
-		mm.addFile(target);
-		mm.addFile(result);
-		mm.addFile(tmpdir);
-		mm.exec();
+	
+	public void setCreatedb(String seq, String db) {
+		setModule("createdb");
+		addFile(seq);
+		addFile(db);
+	}
+	
+	public void setRmdb(String db) {
+		setModule("rmdb");
+		addFile(db);
+	}
+	
+	public void setConcatdbs(String idb, String jdb, String odb) {
+		setModule("concatdbs");
+		addFile(idb);
+		addFile(jdb);
+		addFile(odb);
+	}
+	
+	public void setSearch(String qdb, String tdb, String adb, String tmpdir) {
+		setModule("search");
+		addFile(qdb);
+		addFile(tdb);
+		addFile(adb);
+		addFile(tmpdir);
+	}
+	
+	public void setConvertalis(String qdb, String tdb, String adb, String out) {
+		setModule("convertalis");
+		addFile(qdb);
+		addFile(tdb);
+		addFile(adb);
+		addFile(out);
+	}
+	
+	public void setConvert2Fasta(String db, String fa) {
+		setModule("convert2fasta");
+		addFile(db);
+		addFile(fa);
+	}
+	
+	public String[] exec() {
+		return super.exec();
 	}
 	
 	// solve dependency

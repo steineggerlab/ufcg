@@ -61,9 +61,15 @@ public class MMseqsEasySearchProcess {
 	static String TASK = null;
 	public static void setTask(String task) {TASK = task;}
 	
-	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, int uoff, int doff, boolean abs) {
+	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, int uoff, int doff, boolean abs, int threads) {
 		String resultPath = tmpPath + GenericConfig.SESSION_UID + "_" + targetPath.substring(targetPath.lastIndexOf(File.separator) + 1) + ".m8";
-		MMseqsWrapper.runEasySearch(3, queryPath, targetPath, resultPath, tmpPath);
+		
+		MMseqsWrapper mm = new MMseqsWrapper();
+		mm.setEasySearch(queryPath, targetPath, resultPath, tmpPath);
+		mm.setSearchType(3);
+		mm.setThreads(threads);
+		mm.exec();
+		
 		MMseqsSearchResultEntity res = new MMseqsSearchResultEntity(TASK, targetPath, resultPath);
 		
 		try {
@@ -80,9 +86,16 @@ public class MMseqsEasySearchProcess {
 		
 		return res;
 	}
-	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, double evalue) {
+	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, double evalue, int threads) {
 		String resultPath = tmpPath + GenericConfig.SESSION_UID + "_" + targetPath.substring(targetPath.lastIndexOf(File.separator) + 1) + ".m8";
-		MMseqsWrapper.runEasySearch(3, evalue, queryPath, targetPath, resultPath, tmpPath);
+		
+		MMseqsWrapper mm = new MMseqsWrapper();
+		mm.setEasySearch(queryPath, targetPath, resultPath, tmpPath);
+		mm.setSearchType(3);
+		mm.setEvalue(evalue);
+		mm.setThreads(threads);
+		mm.exec();
+		
 		MMseqsSearchResultEntity res = new MMseqsSearchResultEntity(TASK, targetPath, resultPath);
 		
 		try {
@@ -106,9 +119,9 @@ public class MMseqsEasySearchProcess {
 		return pp;
 	}
 	
-	public static void validate(ProfilePredictionEntity pp, String seqPath, String tmpPath) {
+	public static void validate(ProfilePredictionEntity pp, String seqPath, String tmpPath, int threads) {
 		String queryPath = pp.export();
-		MMseqsSearchResultEntity res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff);
+		MMseqsSearchResultEntity res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads);
 		res.assignLocs();
 		res.purify();
 		res.assignPurified(pp);

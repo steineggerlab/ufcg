@@ -1,5 +1,7 @@
 package module;
 
+import java.io.File;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -11,8 +13,11 @@ import org.apache.commons.cli.UnrecognizedOptionException;
 import envs.config.GenericConfig;
 import envs.config.PathConfig;
 import envs.toolkit.ANSIHandler;
+import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
+import envs.toolkit.Shell;
 import pipeline.ExceptionHandler;
+import process.FastaHeaderClassifyProcess;
 import wrapper.AugustusWrapper;
 import wrapper.FastBlockSearchWrapper;
 import wrapper.MMseqsWrapper;
@@ -261,6 +266,86 @@ public class ProfileRnaModule {
 			default: System.exit(1);
 			}
 			
+			// mmseqs createdb
+			Prompt.print(ANSIHandler.wrapper("STEP 1/5", 'Y') + " : Creating MMseqs2 databases...");
+			String pdb = PathConfig.EnvironmentPath + "config/db/mm_pro";
+			String sdb = PathConfig.TempPath + GenericConfig.SESSION_UID + "_rna";
+			MMseqsWrapper mm = null;
+			if(SINGLE) {
+				mm = new MMseqsWrapper();
+				mm.setCreatedb(PATHL, sdb);
+				mm.exec();
+			}
+			else {
+				String ldb = PathConfig.TempPath + PATHL.substring(PATHL.lastIndexOf(File.separator) + 1);
+				String rdb = PathConfig.TempPath + PATHR.substring(PATHR.lastIndexOf(File.separator) + 1);
+				
+				mm = new MMseqsWrapper();
+				mm.setCreatedb(PATHL, ldb);
+				mm.exec();
+				mm = new MMseqsWrapper();
+				mm.setCreatedb(PATHR, rdb);
+				mm.exec();
+				mm = new MMseqsWrapper();
+				mm.setConcatdbs(ldb, rdb, sdb);
+				mm.setThreads(GenericConfig.ThreadPoolSize);
+				mm.exec();
+				mm = new MMseqsWrapper();
+				mm.setRmdb(ldb);
+				mm.exec();
+				mm = new MMseqsWrapper();
+				mm.setRmdb(rdb);
+				mm.exec();
+			}
+			
+			// mmseqs search
+			Prompt.print(ANSIHandler.wrapper("STEP 2/5", 'Y') + " : Running MMseqs2 search...");
+			String adb = PathConfig.TempPath + GenericConfig.SESSION_UID + "_ali";
+			mm = new MMseqsWrapper();
+			mm.setSearch(pdb, sdb, adb, PathConfig.TempPath);
+			mm.setSens(0.1);
+			mm.setThreads(GenericConfig.ThreadPoolSize);
+			mm.exec();
+			
+			// mmseqs convertails
+			String out = PathConfig.TempPath + GenericConfig.SESSION_UID + ".m8";
+			mm = new MMseqsWrapper();
+			mm.setConvertalis(pdb, sdb, adb, out);
+			mm.setThreads(GenericConfig.ThreadPoolSize);
+			mm.setFormatOutput("target");
+			mm.exec();
+			mm = new MMseqsWrapper();
+			mm.setRmdb(adb);
+			mm.exec();
+			
+			// mmseqs convert2fasta
+			String sfa = PathConfig.TempPath + GenericConfig.SESSION_UID + ".fa";
+			mm = new MMseqsWrapper();
+			mm.setConvert2Fasta(sdb, sfa);
+			mm.exec();
+			mm = new MMseqsWrapper();
+			mm.setRmdb(sdb);
+			mm.exec();
+			mm = new MMseqsWrapper();
+			mm.setRmdb(sdb + "_h");
+			mm.exec();
+			
+			// extract FASTA entries
+			Prompt.print(ANSIHandler.wrapper("STEP 3/5", 'Y') + " : Extracting relevant reads...");
+			String head = PathConfig.TempPath + GenericConfig.SESSION_UID + ".head";
+			String ofa = PathConfig.TempPath + GenericConfig.SESSION_UID + ".ext.fa";
+			Shell.exec(String.format("sort %s | uniq > %s", out, head));
+			FileStream.wipe(out, true);
+			FastaHeaderClassifyProcess.classify(sfa, head, ofa, true);
+			FileStream.wipe(sfa, true);
+			FileStream.wipe(head, true);
+			
+			// run Trinity
+			Prompt.print(ANSIHandler.wrapper("STEP 4/5", 'Y') + " : Running Trinity RNA-seq assembly...");
+			TrinityWrapper.runSingle("fa", ofa, GenericConfig.MEM_SIZE / GenericConfig.CPU_COUNT * GenericConfig.ThreadPoolSize, GenericConfig.ThreadPoolSize, PathConfig.TempPath + GenericConfig.SESSION_UID + "_trinity", PAIRED);
+			// FileStream.wipe(ofa, true);
+			
+			Prompt.print(ANSIHandler.wrapper("STEP 5/5", 'Y') + " : Launching profile submodule...");
 			
 		}
 		catch(Exception e) {
