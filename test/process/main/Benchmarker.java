@@ -4,7 +4,7 @@
  * Usage
  * 		java -jar BenchUUCGf.jar [ASSEMBLY] [OUTPUT] 	- Test given file and print results on output file
  */
-package pipeline;
+package process.main;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -45,7 +45,7 @@ public class Benchmarker {
 		dragtime = System.currentTimeMillis() - dragtime;
 		
 		ProfilePredictionEntity pp = GenePredictionProcess.blockPredict(bp, ctgPaths);
-		if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + gene + ".fa", PathConfig.TempPath);
+		if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + gene + ".fa", PathConfig.TempPath, GenericConfig.ThreadPoolSize);
 		
 		if(!pp.valid()) return -1;
 		return Integer.valueOf(String.valueOf(System.currentTimeMillis() - itime - dragtime));

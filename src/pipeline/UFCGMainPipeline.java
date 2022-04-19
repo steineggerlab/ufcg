@@ -186,6 +186,10 @@ public class UFCGMainPipeline {
 				"                  martin.steinegger@snu.ac.kr\n"
 //				+ "\nFeel free to report any typos, errors, or kind suggestions.\n"
 				);
+		
+		Prompt.debug("SYSTEM CHECK : OS  = " + GenericConfig.OS);
+		Prompt.debug("SYSTEM CHECK : CPU = " + String.valueOf(GenericConfig.CPU_COUNT));
+		Prompt.debug("SYSTEM CHECK : MEM = " + String.valueOf(GenericConfig.MEM_SIZE) + " B");
 		System.exit(0);
 	}
 	

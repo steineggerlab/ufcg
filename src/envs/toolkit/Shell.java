@@ -13,8 +13,8 @@ public class Shell {
 
 	public Shell(){}
 	
-	public void execute(String command) {
-		Prompt.debug("exec: " + ANSIHandler.wrapper(command, 'B')); 
+	public void execute(String command, boolean quiet) {
+		if(!quiet) Prompt.debug("exec: " + ANSIHandler.wrapper(command, 'B')); 
 		try{
 			processBuilder = new ProcessBuilder();
 			processBuilder.command("/bin/bash", "-c", command);
@@ -32,8 +32,9 @@ public class Shell {
 		
 		reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 	}
-	public void execute(String[] cmdarray) {
-		Prompt.debug("exec: " + ANSIHandler.wrapper(String.join(" ", cmdarray), 'B')); 
+	public void execute(String command) {execute(command, false);}
+	public void execute(String[] cmdarray, boolean quiet) {
+		if(!quiet) Prompt.debug("exec: " + ANSIHandler.wrapper(String.join(" ", cmdarray), 'B')); 
 		try{
 			processBuilder = new ProcessBuilder();
 			processBuilder.command("/bin/bash", "-c", String.join(" ", cmdarray));
@@ -50,8 +51,9 @@ public class Shell {
 		}
 		reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 	}
-	public void executeFrom(String command, File dir) {
-		Prompt.debug("exec: " + ANSIHandler.wrapper(dir.getAbsolutePath(), 'g') + "$ " + ANSIHandler.wrapper(command, 'B')); 
+	public void execute(String[] cmdarray) {execute(cmdarray, false);}
+	public void executeFrom(String command, File dir, boolean quiet) {
+		if(!quiet) Prompt.debug("exec: " + ANSIHandler.wrapper(dir.getAbsolutePath(), 'g') + "$ " + ANSIHandler.wrapper(command, 'B')); 
 		try{
 			processBuilder = new ProcessBuilder();
 			processBuilder.command("/bin/bash", "-c", command);
@@ -70,8 +72,9 @@ public class Shell {
 		
 		reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 	}
-	public void executeFrom(String[] cmdarray, File dir) {
-		Prompt.debug("exec: " + ANSIHandler.wrapper(dir.getAbsolutePath(), 'g') + "$ " + ANSIHandler.wrapper(String.join(" ", cmdarray), 'B'));  
+	public void executeFrom(String command, File dir) {executeFrom(command, dir, false);}
+	public void executeFrom(String[] cmdarray, File dir, boolean quiet) {
+		if(!quiet) Prompt.debug("exec: " + ANSIHandler.wrapper(dir.getAbsolutePath(), 'g') + "$ " + ANSIHandler.wrapper(String.join(" ", cmdarray), 'B'));  
 		try{
 			processBuilder = new ProcessBuilder();
 			processBuilder.command("/bin/bash", "-c", String.join(" ", cmdarray));
@@ -89,6 +92,7 @@ public class Shell {
 		}
 		reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 	}
+	public void executeFrom(String[] cmdarray, File dir) {executeFrom(cmdarray, dir, false);}
 
 	// Print the result of the execution on a console
 	public void print() throws IOException {
@@ -152,11 +156,11 @@ public class Shell {
 		
 	}
 	*/
-	public static String[] exec(String cmd) {
+	public static String[] exec(String cmd, boolean quiet) {
 		String[] raw = null;
 		try{
 			Shell sh = new Shell();
-			sh.execute(cmd);
+			sh.execute(cmd, quiet);
 			raw = sh.raw();
 			sh.close();
 		}
@@ -165,11 +169,12 @@ public class Shell {
 		}
 		return raw;
 	}
-	public static String[] exec(String[] cmd) {
+	public static String[] exec(String cmd) {return exec(cmd, false);}
+	public static String[] exec(String[] cmd, boolean quiet) {
 		String[] raw = null;
 		try{
 			Shell sh = new Shell();
-			sh.execute(cmd);
+			sh.execute(cmd, quiet);
 			raw = sh.raw();
 			sh.close();
 		}
@@ -178,4 +183,5 @@ public class Shell {
 		}
 		return raw;
 	}
+	public static String[] exec(String[] cmd) {return exec(cmd, false);}
 }

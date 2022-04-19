@@ -14,6 +14,16 @@ import java.util.ArrayList;
 
 public class GenericConfig {
 	public static final boolean TEST = false; // Testing?
+	
+	/* System info */
+	public static final String OS = System.getProperty("os.name");
+	public static long CPU_COUNT = OS.equals("Linux") ? 
+			Long.parseLong(Shell.exec("nproc", true)[0]):
+			Long.parseLong(Shell.exec("sysctl -n hw.ncpu")[0]);
+	public static long MEM_SIZE = OS.equals("Linux") ?
+			Long.parseLong(Shell.exec("free -b | grep Mem | awk '{print $2}'", true)[0]):
+			Long.parseLong(Shell.exec("sysctl -n hw.memsize")[0]);;
+	
 	/* Running project status */
 	public static String PHEAD = ""; 		// Prompt header
 	public static int HLEN = 0;				// Prompt maximum header length
@@ -106,6 +116,10 @@ public class GenericConfig {
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			}
 			
+			if(size > CPU_COUNT) {
+				Prompt.warn("Given CPU count is larger than the system value. Reducing the count down to " + String.valueOf(CPU_COUNT));
+				size = (int) CPU_COUNT;
+			}
 			setThreadPoolSize(size);
 			return 0;
 		}
