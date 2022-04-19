@@ -108,7 +108,14 @@ public class QueryEntity {
 				
 				String[] metaContainer = PathConfig.MetaString.split(",", -1);
 				for(String meta : metaContainer) Prompt.debug(meta);
-				if(metaContainer.length != 7) ExceptionHandler.handle(ExceptionHandler.INVALID_METAINFO);
+				if(metaContainer.length < 7) {
+					Prompt.warn("Metadata information is improperly formatted.");
+					String[] tmpContainer = new String[7];
+					for(int i = 0; i < metaContainer.length; i++) tmpContainer[i] = metaContainer[i];
+					for(int i = metaContainer.length; i < 7; i++) tmpContainer[i] = "";
+					metaContainer = tmpContainer;
+				}
+				else if(metaContainer.length > 7) ExceptionHandler.handle(ExceptionHandler.INVALID_METAINFO);
 
 				metaContainer[0] = PathConfig.InputPath.substring(PathConfig.InputPath.lastIndexOf("/") + 1);
 				for(int i = 1; i < 7; i++) {

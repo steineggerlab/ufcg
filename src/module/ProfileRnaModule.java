@@ -99,7 +99,7 @@ public class ProfileRnaModule {
 		/* parse general I/O options */
 		if(cmd.hasOption("p")) {
 			if(cmd.getOptionValue("p").equals("0")) PAIRED = false;
-			if(cmd.getOptionValue("p").equals("1")) PAIRED = false;
+			if(cmd.getOptionValue("p").equals("1")) PAIRED = true;
 		}
 		if(PAIRED == null) {
 			ExceptionHandler.pass("Input type (paired/unpaired) must be specified using -p option.");
@@ -241,13 +241,13 @@ public class ProfileRnaModule {
 		System.out.println(ANSIHandler.wrapper(" -p INT             Paired or unpaired reads (paired: 1; unpaired: 0)", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -i STR *           File containing single reads in FASTQ/FASTA format", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -l STR -r STR *    File containing left/right reads in FASTQ/FASTA format", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -o STR             Output gene profile path (.ucg extension is recommended)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -o STR             Output directory", 'x'));
 		System.out.println(ANSIHandler.wrapper(" * Select one of above", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Configurations", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument           Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" --info STR         Comma-separated metadata string (Filename*, Label*, Accession*, Taxon, NCBI, Strain, Taxonomy) [Filename,Filename,Filename]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --info STR         Comma-separated metadata string (Filename*, Label*, Accession*, Taxon, NCBI, Strain, Taxonomy)", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --trinity STR      Path to Trinity binary [Trinity]", 'x'));
 		System.out.println("");
 		
@@ -342,11 +342,25 @@ public class ProfileRnaModule {
 			
 			// run Trinity
 			Prompt.print(ANSIHandler.wrapper("STEP 4/5", 'Y') + " : Running Trinity RNA-seq assembly...");
-			TrinityWrapper.runSingle("fa", ofa, GenericConfig.MEM_SIZE / GenericConfig.CPU_COUNT * GenericConfig.ThreadPoolSize, GenericConfig.ThreadPoolSize, PathConfig.TempPath + GenericConfig.SESSION_UID + "_trinity", PAIRED);
-			// FileStream.wipe(ofa, true);
+			String trinity = PathConfig.TempPath + GenericConfig.SESSION_UID + "_trinity";
+			String afa = PathConfig.TempPath + GenericConfig.SESSION_UID + ".fa";
+			TrinityWrapper.runSingle("fa", ofa, GenericConfig.MEM_SIZE / GenericConfig.CPU_COUNT * GenericConfig.ThreadPoolSize, GenericConfig.ThreadPoolSize, trinity, PAIRED);
+			FileStream.wipe(ofa, true);
+			Shell.exec(String.format("cp %s %s", trinity + File.separator + "Trinity.fasta", afa));
+			Shell.exec(String.format("rm -rf %s", trinity));
 			
 			Prompt.print(ANSIHandler.wrapper("STEP 5/5", 'Y') + " : Launching profile submodule...");
-			
+			String meta = null;
+			if(PathConfig.MetaString == null) meta = String.format("%s,%s,%s,,,,", afa, GenericConfig.SESSION_UID, GenericConfig.SESSION_UID);
+			else meta = afa + PathConfig.MetaString.substring(PathConfig.MetaString.indexOf(","));
+			String[] profileArgs = {
+					"profile",
+					"-i", afa,
+					"-o", PATHO,
+					"--info", meta
+			};
+			ProfileModule.run(profileArgs);
+			FileStream.wipe(afa, true);
 		}
 		catch(Exception e) {
 			/* Exception handling route; exit with status 1 */

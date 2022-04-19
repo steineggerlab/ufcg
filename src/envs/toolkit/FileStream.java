@@ -100,6 +100,7 @@ public class FileStream {
 		if(PathConfig.TempIsCustom) return res;
 		if(TMP_PATHS == null) return res;
 		for(String path : TMP_PATHS) {
+			if(PATH_MAP.get(path) >= TMP_STATUS.size()) continue;
 			if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) res += path + " ";
 		}
 		return res;

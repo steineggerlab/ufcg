@@ -25,8 +25,9 @@ public class TrinityWrapper extends ExecHandler {
 		super.addArg("--single", file);
 	}
 	
+	// convert bytes to gigabytes
 	void setMaxMemory(long maxMemory) {
-		super.addArg("--max-memory", String.valueOf(maxMemory));
+		super.addArg("--max_memory", String.valueOf(maxMemory / (1<<30)) + "G");
 	}
 	
 	void setCPU(int cpu) {
