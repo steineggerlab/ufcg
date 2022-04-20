@@ -272,14 +272,16 @@ public class GenericConfig {
 	};
 	// In order considering the calculation time of each gene
 	public static final String[] FCG_ORD = {
-			"URA2","KAR2","FKS1","SSB1","ACO2","SSA3","CPA2","UBI4","ACO1","MCM7",
-			"PRP43","RPO21","RPB2","SSA1","MTR4","RET1","KGD1","RPT5","RPT6","MCM2",
-			"EFT1","LEU1","ECM10","ILV2","FAL1","TRP3","RPT2","CCT4","PHO85","DBP1",
-			"SSC1","CDC48","MDH1","HRR25","RPT3","TIF1","CCT2","TUB2","IMD2","TCP1",
-			"HSP60","CCT7","SAM1","RPL4A","RPT1","SAM2","TEF1","RPL8A","TUB1","SUP45",
-			"ACT1","DBP2","NBP35","RPL3","RPP0","RPS0A","CDC21","RPL2B",
-			"ATP6","CCT8","CMD1","COB","COX2","COX3","NDI1","OLI1","PAH1","PGK1","TOP1","TSR1",
+			"URA2","FKS1","RPO21","CPA2","RPB2","RET1","EFT1","MTR4","KGD1","PRP43",
+			"LEU1","PAH1","ACO2","TOP1","TRP3","MCM7","TSR1","ACO1","MCM2","CCT7",
+			"ILV2","SSB1","SSA3","SSA1","RPT6","KAR2","CDC48","DBP1","CCT8","HSP60",
+			"ECM10","SSC1","NDI1","TUB1","TCP1","CCT4","CCT2","IMD2","RPT2","TUB2",
+			"SAM2","PGK1","SAM1","UBI4","RPL4A","RPT5","TEF1","RPT3","PHO85","CDC21",
+			"SUP45","NBP35","MDH1","HRR25","RPT1","DBP2","TIF1","FAL1","ACT1","RPL3",
+			"RPP0","RPS0A","RPL8A","ATP6","RPL2B","COB","CMD1","COX1","COX3","COX2",
+			"OLI1"
 	};
+
 	public static final String[] FCG_COG = {
 			"C","C","Z","O","O","O","F","M/D/T","E/F","L",
 			"L","O","J","L","M","T","O","E/H","T","O",
@@ -504,7 +506,7 @@ public class GenericConfig {
 			
 	/* Gene set definition */
 	public static String GENESET = "PRO";
-	public static String[] FCG = FCG_REF; // core genes for this process
+	public static String[] FCG = FCG_ORD; // core genes for this process
 	public static void setGeneset(String geneset) {GENESET = geneset;}
 	
 	public static final int TARGET_NUC = 0x01,
