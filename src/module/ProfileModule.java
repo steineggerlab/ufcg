@@ -73,7 +73,7 @@ public class ProfileModule {
 		opts.addOption("m", "metadata", true, "metadata path");
 		opts.addOption(null, "info", true, "single file metadata information");
 		opts.addOption("n", "intron", true, "include intron sequences");
-		opts.addOption(null, "prflpath", true, "gene profile path");
+		opts.addOption(null, "modelpath", true, "gene profile path");
 		opts.addOption(null, "seqpath", true, "gene sequence path");
 		opts.addOption(null, "ppxcfg", true, "AUGUSTUS-PPX config path");
 		
