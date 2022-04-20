@@ -462,8 +462,8 @@ private void checkPathDirectory() {
 	
 	if(!path.exists()) {
 		if(!path.mkdir()) {
-			ExceptionHandler.pass(outDirectory + " doesn't exist and can't be created.");
-			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+			ExceptionHandler.pass(outDirectory);
+			ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
 		}
 	}
 	

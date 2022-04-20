@@ -1,5 +1,7 @@
 package envs.config;
 
+import java.io.File;
+
 import envs.toolkit.ANSIHandler;
 import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
@@ -172,16 +174,15 @@ public class PathConfig {
 	public static int setOutputPath(String path) {		
 		try {
 			Prompt.talk("Output directory check : " + ANSIHandler.wrapper(path, 'B'));
-			String[] exec = Shell.exec("file -b " + path);
-			if(!exec[0].contains("directory")) {
+			File output = new File(path);
+			if(output.exists()) {
+				if(!output.canWrite()) {
+					ExceptionHandler.pass(path);
+					ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+				}
+			} else if(!output.mkdir()) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
-				return 1;
-			}
-			else if(exec[0].contains("cannot")) {
-				ExceptionHandler.pass(path);
-				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
-				return 1;
 			}
 		}
 		catch(Exception e) {
@@ -218,16 +219,15 @@ public class PathConfig {
 	public static int setTempPath(String path) {		
 		try {
 			Prompt.talk("Temporary directory check : " + ANSIHandler.wrapper(path, 'B'));
-			String[] exec = Shell.exec("file -b " + path);
-			if(!exec[0].contains("directory")) {
+			File output = new File(path);
+			if(output.exists()) {
+				if(!output.canWrite()) {
+					ExceptionHandler.pass(path);
+					ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+				}
+			} else if(!output.mkdir()) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
-				return 1;
-			}
-			else if(exec[0].contains("cannot")) {
-				ExceptionHandler.pass(path);
-				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
-				return 1;
 			}
 		}
 		catch(Exception e) {
@@ -273,11 +273,13 @@ public class PathConfig {
 	public static int setModelPath(String path) {		
 		try {
 			Prompt.talk("Gene profile directory check : " + ANSIHandler.wrapper(path, 'B'));
-			String[] exec = Shell.exec("file -b " + path);
-			if(!exec[0].contains("directory")) {
+			File output = new File(path);
+			if(!output.exists()) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
-				return 1;
+			} else if(!output.canRead()) {
+				ExceptionHandler.pass(path);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
 			}
 		}
 		catch(Exception e) {
@@ -323,11 +325,13 @@ public class PathConfig {
 	public static int setSeqPath(String path) {		
 		try {
 			Prompt.talk("Gene sequence directory check : " + ANSIHandler.wrapper(path, 'B'));
-			String[] exec = Shell.exec("file -b " + path);
-			if(!exec[0].contains("directory")) {
+			File output = new File(path);
+			if(!output.exists()) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
-				return 1;
+			} else if(!output.canRead()) {
+				ExceptionHandler.pass(path);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
 			}
 		}
 		catch(Exception e) {

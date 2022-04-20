@@ -68,7 +68,7 @@ public class TreeModule {
 
 	private void align() {
 		String ucgDirectory = null;
-		String outDirectory = "output" + File.separator;
+		String outDirectory = "." + File.separator;
 		
 		String mafftPath = programPath.get("mafft");
 		String raxmlPath = programPath.get("raxml");
@@ -592,7 +592,7 @@ public class TreeModule {
 		
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -o STR         Define output directory [./output]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -o STR         Define output directory [.]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -n STR         Name of this run [random hex string] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [nucleotide]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
