@@ -8,6 +8,7 @@ import envs.toolkit.Prompt;
 import envs.toolkit.Shell;
 import envs.toolkit.TimeKeeper;
 import pipeline.ExceptionHandler;
+import pipeline.UFCGMainPipeline;
 import envs.toolkit.FileStream;
 
 import entity.BlockProfileEntity;
@@ -328,21 +329,23 @@ public class ProfileModule {
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -i STR       Input directory containing fungal genome assemblies", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -o STR       Output directory to store the result files", 'x'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -i STR         Input directory containing fungal genome assemblies", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory to store the result files", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -s STR       Set of markers to extract - see advanced options for details [PRO]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -w STR       Directory to write the temporary files [/tmp]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -k BOOL      Keep the temporary products [0]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -f BOOL      Force to overwrite the existing files [0]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -t INT       Number of CPU threads to use [1]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -m STR       File to the list containing metadata", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -n BOOL      Include introns from the predicted ORFs to the result sequences [1]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -s STR         Set of markers to extract - see advanced options for details [PRO]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -w STR         Directory to write the temporary files [/tmp]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -k BOOL        Keep the temporary products [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -f BOOL        Force to overwrite the existing files [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -m STR         File to the list containing metadata", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n BOOL        Include introns from the predicted ORFs to the result sequences [1]", 'x'));
 		System.out.println("");
+		
+		UFCGMainPipeline.printGeneral();
 		
 		System.out.println(" To see the advanced options, run with \"profile -hh\".\n");
 		

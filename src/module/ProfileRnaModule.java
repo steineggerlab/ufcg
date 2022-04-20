@@ -17,6 +17,7 @@ import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
 import envs.toolkit.Shell;
 import pipeline.ExceptionHandler;
+import pipeline.UFCGMainPipeline;
 import process.FastaHeaderClassifyProcess;
 import wrapper.AugustusWrapper;
 import wrapper.FastBlockSearchWrapper;
@@ -237,19 +238,21 @@ public class ProfileRnaModule {
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument           Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -p INT             Paired or unpaired reads (paired: 1; unpaired: 0)", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -i STR *           File containing single reads in FASTQ/FASTA format", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -l STR -r STR *    File containing left/right reads in FASTQ/FASTA format", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -o STR             Output directory", 'x'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -p INT         Paired or unpaired reads (paired: 1; unpaired: 0)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -i STR *       File containing single reads in FASTQ/FASTA format", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -l, -r STR *   File containing left/right reads in FASTQ/FASTA format", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory", 'x'));
 		System.out.println(ANSIHandler.wrapper(" * Select one of above", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Configurations", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument           Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" --info STR         Comma-separated metadata string (Filename*, Label*, Accession*, Taxon, NCBI, Strain, Taxonomy)", 'x'));
-		System.out.println(ANSIHandler.wrapper(" --trinity STR      Path to Trinity binary [Trinity]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" --info STR     Comma-separated metadata string (Filename*, Label*, Accession*, Taxon, NCBI, Strain, Taxonomy)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --trinity STR  Path to Trinity binary [Trinity]", 'x'));
 		System.out.println("");
+		
+		UFCGMainPipeline.printGeneral();
 		
 		System.out.println(ANSIHandler.wrapper("\n Notes", 'y'));
 		System.out.println(" * Currently, profile-rna module is only capable of extracting protein markers. (-s PRO)");

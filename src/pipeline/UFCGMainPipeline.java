@@ -46,6 +46,7 @@ public class UFCGMainPipeline {
 	public static final int MODULE_TREE			= 0x03;
 	public static final int MODULE_PRUNE		= 0x04;
 	public static final int MODULE_ALIGN		= 0x05;
+	public static final int MODULE_TRAIN		= 0x06;
 	
 	/* Print the UFCG logo with version number */
 	private static void printLogo() {
@@ -78,6 +79,7 @@ public class UFCGMainPipeline {
 		if(module.equals("tree"))			return MODULE_TREE;
 		if(module.equals("prune"))			return MODULE_PRUNE;
 		if(module.equals("align"))			return MODULE_ALIGN;
+		if(module.equals("train"))			return MODULE_TRAIN;
 		
 		if(!module.startsWith("-")) {
 			ExceptionHandler.pass(module);
@@ -148,29 +150,39 @@ public class UFCGMainPipeline {
 		System.out.println(
 //				ANSIHandler.wrapper(" Manual - UFCG v" + VERSION + "\n\n", 'Y') + 
 				
-				ANSIHandler.wrapper(" USAGE : ", 'Y') + "java -jar UFCG.jar <module> [<args>]\n\n\n" +
+				ANSIHandler.wrapper(" USAGE : ", 'Y') + "java -jar UFCG.jar <module> [...]\n\n\n" +
 				
 				ANSIHandler.wrapper(" Available Modules\n", 'Y') +
 				ANSIHandler.wrapper(" Module         Description\n", 'c') +
 									" profile        Extract UFCG profile from genome\n"+
 									" profile-rna    Extract UFCG profile from RNA-seq transcriptome\n"+
 									" train          Train and generate sequence model\n"+
-									"\n" +
+								//	"\n" +
 									" align          Produce sequence alignments from UFCG profiles\n"+
 									" tree           Build maximum likelihood tree with UFCG profiles\n"+
 									" prune          Rebuild UFCG tree or single gene tree\n\n\n"+
 				
-				ANSIHandler.wrapper(" Miscellaneous\n", 'Y') +
+				ANSIHandler.wrapper(" Miscellaneous\n", 'y') +
 				ANSIHandler.wrapper(" Argument       Description\n", 'c') +
-									" --help         Print this manual\n" + 
 									" --info         Print program information\n" + 
-									" --core         Print core gene list\n" +
-									" --verbose      Make program verbose\n" + 
+									" --core         Print core gene list\n"
+				);
+		printGeneral();
+		System.out.println("");
+		
+		System.exit(0);
+	}
+	
+	public static void printGeneral() {
+		System.out.println(
+				ANSIHandler.wrapper("\n General options\n", 'y') +
+				ANSIHandler.wrapper(" Argument       Description\n", 'c') +
+									" -h, --help     Print this manual\n" + 
+									" -v, --verbose  Make program verbose\n" + 
 									" --nocolor      Remove ANSI escapes from the output\n" +
 									" --notime       Remove timestamp in front of the prompt string\n" +
-									" --developer    Activate developer mode (For testing or debugging)\n\n"
+									" --developer    Activate developer mode (For testing or debugging)\n"
 				);
-		System.exit(0);
 	}
 	
 	/* Information route; exit with status 0 */

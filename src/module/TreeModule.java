@@ -20,6 +20,7 @@ import envs.config.PathConfig;
 import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
 import pipeline.ExceptionHandler;
+import pipeline.UFCGMainPipeline;
 import tree.TreeBuilder;
 import tree.tools.AlignMode;
 import tree.tools.PhylogenyTool;
@@ -583,24 +584,26 @@ public class TreeModule {
 		System.out.println("");
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -i           Input directory containing UFCG profiles ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -l           Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
-		System.out.println(ANSIHandler.wrapper("              [uid, acc, label, taxon, strain, type, taxonomy] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -i STR         Input directory containing UFCG profiles ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -l STR         Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
+		System.out.println(ANSIHandler.wrapper("                {uid, acc, label, taxon, strain, type, taxonomy}", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -o           Define output directory (default: ./output) ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -n           Name of this run (default: random number) ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -a           Alignment method [nucleotide, codon, codon12, protein] (default: nucleotide) ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -t           Number of CPU threads to use (default: 1) ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -f           Gap-rich filter percentage threshold [0 - 100] (default: 50) ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -p           Tree building program [raxml, iqtree, fasttree] (default: iqtree) ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -m           ML tree inference model (default: JTT+ for proteins, GTR+ for nucleotides) ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -g           GSI value threshold [1 - 100] (default: 95) ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -x           Maximum number of gene tree executors [1 - threads] (default: equal to -t; lower if RAM usage is excessive) ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -o STR         Define output directory [./output]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n STR         Name of this run [random hex string] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [nucleotide]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -p STR         Tree building program {raxml, iqtree, fasttree} [iqtree] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -m STR         ML tree inference model [JTT+ (proteins); GTR+ (nucleotides)] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -g INT         GSI value threshold {1 - 100} [95] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -x INT         Maximum number of gene tree executors; lower this if the RAM usage is excessive {1 - threads} [equal to -t]", 'x'));
 		System.out.println("");
+		
+		UFCGMainPipeline.printGeneral();
 		
 		System.exit(0);
 	}
@@ -613,13 +616,15 @@ public class TreeModule {
 		System.out.println("");
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -i           Input .trm file provided by tree module ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -g           Gene name - \"UFCG\" for a UFCG tree, proper gene name for a single gene tree ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -l           Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
-		System.out.println(ANSIHandler.wrapper("              [uid, acc, label, taxon, strain, type, taxonomy] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -i STR         Input .trm file provided by tree module ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -g STR         Gene name - \"UFCG\" for a UFCG tree, proper gene name for a single gene tree ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -l STR         Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
+		System.out.println(ANSIHandler.wrapper("                [uid, acc, label, taxon, strain, type, taxonomy] ", 'x'));
 		System.out.println("");
 		
+		UFCGMainPipeline.printGeneral();
+
 		System.exit(0);
 	}
 }

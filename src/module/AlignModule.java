@@ -20,6 +20,7 @@ import envs.config.PathConfig;
 import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
 import pipeline.ExceptionHandler;
+import pipeline.UFCGMainPipeline;
 import tree.TreeBuilder;
 import tree.tools.AlignMode;
 
@@ -173,20 +174,22 @@ public class AlignModule {
 		System.out.println("");
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -i           Input directory containing UFCG profiles", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -o           Output directory for alignments", 'x'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -i STR         Input directory containing UFCG profiles", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory for alignments", 'x'));
 		System.out.println("");
 		
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
-		System.out.println(ANSIHandler.wrapper(" Argument     Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -l           Label format, comma-separated string containing one or more of the following keywords: (default: label)", 'x'));
-		System.out.println(ANSIHandler.wrapper("              [uid, acc, label, taxon, strain, type, taxonomy]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -n           Name of this run (default: random number)", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -a           Alignment method [nucleotide, codon, codon12, protein] (default: nucleotide)", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -t           Number of CPU threads to use (default: 1)", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -f           Gap-rich filter percentage threshold [0 - 100] (default: 50)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -l STR         Label format, comma-separated string containing one or more of the following keywords:", 'x'));
+		System.out.println(ANSIHandler.wrapper("                {uid, acc, label, taxon, strain, type, taxonomy} [label]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n STR         Name of this run [random hex string]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [nucleotide]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50]", 'x'));
 		System.out.println("");
+		
+		UFCGMainPipeline.printGeneral();
 		
 		System.exit(0);
 	}
