@@ -6,9 +6,9 @@ import envs.toolkit.Prompt;
 
 public class ExceptionHandler {
 	// general
-	public static final int EXCEPTION				= 0xFF;
-	public static final int UNEXPECTED_ERROR		= 0xFE;
-	public static final int ERROR_WITH_MESSAGE		= 0xFD;
+	public static final int EXCEPTION				= 0xF0;
+	public static final int UNEXPECTED_ERROR		= 0xF1;
+	public static final int ERROR_WITH_MESSAGE		= 0xF2;
 	
 	public static final int UNKNOWN_MODULE			= 0x00;
 	public static final int UNKNOWN_OPTION			= 0x01;
@@ -21,29 +21,29 @@ public class ExceptionHandler {
 	public static final int INVALID_VALUE			= 0x08;
 	
 	// profile
-	public static final int WRONG_CORE_FORMAT		= 0x09;
-	public static final int INVALID_GENE_NAME		= 0x0A;
-	public static final int DEPENDENCY_UNSOLVED		= 0x0B;
-	public static final int CONFIG_PATH_UNDEFINED	= 0x0C;
-	public static final int INVALID_PPX_CONFIG		= 0x0D;
-	public static final int INVALID_MODEL_PATH		= 0x0E;
-	public static final int INVALID_SEQ_PATH		= 0x1C;
-	public static final int INVALID_META_HEADER		= 0x0F;
-	public static final int INSUFFICIENT_METADATA	= 0x10;
-	public static final int INVALID_METADATA		= 0x11;
-	public static final int INTEGRITY_TEST_FAILED	= 0x12;
-	public static final int METAINFO_CONFLICT		= 0x13;
-	public static final int INVALID_METAINFO		= 0x14;
-	public static final int INVALID_GENE_SET		= 0x1B;
-	public static final int BUSCO_UNSOLVED			= 0x1D;
+	public static final int WRONG_CORE_FORMAT		= 0x10;
+	public static final int INVALID_GENE_NAME		= 0x11;
+	public static final int DEPENDENCY_UNSOLVED		= 0x12;
+	public static final int CONFIG_PATH_UNDEFINED	= 0x13;
+	public static final int INVALID_PPX_CONFIG		= 0x14;
+	public static final int INVALID_MODEL_PATH		= 0x15;
+	public static final int INVALID_SEQ_PATH		= 0x16;
+	public static final int INVALID_META_HEADER		= 0x17;
+	public static final int INSUFFICIENT_METADATA	= 0x18;
+	public static final int INVALID_METADATA		= 0x19;
+	public static final int INTEGRITY_TEST_FAILED	= 0x1A;
+	public static final int METAINFO_CONFLICT		= 0x1B;
+	public static final int INVALID_METAINFO		= 0x1C;
+	public static final int INVALID_GENE_SET		= 0x1D;
+	public static final int BUSCO_UNSOLVED			= 0x1E;
 	
 	// tree
-	public static final int NO_LEAF_OPTION			= 0x15;
-	public static final int NO_GENE_NAME			= 0x16;
-	public static final int INVALID_LEAF_FORMAT		= 0x17;
-	public static final int INVALID_MODEL			= 0x18;
-	public static final int INVALID_PROGRAM_PATH	= 0x19;
-	public static final int INVALID_ALIGN_MODE		= 0x1A;
+	public static final int NO_LEAF_OPTION			= 0x20;
+	public static final int NO_GENE_NAME			= 0x21;
+	public static final int INVALID_LEAF_FORMAT		= 0x22;
+	public static final int INVALID_MODEL			= 0x23;
+	public static final int INVALID_PROGRAM_PATH	= 0x24;
+	public static final int INVALID_ALIGN_MODE		= 0x25;
 	
 	
 	private static Object OBJ;

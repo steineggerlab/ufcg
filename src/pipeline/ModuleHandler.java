@@ -17,6 +17,7 @@ import envs.toolkit.Prompt;
 import module.AlignModule;
 import module.ProfileModule;
 import module.ProfileRnaModule;
+import module.TrainModule;
 import module.TreeModule;
 
 public class ModuleHandler {
@@ -40,8 +41,12 @@ public class ModuleHandler {
 		ProfileRnaModule.run(args);
 	}
 	private void handle_align() {
-		Prompt.talk("UFCG profile v" + UFCGMainPipeline.VERSION);
+		Prompt.talk("UFCG align v" + UFCGMainPipeline.VERSION);
 		AlignModule.run(args);
+	}
+	private void handle_train() {
+		Prompt.talk("UFCG train v" + UFCGMainPipeline.VERSION);
+		TrainModule.run(args);
 	}
 	private void handle_tree() {
 		Prompt.talk("UFCG tree v" + UFCGMainPipeline.VERSION);
@@ -230,6 +235,7 @@ public class ModuleHandler {
 		case UFCGMainPipeline.MODULE_TREE: 			handle_tree(); break;
 		case UFCGMainPipeline.MODULE_PRUNE: 		handle_prune(); break;
 		case UFCGMainPipeline.MODULE_ALIGN:			handle_align(); break;
+		case UFCGMainPipeline.MODULE_TRAIN:			handle_train(); break;
 		default: break;
 		}
 	}

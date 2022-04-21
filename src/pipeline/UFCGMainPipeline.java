@@ -160,7 +160,7 @@ public class UFCGMainPipeline {
 								//	"\n" +
 									" align          Produce sequence alignments from UFCG profiles\n"+
 									" tree           Build maximum likelihood tree with UFCG profiles\n"+
-									" prune          Rebuild UFCG tree or single gene tree\n\n\n"+
+									" prune          Rebuild UFCG tree or single gene trees\n\n\n"+
 				
 				ANSIHandler.wrapper(" Miscellaneous\n", 'y') +
 				ANSIHandler.wrapper(" Argument       Description\n", 'c') +
@@ -179,7 +179,7 @@ public class UFCGMainPipeline {
 				ANSIHandler.wrapper(" Argument       Description\n", 'c') +
 									" -h, --help     Print this manual\n" + 
 									" -v, --verbose  Make program verbose\n" + 
-									" --nocolor      Remove ANSI escapes from the output\n" +
+									" --nocolor      Remove ANSI escapes from standard output\n" +
 									" --notime       Remove timestamp in front of the prompt string\n" +
 									" --developer    Activate developer mode (For testing or debugging)\n"
 				);
@@ -188,8 +188,8 @@ public class UFCGMainPipeline {
 	/* Information route; exit with status 0 */
 	private static void printInfo() {
 		System.out.println(
-				ANSIHandler.wrapper(" UFCG : Profiling Fungi with " + String.valueOf(GenericConfig.FCG_REF.length) + 
-									" Up-to-date Fungal Core Genes\n", 'Y') +
+				ANSIHandler.wrapper(" UFCG : Profiling Fungi with " + // String.valueOf(GenericConfig.FCG_REF.length) + 
+									"Up-to-date Fungal Core Genes\n", 'Y') +
 				ANSIHandler.wrapper(" ver. " + VERSION + " (Released: " + RELEASE_DATE + ")\n\n", 'Y') + 
 				" Developed by Daniel Dongwook Kim\n" +
 				" Steinegger Lab, Seoul National University\n\n" +

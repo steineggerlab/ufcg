@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class GenericConfig {
-	public static final boolean TEST = false; // Testing?
+	public static boolean TEST = false; // Testing?
 	
 	/* System info */
 	public static final String OS = System.getProperty("os.name");
