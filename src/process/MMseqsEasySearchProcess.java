@@ -104,7 +104,7 @@ public class MMseqsEasySearchProcess {
 			String buf;
 			while((buf = stream.readLine()) != null) res.add(buf);
 		} catch(java.io.FileNotFoundException e) {
-			Prompt.test("Result file not created : " + ANSIHandler.wrapper(resultPath, 'B'));
+			// Prompt.test("Result file not created : " + ANSIHandler.wrapper(resultPath, 'B'));
 			return res;
 		} catch(java.io.IOException e) {
 			ExceptionHandler.handle(e);

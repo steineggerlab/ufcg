@@ -32,7 +32,7 @@ public class GenePredictionProcess {
 		
 		for(int i = 0; i < bp.getCnt(); i++) {
 		//	Prompt.test("Prediction window detected : " + bp.getBlkPath());
-			if(bp.getEpos(i) - bp.getSpos(i) > 20000) Prompt.test(bp.getPosString(i));
+		//	if(bp.getEpos(i) - bp.getSpos(i) > 20000) Prompt.test(bp.getPosString(i));
 			Prompt.talk(String.format("AUGUSTUS is predicting genes... (contig %s, position %d-%d)",
 					bp.getCtg(i), bp.getSpos(i), bp.getEpos(i)));
 			String gffPath = predict(ctgPaths.get(i), bp.getCtg(i), bp.getMedian(i), bp.getFamPath(), bp.cg);

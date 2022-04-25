@@ -48,11 +48,13 @@ public class GenericConfig {
 		case UFCGMainPipeline.MODULE_PROFILE_RNA: return "profile-rna";
 		case UFCGMainPipeline.MODULE_TREE: return "tree";
 		case UFCGMainPipeline.MODULE_PRUNE: return "prune";
+		case UFCGMainPipeline.MODULE_ALIGN: return "align";
+		case UFCGMainPipeline.MODULE_TRAIN: return "train";
 		default: return "";
 		}
 	}
 	
-	public static final String SESSION_UID = Long.toHexString(new Random().nextLong());
+	public static final String SESSION_UID = "UFCG_" + Long.toHexString(new Random().nextLong());
 	public static String TEMP_HEADER = SESSION_UID + "_";
 	
 	public static boolean DEV = false;      // Developer mode

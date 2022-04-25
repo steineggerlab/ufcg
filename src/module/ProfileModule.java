@@ -952,7 +952,7 @@ public class ProfileModule {
 				JsonBuildProcess.build(pps, jsonPath);
 				
 				if(!PathConfig.TempIsCustom) Prompt.talk("Cleaning temporary files up...");
-				Prompt.test(FileStream.filesToWipe());
+				// Prompt.test(FileStream.filesToWipe());
 				FileStream.wipeOut();
 			}
 		}
@@ -960,11 +960,10 @@ public class ProfileModule {
 			/* Exception handling route; exit with status 1 */
 			// e.printStackTrace();
 			ExceptionHandler.handle(e);
-		}
+		} /*
 		finally {
 			Prompt.print("Job finished. Terminating process.\n");
-			System.exit(0);
-		}
+		} */
 	}
 	
 	static List<Status> progress = new LinkedList<Status>();

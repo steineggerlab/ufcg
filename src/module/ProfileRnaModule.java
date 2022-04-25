@@ -369,10 +369,10 @@ public class ProfileRnaModule {
 			/* Exception handling route; exit with status 1 */
 			// e.printStackTrace();
 			ExceptionHandler.handle(e);
-		}
-		finally {
+		} /*
+		finally { 
 			Prompt.print("Job finished. Terminating process.\n");
 			System.exit(0);
-		}
+		} */
 	}
 }
