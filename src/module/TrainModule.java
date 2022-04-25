@@ -27,7 +27,7 @@ public class TrainModule {
 	
 	static final Integer TYPE_NUC = 0, TYPE_PRO = 1;
 	static Integer TYPE = TYPE_PRO;
-	static Integer N = 0;
+	static Integer N = -1;
 	static String typeStr() {return TYPE == TYPE_NUC ? "nuc" : "pro";}
 	
 	private static int parseArgument(String[] args) throws ParseException {
@@ -122,6 +122,7 @@ public class TrainModule {
 		if(cmd.hasOption("n")) {
 			try {
 				N = Integer.parseInt(cmd.getOptionValue("n"));
+				if(N == 0) N--;
 			} catch (NumberFormatException e) {
 				ExceptionHandler.pass(cmd.getOptionValue("n"));
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
