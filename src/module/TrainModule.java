@@ -252,9 +252,9 @@ public class TrainModule {
 						"-s", MNAME
 					};
 				Prompt.talk(String.format("[ITER %d/%s] : Running profile submodule...", n, N > 0 ? String.valueOf(N) : "inf"));
-				if(!GenericConfig.DEV) GenericConfig.TEST = true; 
+				if(!GenericConfig.DEV) Prompt.SUPPRESS = true; 
 				ProfileModule.run(profileArgs);
-				GenericConfig.TEST = false;
+				Prompt.SUPPRESS = false;
 				
 				// run align submodule
 				String[] alignArgs = {
@@ -267,14 +267,14 @@ public class TrainModule {
 						"-f", "0"
 					};
 				Prompt.talk(String.format("[ITER %d/%s] : Running align submodule...", n, N > 0 ? String.valueOf(N) : "inf"));
-				if(!GenericConfig.DEV) GenericConfig.TEST = true; 
+				if(!GenericConfig.DEV) Prompt.SUPPRESS = true; 
 				AlignModule.run(alignArgs);
 							
 				// reset paths
 				PathConfig.setInputPath(INPUT);
 				PathConfig.setOutputPath(OUTPUT);
 				PathConfig.setTempPath(TEMP);
-				GenericConfig.TEST = false;
+				Prompt.SUPPRESS = false; 
 				
 				// produce profile
 				String next = PathConfig.TempPath + GenericConfig.SESSION_UID + File.separator + "iter" + String.valueOf(n) + File.separator;

@@ -3,6 +3,8 @@ package envs.toolkit;
 import envs.config.GenericConfig;
 
 public class Prompt {
+	public static boolean SUPPRESS = false;
+	
 	private static String buildMessage(String head, String message, char color) {
 		int hlen = head.length();
 		for(int i = 0; i < GenericConfig.HLEN - hlen; i++) head += " ";
@@ -14,7 +16,7 @@ public class Prompt {
 	
 	// universal standard for prompt line print
 	public static void print_univ(String head, String message, char color) {
-		if(!GenericConfig.TEST) System.out.println(buildMessage(head, message, color));
+		if(!GenericConfig.TEST) if(!SUPPRESS) System.out.println(buildMessage(head, message, color));
 	}
 	
 	public static void print(String head, String message){
@@ -39,7 +41,7 @@ public class Prompt {
 		debug("DEBUG", message);
 	}
 	public static void test(String head, String message) {
-		if(GenericConfig.TEST) System.out.println(buildMessage(head, message, 'W'));
+		if(GenericConfig.TEST) if(!SUPPRESS) System.out.println(buildMessage(head, message, 'W'));
 	}
 	public static void test(String message) { 
 		test("TEST", message);
@@ -52,7 +54,7 @@ public class Prompt {
 	}
 	public static void print_nnc(String message){ print_nnc(GenericConfig.PHEAD, message); }
 	public static void dynamicHeader(String message) { if(!GenericConfig.VERB) print_nnc(message);}
-	public static void dynamic(String message) { if(!GenericConfig.VERB) System.out.print(message);}
+	public static void dynamic(String message) { if(!GenericConfig.VERB) if(!SUPPRESS) System.out.print(message);}
 	public static void erase(String msg, int sub) {
 		for(int x = 0; x < msg.length() - sub; x++) System.out.print("\b");
 		for(int x = 0; x < msg.length() - sub; x++) System.out.print(" ");
