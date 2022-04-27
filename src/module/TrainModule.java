@@ -9,6 +9,10 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
 
 import java.io.File;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.HashMap;
 
 import envs.config.GenericConfig;
 import envs.config.PathConfig;
@@ -22,7 +26,8 @@ import pipeline.UFCGMainPipeline;
 //import wrapper.MMseqsWrapper;
 
 public class TrainModule {
-	static String MARKER = null, MNAME = null;
+	static List<String> MARKERS = null, MNAMES = null;
+	static Map<String, Integer> NMAP = null;
 	static String INPUT = null, OUTPUT = null, TEMP = "/tmp/";
 	
 	static final Integer TYPE_NUC = 0, TYPE_PRO = 1;
@@ -40,7 +45,7 @@ public class TrainModule {
 		opts.addOption(null, "developer", false, "developer tool");
 		opts.addOption(null, "test", false, "for test");
 		
-		opts.addOption("i", "input", true, "input file");
+		opts.addOption("i", "input", true, "input marker directory");
 		opts.addOption("g", "genome", true, "input genome directory");
 		opts.addOption("o", "output", true, "output directory");
 //		opts.addOption("s", "seq", true, "sequence type");
@@ -82,14 +87,24 @@ public class TrainModule {
 		
 		/* parse general I/O options */
 		if(cmd.hasOption("i")) {
-			if(!new File(cmd.getOptionValue("i")).exists()) {
-				ExceptionHandler.pass(cmd.getOptionValue("i"));
-				ExceptionHandler.handle(ExceptionHandler.INVALID_FILE);
+			File ifile = new File(cmd.getOptionValue("i"));
+			if(!ifile.exists()) {
+				ExceptionHandler.pass(ifile.getPath());
+				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+			} if(!ifile.isDirectory()) {
+				ExceptionHandler.pass(ifile.getPath());
+				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
 			}
-			MARKER = cmd.getOptionValue("i");
 			
-			String tmp = MARKER.substring(MARKER.lastIndexOf(File.separator) + 1);
-			MNAME = tmp.contains(".") ? tmp.substring(0, tmp.lastIndexOf('.')) : tmp;
+			// list input directory and define marker sequences
+			MARKERS = new LinkedList<String>();
+			MNAMES = new LinkedList<String>();
+			for(File fa : ifile.listFiles()) {
+				MARKERS.add(fa.getAbsolutePath());
+				MNAMES.add(fa.getName().substring(0, fa.getName().lastIndexOf('.')));
+			}
+			NMAP = new HashMap<String, Integer>();
+			for(int i = 0; i < MNAMES.size(); i++) NMAP.put(MNAMES.get(i), i);
 		} else ExceptionHandler.handle(ExceptionHandler.NO_INPUT);
 		
 		if(cmd.hasOption("g")) {
@@ -175,7 +190,7 @@ public class TrainModule {
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -i STR         Set of marker sequences in FASTA format (should be able to build an MSA)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -i STR         Directory containing marker sequences in FASTA format (should be able to build an MSA)", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -g STR         Directory containing reference genome sequences in FASTA format", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory", 'x'));
 //		System.out.println(ANSIHandler.wrapper(" -s STR         Sequence type {NUC, PRO}", 'x'));
@@ -210,7 +225,6 @@ public class TrainModule {
 			case  0: break;
 			default: System.exit(1);
 			}
-			GenericConfig.setHeader(MNAME);
 			
 			// initial setup
 			int n = 0;
@@ -222,23 +236,35 @@ public class TrainModule {
 			String tmp = PathConfig.TempPath + GenericConfig.SESSION_UID + File.separator + "profile";
 			new File(tmp).mkdir();
 			
-			Prompt.print("Producing initial model...");
+			String[] finalSeqs = new String[MARKERS.size()], finalHmms = new String[MARKERS.size()];
+			String[] seqs = new String[MARKERS.size()], hmms = new String[MARKERS.size()];
+			Prompt.print("Producing initial models...");
 			String dir = PathConfig.TempPath + GenericConfig.SESSION_UID + File.separator + "iter" + String.valueOf(n) + File.separator;
 			new File(dir).mkdir();
 			new File(dir + typeStr()).mkdir();
-			String seq = dir + typeStr() + File.separator + MNAME + ".fa";
-			String hmm = dir + typeStr() + File.separator + MNAME + ".hmm";
-			
-			Shell.exec(String.format("cp %s %s", MARKER, seq));
-			Shell.exec(String.format("mafft --auto --thread %d %s > %s", GenericConfig.ThreadPoolSize, seq, dir + MNAME + ".ali.fa"));
-			Shell.exec(String.format("prepareAlign < %s > %s", dir + MNAME + ".ali.fa", dir + MNAME + ".pa.fa"));
-			Shell.exec(String.format("msa2prfl.pl %s > %s", dir + MNAME + ".pa.fa", hmm));
+			for(int i = 0; i < MARKERS.size(); i++) {
+				String MARKER = MARKERS.get(i), MNAME = MNAMES.get(i);
+				
+				seqs[i] = dir + typeStr() + File.separator + MNAME + ".fa";
+				hmms[i] = dir + typeStr() + File.separator + MNAME + ".hmm";
+				
+				Shell.exec(String.format("cp %s %s", MARKER, seqs[i]));
+				Shell.exec(String.format("mafft --auto --thread %d %s > %s", GenericConfig.ThreadPoolSize, seqs[i], dir + MNAME + ".ali.fa"));
+				Shell.exec(String.format("prepareAlign < %s > %s", dir + MNAME + ".ali.fa", dir + MNAME + ".pa.fa"));
+				Shell.exec(String.format("msa2prfl.pl %s > %s", dir + MNAME + ".pa.fa", hmms[i]));
+			}
 			
 			// iteration
 			while(n++ != N) {
-				int scnt = Integer.parseInt(Shell.exec("grep '^>' " + seq + " | wc -l", true)[0]);
+				new File((dir + "ucg")).mkdir();
 				Prompt.print("Running iteration " + String.valueOf(n) + "...");
-				Prompt.talk(String.format("[ITER %d/%s] : %d sequences defined", n, N > 0 ? String.valueOf(N) : "inf", scnt));
+				
+				// store initial counts
+				int[] scnts = new int[MARKERS.size()];
+				for(int i = 0; i < MARKERS.size(); i++) {
+					scnts[i] = Integer.parseInt(Shell.exec("grep '^>' " + seqs[i] + " | wc -l", true)[0]);
+					Prompt.talk(String.format("[ITER %d/%s; TASK %s] : %d sequences defined", n, N > 0 ? String.valueOf(N) : "inf", MNAMES.get(i), scnts[i]));
+				}
 				
 				// run profile submodule
 				new File((dir + "ucg")).mkdir();
@@ -250,13 +276,11 @@ public class TrainModule {
 						"-w", tmp,
 						"--seqpath", dir,
 						"--modelpath", dir,
-						"-s", MNAME
+						"-s", String.join(",", MNAMES)
 					};
 				Prompt.talk(String.format("[ITER %d/%s] : Running profile submodule...", n, N > 0 ? String.valueOf(N) : "inf"));
-				if(!GenericConfig.DEV) Prompt.SUPPRESS = true; 
 				ProfileModule.run(profileArgs);
-				Prompt.SUPPRESS = false;
-				
+					
 				// run align submodule
 				String[] alignArgs = {
 						"align", 
@@ -268,47 +292,70 @@ public class TrainModule {
 						"-f", "0"
 					};
 				Prompt.talk(String.format("[ITER %d/%s] : Running align submodule...", n, N > 0 ? String.valueOf(N) : "inf"));
-				if(!GenericConfig.DEV) Prompt.SUPPRESS = true; 
 				AlignModule.run(alignArgs);
-							
+								
 				// reset paths
+				if(!GenericConfig.DEV) Prompt.SUPPRESS = true; 
 				PathConfig.setInputPath(INPUT);
 				PathConfig.setOutputPath(OUTPUT);
 				PathConfig.setTempPath(TEMP);
 				Prompt.SUPPRESS = false; 
-				
+					
 				// produce profile
 				String next = PathConfig.TempPath + GenericConfig.SESSION_UID + File.separator + "iter" + String.valueOf(n) + File.separator;
 				new File(next).mkdir();
 				new File(next + typeStr()).mkdir();
-				String nseq = next + typeStr() + File.separator + MNAME + ".fa";
-				String nhmm = next + typeStr() + File.separator + MNAME + ".hmm";
 				
-				Shell.exec(String.format("cp %s %s", dir + "msa" + File.separator + MNAME + "_pro.fasta", nseq));
-				Shell.exec(String.format("cp %s %s", dir + "msa" + File.separator + "aligned_" + MNAME + ".fasta", next + MNAME + ".ali.fa"));
-				Shell.exec(String.format("prepareAlign < %s > %s", next + MNAME + ".ali.fa", next + MNAME + ".pa.fa"));
-				Shell.exec(String.format("msa2prfl.pl %s > %s", next + MNAME + ".pa.fa", nhmm));
-				
-				// compare sequence count
-				int ecnt = Integer.parseInt(Shell.exec("grep '^>' " + nseq + " | wc -l", true)[0]);
-				if(scnt > ecnt) { // decreased
-					Prompt.talk(String.format("[ITER %d/%s] : Sequence count decreased. Iteration revoked.", n, N > 0 ? String.valueOf(N) : "inf"));
-					break;
+				List<Integer> remove = new LinkedList<Integer>();
+				for(int i = 0; i < MARKERS.size(); i++) {
+					String MNAME = MNAMES.get(i);
+					String nseq = next + typeStr() + File.separator + MNAME + ".fa";
+					String nhmm = next + typeStr() + File.separator + MNAME + ".hmm";
+					
+					Shell.exec(String.format("cp %s %s", dir + "msa" + File.separator + MNAME + "_pro.fasta", nseq));
+					Shell.exec(String.format("cp %s %s", dir + "msa" + File.separator + "aligned_" + MNAME + ".fasta", next + MNAME + ".ali.fa"));
+					Shell.exec(String.format("prepareAlign < %s > %s", next + MNAME + ".ali.fa", next + MNAME + ".pa.fa"));
+					Shell.exec(String.format("msa2prfl.pl %s > %s", next + MNAME + ".pa.fa", nhmm));
+					
+					// compare sequence count
+					int ecnt = Integer.parseInt(Shell.exec("grep '^>' " + nseq + " | wc -l", true)[0]);
+					if(scnts[i] > ecnt) { // decreased
+						Prompt.talk(String.format("[ITER %d/%s; TASK %s] : Sequence count decreased. Iteration revoked.", n, N > 0 ? String.valueOf(N) : "inf", MNAME));
+						finalSeqs[NMAP.get(MNAME)] = seqs[i];
+						finalHmms[NMAP.get(MNAME)] = hmms[i];
+						remove.add(i);
+					}
+					else {
+						if(scnts[i] == ecnt) { // converged
+							Prompt.talk(String.format("[ITER %d/%s; TASK %s] : Sequence count converged.", n, N > 0 ? String.valueOf(N) : "inf", MNAME));
+							remove.add(i);
+						}
+						finalSeqs[NMAP.get(MNAME)] = nseq;
+						finalHmms[NMAP.get(MNAME)] = nhmm;
+					}
 				}
 				
-				dir = next;
-				seq = nseq;
-				hmm = nhmm;
-				
-				if(scnt == ecnt) { // converged
-					Prompt.talk(String.format("[ITER %d/%s] : Sequence count converged. Iteration finished.", n, N > 0 ? String.valueOf(N) : "inf"));
-					break;
+				// remove decreased/converged entries
+				for(int i = remove.size() - 1; i >= 0; i--) {
+					MARKERS.remove(i);
+					MNAMES.remove(i);
 				}
-				// proceed to next iteration
+				if(MARKERS.size() == 0) break;
+				
+				// prepare next iteration
+				seqs = new String[MARKERS.size()];
+				hmms = new String[MARKERS.size()];
+				for(int i = 0; i < MARKERS.size(); i++) {
+					seqs[i] = next + typeStr() + File.separator + MNAMES.get(i) + ".fa";
+					hmms[i] = next + typeStr() + File.separator + MNAMES.get(i) + ".hmm";
+				}
 			}
+				
 			
-			Shell.exec(String.format("cp %s %s", seq, PathConfig.OutputPath + MNAME + ".fa"));
-			Shell.exec(String.format("cp %s %s", hmm, PathConfig.OutputPath + MNAME + ".hmm"));
+			for(String MNAME : NMAP.keySet()) {
+				Shell.exec(String.format("cp %s %s", finalSeqs[NMAP.get(MNAME)], PathConfig.OutputPath + MNAME + ".fa"));
+				Shell.exec(String.format("cp %s %s", finalHmms[NMAP.get(MNAME)], PathConfig.OutputPath + MNAME + ".hmm"));
+			}
 			Shell.exec("rm -rf " + PathConfig.TempPath + GenericConfig.SESSION_UID);
 		}
 		catch(Exception e) {

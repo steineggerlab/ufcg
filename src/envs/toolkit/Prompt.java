@@ -50,7 +50,7 @@ public class Prompt {
 	
 	// print with no new-line character
 	public static void print_nnc(String head, String message){
-		if(!GenericConfig.TEST) System.out.print(buildMessage(head, message, 'C'));
+		if(!GenericConfig.TEST) if(!SUPPRESS) System.out.print(buildMessage(head, message, 'C'));
 	}
 	public static void print_nnc(String message){ print_nnc(GenericConfig.PHEAD, message); }
 	public static void dynamicHeader(String message) { if(!GenericConfig.VERB) print_nnc(message);}
