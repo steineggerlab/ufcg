@@ -305,7 +305,7 @@ public class PathConfig {
 			while((buf = tmpListStream.readLine()) != null) {
 				if(!buf.endsWith(".hmm")) continue;
 				int loc = 0;
-				for(; loc < cnt.length; loc++) if(buf.contains(GenericConfig.FCG[loc])) break;
+				for(; loc < cnt.length; loc++) if(buf.substring(0, buf.lastIndexOf(".")).equals(GenericConfig.FCG[loc])) break;
 				if(loc == cnt.length) continue;
 				cnt[loc]++;
 			}
@@ -357,7 +357,7 @@ public class PathConfig {
 			while((buf = tmpListStream.readLine()) != null) {
 				if(!buf.endsWith(".fa")) continue;
 				int loc = 0;
-				for(; loc < cnt.length; loc++) if(buf.contains(GenericConfig.FCG[loc])) break;
+				for(; loc < cnt.length; loc++) if(buf.substring(0, buf.lastIndexOf(".")).equals(GenericConfig.FCG[loc])) break;
 				if(loc == cnt.length) continue;
 				cnt[loc]++;
 			}

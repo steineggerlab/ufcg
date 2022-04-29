@@ -28,7 +28,7 @@ import pipeline.UFCGMainPipeline;
 public class TrainModule {
 	static List<String> MARKERS = null, MNAMES = null;
 	static Map<String, Integer> NMAP = null;
-	static String INPUT = null, OUTPUT = null, TEMP = "/tmp/";
+	static String INPUT = null, OUTPUT = null, TEMP = "/tmp/", SESSION_UID = GenericConfig.SESSION_UID;
 	
 	static final Integer TYPE_NUC = 0, TYPE_PRO = 1;
 	static Integer TYPE = TYPE_PRO;
@@ -52,6 +52,7 @@ public class TrainModule {
 		opts.addOption("n", "niter", true, "number of iteration");
 		opts.addOption("t", "threads", true, "number of threads");
 		opts.addOption("w", "write", true, "tmp directory");
+		opts.addOption("c", "checkpoint", true, "checkpoint directory");
 		
 		/* parse argument with CommandLineParser */
 		CommandLineParser clp = new DefaultParser();
@@ -149,6 +150,7 @@ public class TrainModule {
 			PathConfig.setTempPath(cmd.getOptionValue("w"));
 			TEMP = PathConfig.TempPath;
 		}
+		if(cmd.hasOption("c")) SESSION_UID = new File(cmd.getOptionValue("c")).getName();
 		
 		/* successfully parsed */
 		Prompt.talk(ANSIHandler.wrapper("SUCCESS", 'g') + " : Option parsing");
@@ -201,6 +203,7 @@ public class TrainModule {
 		System.out.println(ANSIHandler.wrapper(" -n INT         Number of training iteration; 0 to iterate until convergence [0]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -w STR         Directory to write temporary files [/tmp]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -c STR         Checkpoint directory that contains precomputed files", 'x'));
 		System.out.println("");
 		
 		UFCGMainPipeline.printGeneral();
@@ -228,18 +231,18 @@ public class TrainModule {
 			
 			// initial setup
 			int n = 0;
-			if(!new File(PathConfig.TempPath + GenericConfig.SESSION_UID).exists()) new File(PathConfig.TempPath + GenericConfig.SESSION_UID).mkdir();
-			else {
+			if(!new File(PathConfig.TempPath + SESSION_UID).exists()) new File(PathConfig.TempPath + SESSION_UID).mkdir();
+			else if(SESSION_UID.equals(GenericConfig.SESSION_UID)){
 				ExceptionHandler.pass("Failed to create temporary directory.");
 				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
-			String tmp = PathConfig.TempPath + GenericConfig.SESSION_UID + File.separator + "profile";
+			String tmp = PathConfig.TempPath + SESSION_UID + File.separator + "profile";
 			new File(tmp).mkdir();
 			
 			String[] finalSeqs = new String[MARKERS.size()], finalHmms = new String[MARKERS.size()];
 			String[] seqs = new String[MARKERS.size()], hmms = new String[MARKERS.size()];
 			Prompt.print("Producing initial models...");
-			String dir = PathConfig.TempPath + GenericConfig.SESSION_UID + File.separator + "iter" + String.valueOf(n) + File.separator;
+			String dir = PathConfig.TempPath + SESSION_UID + File.separator + "iter" + String.valueOf(n) + File.separator;
 			new File(dir).mkdir();
 			new File(dir + typeStr()).mkdir();
 			for(int i = 0; i < MARKERS.size(); i++) {
@@ -248,10 +251,14 @@ public class TrainModule {
 				seqs[i] = dir + typeStr() + File.separator + MNAME + ".fa";
 				hmms[i] = dir + typeStr() + File.separator + MNAME + ".hmm";
 				
-				Shell.exec(String.format("cp %s %s", MARKER, seqs[i]));
-				Shell.exec(String.format("mafft --auto --thread %d %s > %s", GenericConfig.ThreadPoolSize, seqs[i], dir + MNAME + ".ali.fa"));
-				Shell.exec(String.format("prepareAlign < %s > %s", dir + MNAME + ".ali.fa", dir + MNAME + ".pa.fa"));
-				Shell.exec(String.format("msa2prfl.pl %s > %s", dir + MNAME + ".pa.fa", hmms[i]));
+				if(!new File(seqs[i]).exists())
+					Shell.exec(String.format("cp %s %s", MARKER, seqs[i]));
+				if(!new File(dir + MNAME + ".ali.fa").exists())
+					Shell.exec(String.format("mafft --auto --thread %d %s > %s", GenericConfig.ThreadPoolSize, seqs[i], dir + MNAME + ".ali.fa"));
+				if(!new File(dir + MNAME + ".pa.fa").exists())
+					Shell.exec(String.format("prepareAlign < %s > %s 2> /dev/null", dir + MNAME + ".ali.fa", dir + MNAME + ".pa.fa"));
+				if(!new File(hmms[i]).exists())
+					Shell.exec(String.format("msa2prfl.pl < %s > %s 2> /dev/null", dir + MNAME + ".pa.fa", hmms[i]));
 			}
 			
 			// iteration
@@ -267,7 +274,6 @@ public class TrainModule {
 				}
 				
 				// run profile submodule
-				new File((dir + "ucg")).mkdir();
 				String[] profileArgs = {
 						"profile", 
 						"-i", PathConfig.InputPath,
@@ -279,21 +285,25 @@ public class TrainModule {
 						"-s", String.join(",", MNAMES)
 					};
 				Prompt.talk(String.format("[ITER %d/%s] : Running profile submodule...", n, N > 0 ? String.valueOf(N) : "inf"));
+				Prompt.debug(String.join(" ", profileArgs));
 				ProfileModule.run(profileArgs);
 					
 				// run align submodule
-				String[] alignArgs = {
-						"align", 
-						"-i", dir + "ucg",
-						"-o", dir,
-						"-n", "msa",
-						"-a", "protein",
-						"-t", String.valueOf(GenericConfig.ThreadPoolSize),
-						"-f", "0"
-					};
-				Prompt.talk(String.format("[ITER %d/%s] : Running align submodule...", n, N > 0 ? String.valueOf(N) : "inf"));
-				AlignModule.run(alignArgs);
-								
+				if(!new File(dir + "msa").exists()) {
+					String[] alignArgs = {
+							"align", 
+							"-i", dir + "ucg",
+							"-o", dir,
+							"-n", "msa",
+							"-a", "protein",
+							"-t", String.valueOf(GenericConfig.ThreadPoolSize),
+							"-f", "0"
+						};
+					Prompt.talk(String.format("[ITER %d/%s] : Running align submodule...", n, N > 0 ? String.valueOf(N) : "inf"));
+					Prompt.debug(String.join(" ", alignArgs));
+					AlignModule.run(alignArgs);
+				}
+				
 				// reset paths
 				if(!GenericConfig.DEV) Prompt.SUPPRESS = true; 
 				PathConfig.setInputPath(INPUT);
@@ -302,7 +312,7 @@ public class TrainModule {
 				Prompt.SUPPRESS = false; 
 					
 				// produce profile
-				String next = PathConfig.TempPath + GenericConfig.SESSION_UID + File.separator + "iter" + String.valueOf(n) + File.separator;
+				String next = PathConfig.TempPath + SESSION_UID + File.separator + "iter" + String.valueOf(n) + File.separator;
 				new File(next).mkdir();
 				new File(next + typeStr()).mkdir();
 				
@@ -312,10 +322,14 @@ public class TrainModule {
 					String nseq = next + typeStr() + File.separator + MNAME + ".fa";
 					String nhmm = next + typeStr() + File.separator + MNAME + ".hmm";
 					
-					Shell.exec(String.format("cp %s %s", dir + "msa" + File.separator + MNAME + "_pro.fasta", nseq));
-					Shell.exec(String.format("cp %s %s", dir + "msa" + File.separator + "aligned_" + MNAME + ".fasta", next + MNAME + ".ali.fa"));
-					Shell.exec(String.format("prepareAlign < %s > %s", next + MNAME + ".ali.fa", next + MNAME + ".pa.fa"));
-					Shell.exec(String.format("msa2prfl.pl %s > %s", next + MNAME + ".pa.fa", nhmm));
+					if(!new File(nseq).exists())
+						Shell.exec(String.format("cp %s %s", dir + "msa" + File.separator + MNAME + "_pro.fasta", nseq));
+					if(!new File(next + MNAME + ".ali.fa").exists())
+						Shell.exec(String.format("cp %s %s", dir + "msa" + File.separator + "aligned_" + MNAME + ".fasta", next + MNAME + ".ali.fa"));
+					if(!new File(next + MNAME + ".pa.fa").exists())
+						Shell.exec(String.format("prepareAlign < %s > %s 2> /dev/null", next + MNAME + ".ali.fa", next + MNAME + ".pa.fa"));
+					if(!new File(nhmm).exists())
+						Shell.exec(String.format("msa2prfl.pl < %s > %s 2> /dev/null", next + MNAME + ".pa.fa", nhmm));
 					
 					// compare sequence count
 					int ecnt = Integer.parseInt(Shell.exec("grep '^>' " + nseq + " | wc -l", true)[0]);
@@ -356,7 +370,7 @@ public class TrainModule {
 				Shell.exec(String.format("cp %s %s", finalSeqs[NMAP.get(MNAME)], PathConfig.OutputPath + MNAME + ".fa"));
 				Shell.exec(String.format("cp %s %s", finalHmms[NMAP.get(MNAME)], PathConfig.OutputPath + MNAME + ".hmm"));
 			}
-			Shell.exec("rm -rf " + PathConfig.TempPath + GenericConfig.SESSION_UID);
+			Shell.exec("rm -rf " + PathConfig.TempPath + SESSION_UID);
 		}
 		catch(Exception e) {
 			/* Exception handling route; exit with status 1 */
