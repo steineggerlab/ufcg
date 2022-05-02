@@ -89,6 +89,8 @@ public class FileStream {
 		}*/
 		if(PathConfig.TempIsCustom) return;
 		if(TMP_PATHS == null) return;
+		if(TMP_STATUS == null) return;
+		if(PATH_MAP == null) return;
 		for(String path : TMP_PATHS) {
 			if(PATH_MAP.get(path) >= TMP_STATUS.size()) continue;
 			if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) wipe(path);
