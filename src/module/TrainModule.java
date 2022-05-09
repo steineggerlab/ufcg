@@ -54,6 +54,8 @@ public class TrainModule {
 		opts.addOption("w", "write", true, "tmp directory");
 		opts.addOption("c", "checkpoint", true, "checkpoint directory");
 		
+		opts.addOption(null, "mmseqs", true, "mmseqs binary");
+		
 		/* parse argument with CommandLineParser */
 		CommandLineParser clp = new DefaultParser();
 		CommandLine cmd = null;
@@ -151,6 +153,8 @@ public class TrainModule {
 			TEMP = PathConfig.TempPath;
 		}
 		if(cmd.hasOption("c")) SESSION_UID = new File(cmd.getOptionValue("c")).getName();
+		
+		if(cmd.hasOption("mmseqs")) PathConfig.setMMseqsPath(cmd.getOptionValue("mmseqs"));
 		
 		/* successfully parsed */
 		Prompt.talk(ANSIHandler.wrapper("SUCCESS", 'g') + " : Option parsing");
