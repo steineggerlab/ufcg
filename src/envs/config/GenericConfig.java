@@ -285,12 +285,14 @@ public class GenericConfig {
 	};
 
 	public static final String[] FCG_COG = {
-			"C","C","Z","O","O","O","F","M/D/T","E/F","L",
-			"L","O","J","L","M","T","O","E/H","T","O",
-			"C","E","L","L","C","L","D","T","J","K",
-			"K","J","J","J","J","K","J","J","O","O",
-			"O","O","O","H","H","O","O","O","O","J",
-			"O","J","L","E","Z","Z","O","E/F"
+			"C/E","C/E","Z","C","O","O","O","O","F","O",
+			"T","C","C","C","C","R","A","A","O","J",
+			"J","M","T","O","E/H","F","O","G","E","L",
+			"L","C","A","D","C","C","N/I","G","R","A",
+			"K","K","J","J","A","J","K","J","J","O",
+			"O","O","O","O","H","H","O","O","O","O",
+			"J","O","J","J","L","E","S","Z","Z","O/R",
+			"R"
 	};
 	public static final String[] FCG_DSC = {
 			"Aconitate hydratase",
