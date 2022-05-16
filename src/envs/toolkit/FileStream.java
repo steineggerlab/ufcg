@@ -53,15 +53,15 @@ public class FileStream {
 	
 	public static void wipe(String path) {
 		if(PathConfig.TempIsCustom) return;
-		if(!PATH_MAP.containsKey(path)) return;
-		int map = (int) PATH_MAP.get(path);
-		if(map < 0 || map >= TMP_STATUS.size()) return;
+		try {
+			if(!PATH_MAP.containsKey(path)) return;
 		
-		TMP_STATUS.get((int) PATH_MAP.get(path)).decr();
-		if(TMP_STATUS.get((int) PATH_MAP.get(path)).cnt == 0) {
-			Shell.exec("rm " + path);
-			TMP_STATUS.get((int) PATH_MAP.get(path)).handle();
-		}
+			TMP_STATUS.get((int) PATH_MAP.get(path)).decr();
+			if(TMP_STATUS.get((int) PATH_MAP.get(path)).cnt == 0) {
+				Shell.exec("rm " + path);
+				TMP_STATUS.get((int) PATH_MAP.get(path)).handle();
+			}
+		} catch(NullPointerException e) {return;}
 	}
 	public static void wipe(FileStream stream) {
 		wipe(stream.PATH);
@@ -88,15 +88,14 @@ public class FileStream {
 			}
 		}*/
 		if(PathConfig.TempIsCustom) return;
-		if(TMP_PATHS == null) return;
-		if(TMP_STATUS == null) return;
-		if(PATH_MAP == null) return;
 		for(String path : TMP_PATHS) {
-			if(path == null) continue;
-			if(!PATH_MAP.containsKey(path)) continue;
-			if(PATH_MAP.get(path) >= TMP_STATUS.size()) continue;
-			if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) wipe(path);
-		}
+			try {
+				if(path == null) continue;
+				if(!PATH_MAP.containsKey(path)) continue;
+				if(PATH_MAP.get(path) >= TMP_STATUS.size()) continue;
+				if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) wipe(path);
+			} catch(NullPointerException e) {continue;}
+		} 
 		init();
 	}
 	
