@@ -1594,7 +1594,7 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 		}
 		
 		if(nuc<4 && pro<4) {
-			Prompt.print(ANSIHandler.wrapper("WARNING", 'Y') + " : Less than 4 species have '" + gene + "'. This gene will be excluded");
+			Prompt.warn("Less than 4 species have '" + gene + "'. This gene will be excluded");
 		}
 		
 		if (sbNuc.length() != 0 && nuc>3) {

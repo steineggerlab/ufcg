@@ -55,13 +55,14 @@ public class FileStream {
 		if(PathConfig.TempIsCustom) return;
 		try {
 			if(!PATH_MAP.containsKey(path)) return;
-		
 			TMP_STATUS.get((int) PATH_MAP.get(path)).decr();
 			if(TMP_STATUS.get((int) PATH_MAP.get(path)).cnt == 0) {
 				Shell.exec("rm " + path);
 				TMP_STATUS.get((int) PATH_MAP.get(path)).handle();
 			}
-		} catch(NullPointerException e) {return;}
+		}
+		catch(NullPointerException e) {return;}
+		catch(IndexOutOfBoundsException e) {return;}
 	}
 	public static void wipe(FileStream stream) {
 		wipe(stream.PATH);
