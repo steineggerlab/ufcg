@@ -1649,7 +1649,7 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 		}
 		
 		if(num<4) {
-			Prompt.print(ANSIHandler.wrapper("WARNING", 'Y') + " : Less than 4 species have '" + gene + "'. This gene will be excluded");
+			Prompt.warn("Less than 4 species have '" + gene + "'. This gene will be excluded");
 		}
 		
 		if (sb.length() != 0 && num>3) {

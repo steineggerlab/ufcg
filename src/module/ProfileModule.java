@@ -406,7 +406,7 @@ public class ProfileModule {
 		String runPath = "";
 		for(int i = common; i < exeSplit.length - 1; i++) runPath += "../";
 		for(int i = common; i < jarSplit.length; i++) runPath += jarSplit[i] + "/";
-		String command = "java -jar " + runPath.substring(0, runPath.length() - 1);
+		String command = "java -jar " + runPath.substring(0, runPath.length() - 1) + " profile";
 		jarPath = jarPath.substring(0, jarPath.lastIndexOf('/') + 1);
 		
 		/* initiate and get mandatory option */
@@ -441,7 +441,7 @@ public class ProfileModule {
 		
 		// --set
 		while(!proceed) {
-			Prompt.print_nnc("Enter the set of genes to use (--set) : ");
+			Prompt.print_nnc("Enter the set of genes to use (--set) (NUC/PRO/BUSCO) : ");
 			buf = stream.readLine();
 			if(buf.length() == 0) continue;
 			GenericConfig.setGeneset(buf);
@@ -460,7 +460,7 @@ public class ProfileModule {
 				if(buf.startsWith("y") || buf.startsWith("Y")) {
 					GenericConfig.FORCE = true;
 					proceed = true;
-					command += " --force ";
+					command += " --force 1";
 				}
 				else if(buf.startsWith("n") || buf.startsWith("N")) {
 					GenericConfig.FORCE = false;
@@ -628,8 +628,7 @@ public class ProfileModule {
 		
 		/* locate ppx.cfg file; request custom file if failed */
 		// --ppxcfg
-		String[] cmd = {"/bin/bash", "-c", "head -1 " + jarPath + "config/ppx.cfg 2>&1"};
-		String[] ppx = Shell.exec(cmd);
+		String[] ppx = Shell.exec("head -1" + jarPath + "config/ppx.cfg 2>&1");
 		flag = !ppx[0].contains("No");
 		/* directly use default file if exists, without asking user (for convenience) */
 /*		if(flag) {
