@@ -313,6 +313,7 @@ public class TrainModule {
 				PathConfig.setInputPath(INPUT);
 				PathConfig.setOutputPath(OUTPUT);
 				PathConfig.setTempPath(TEMP);
+				PathConfig.MetaExists = false;
 				Prompt.SUPPRESS = false; 
 					
 				// produce profile
@@ -336,7 +337,14 @@ public class TrainModule {
 						Shell.exec(String.format("msa2prfl.pl < %s > %s 2> /dev/null", next + MNAME + ".pa.fa", nhmm));
 					
 					// compare sequence count
-					int ecnt = Integer.parseInt(Shell.exec("grep '^>' " + nseq + " | wc -l", true)[0]);
+					String grep = Shell.exec("grep '^>' " + nseq + " | wc -l", true)[0];
+					int ecnt = 0;
+					try{ 
+						ecnt = Integer.parseInt(grep);
+					} catch(NumberFormatException e) {
+						ecnt = -1;
+					}
+					
 					if(scnts[i] > ecnt) { // decreased
 						Prompt.talk(String.format("[ITER %d/%s; TASK %s] : Sequence count decreased. Iteration revoked.", n, N > 0 ? String.valueOf(N) : "inf", MNAME));
 						finalSeqs[NMAP.get(MNAME)] = seqs[i];
@@ -355,8 +363,8 @@ public class TrainModule {
 				
 				// remove decreased/converged entries
 				for(int i = remove.size() - 1; i >= 0; i--) {
-					MARKERS.remove(i);
-					MNAMES.remove(i);
+					MARKERS.remove((int) remove.get(i));
+					MNAMES.remove((int) remove.get(i));
 				}
 				if(MARKERS.size() == 0) break;
 				
@@ -367,6 +375,7 @@ public class TrainModule {
 					seqs[i] = next + typeStr() + File.separator + MNAMES.get(i) + ".fa";
 					hmms[i] = next + typeStr() + File.separator + MNAMES.get(i) + ".hmm";
 				}
+				dir = next;
 			}
 				
 			

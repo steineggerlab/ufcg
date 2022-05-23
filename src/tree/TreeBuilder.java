@@ -935,7 +935,7 @@ void calculateGsi() {
 		String ucgNwk = br.readLine();
 		
 		br.close();
-		trmJson.put("UUCG", ucgNwk);
+		trmJson.put("UFCG", ucgNwk);
 
 		for (String ucg : usedGenes) {
 			FileReader geneFR = new FileReader(outDirectory + runOutDirName + ucg + ".zZ.nwk");

@@ -80,6 +80,7 @@ public class QueryEntity {
 		 */
 		Prompt.print("Reading input data...");
 		List<String> fnames = new ArrayList<String>();
+		METADATA = new ArrayList<List<String>>();
 		
 		// fetch filenames from input directory
 		if(PathConfig.InputIsFolder) {
