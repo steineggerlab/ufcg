@@ -80,7 +80,6 @@ public class QueryEntity {
 		 */
 		Prompt.print("Reading input data...");
 		List<String> fnames = new ArrayList<String>();
-		METADATA = new ArrayList<List<String>>();
 		
 		// fetch filenames from input directory
 		if(PathConfig.InputIsFolder) {
@@ -103,6 +102,7 @@ public class QueryEntity {
 		
 		// if metadata not given
 		if(!PathConfig.MetaExists) {
+			METADATA = new ArrayList<List<String>>();
 			// if metadata information is given as a string
 			if(PathConfig.MetaString != null) {
 				EX_FILENAME = 0; EX_LABEL = 1; EX_ACCESS = 2; EX_TAXON = 3; EX_NCBI = 4; EX_STRAIN = 5; EX_TAXONOMY = 6;
