@@ -834,7 +834,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	}
 	
 	exeServiceTree.shutdown();
-
+/*
 	try {
 		for (Future<ProcessGobbler> f : futures) {
 			ProcessGobbler processGobbler = f.get();
@@ -851,7 +851,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	} catch(ExecutionException ex) {
 		ExceptionHandler.handle(ex);
 	}
-
+*/
 	Prompt.talk("Gene tree reconstruction finished.");
 
 	// merge gene trees
@@ -859,9 +859,22 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 
 	for (String ucg : usedGenes) {
 		String geneTree = outDirectory + runOutDirName + ucg + ".zZ.nwk";
-
+		File treeFile = new File(geneTree);
+		if(!treeFile.exists()) {
+			if(phylogenyTool.equals(PhylogenyTool.raxml) && new File("RAxML_bipartitions." + runOutDirName.replace(File.separator, "") + "_" + ucg).exists()) {
+				new File("RAxML_bipartitions." + runOutDirName.replace(File.separator, "") + "_" + ucg).renameTo(treeFile);
+			}
+			else if(phylogenyTool.equals(PhylogenyTool.iqtree) && new File(alignedFinalGeneFastaFile(ucg) + ".treefile").exists()) {
+				new File(alignedFinalGeneFastaFile(ucg) + ".treefile").renameTo(treeFile);
+			}
+			else {
+				ExceptionHandler.pass("Tree file of gene " + ucg + " not found.");
+				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+			}
+		}
+		
 		try {
-			File treeFile = new File(geneTree);
+			treeFile = new File(geneTree);
 			FileReader treeReader = new FileReader(treeFile);
 			BufferedReader br = new BufferedReader(treeReader);
 
@@ -2236,13 +2249,14 @@ public ProcessGobbler call() throws IOException{
 
 	ProcessGobbler processGobbler = new ProcessGobbler(exitValue, errorLog);
 	
-	
 	new File(alignedFastaFile + ".treefile").renameTo(new File(outputDir + run_id + File.separator+ ucg + ".zZ.nwk"));
 	new File(alignedFastaFile + ".iqtree").delete();
 	new File(alignedFastaFile + ".bionj").delete();
 	new File(alignedFastaFile + ".log").delete();
 	new File(alignedFastaFile + ".mldist").delete();
 	new File(alignedFastaFile + ".ckp.gz").delete();
+	new File(alignedFastaFile + ".contree").delete();
+	new File(alignedFastaFile + ".splits.nex").delete();
 
 	// finished
 	updateCounter(ucg, counter, ucgNum);
