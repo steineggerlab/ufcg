@@ -91,6 +91,18 @@ private String allGeneTreesFile = null;
 private String logFileName = null;
 private String trmFile = null;
 
+/* checkpoint
+ *     0 : initial state
+ *     1 : gene FASTA created
+ *     2 : gene FASTA aligned
+ *     3 : concatenated
+ *     4 : concatenated tree created
+ *     5 : gene tree created
+ *     6 : GSI calculated
+ *     7 : Label replaced
+ */
+private int checkpoint = 0;
+
 public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirName, String mafftPath, 
         String raxmlPath, String fasttreePath, String iqtreePath,
         AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit) {
@@ -140,24 +152,25 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 
 public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 	checkThirdPartyPrograms(tool);
+	checkPathDirectory();
 	readJsonsToFastaFiles();
-	alignGenes(nThreads); // 
-	removeGaps();
-	concatenateAlignedGenes(); 
-	inferTree(tool, nThreads); // fasttree or raxml
-	inferGeneTrees(tool, nThreads);
-	calculateGsi();
-	replaceLabel();
+	if(checkpoint < 2) alignGenes(nThreads); // 
+	if(checkpoint < 2) removeGaps();
+	if(checkpoint < 3) concatenateAlignedGenes(); 
+	if(checkpoint < 4) inferTree(tool, nThreads); // fasttree or raxml
+	if(checkpoint < 5) inferGeneTrees(tool, nThreads);
+	if(checkpoint < 6) calculateGsi();
+	if(checkpoint < 7) replaceLabel();
 	cleanFiles();
 }
 
 public void jsonsToMsa(int nThreads) throws IOException {
 	testMafft(mafftPath);
+	checkPathDirectory();
 	readJsonsToFastaFiles();
-	alignGenes(nThreads);
-	removeGaps();
+	if(checkpoint < 2) alignGenes(nThreads);
+	if(checkpoint < 2) removeGaps();
 	replaceLabelforAlign();
-	
 }
 
 void checkThirdPartyPrograms(PhylogenyTool phylogenyTool) {
@@ -366,9 +379,6 @@ private void testIqtree(String fasttreePath) {
 }
 
 void readJsonsToFastaFiles() throws IOException{
-	
-	checkPathDirectory();
-	
 	// ucg files
 	File dir = new File(ucgDirectory);
 
@@ -445,7 +455,7 @@ void readJsonsToFastaFiles() throws IOException{
 		replaceMap.put(String.valueOf(uid), label);
 	}
 	
-	writeGenomeInfoToLogFile(geneSetsDomainList);
+	if(checkpoint < 1) writeGenomeInfoToLogFile(geneSetsDomainList);
 	
 	// 3. retrieve fasta files
 	
@@ -454,6 +464,9 @@ void readJsonsToFastaFiles() throws IOException{
 	}else if(alignMode.equals(AlignMode.nucleotide)||alignMode.equals(AlignMode.protein)) {
 		retrieveFastaFiles(geneSetsDomainList);
 	}
+	
+	treeZzGsiFileName = outDirectory + runOutDirName + "concatenated_gsi_" + usedGenes.size() + ".zZ.nwk";
+	treeLabelGsiFileName = outDirectory + runOutDirName + "concatenated_gsi_" + usedGenes.size() + ".nwk";
 }
 
 private void checkPathDirectory() {
@@ -467,9 +480,46 @@ private void checkPathDirectory() {
 		}
 	}
 	
-	if(new File(outDirectory + runOutDirName).exists()) {
-		ExceptionHandler.pass("Run id '" + runOutDirName.replace(File.separator, "") + "' already exists.");
-		ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+	File runPath = new File(outDirectory + runOutDirName);
+	if(runPath.exists()) {
+		Prompt.warn("Run id '" + runOutDirName.replace(File.separator, "") + "' already exists.");
+		Prompt.debug("Looking for a checkpoint...");
+		
+		// define checkpoint step
+		File[] ckpFiles = runPath.listFiles();
+		List<String> ckpFilenames = new ArrayList<String>();
+		for(File ckpFile : ckpFiles) ckpFilenames.add(ckpFile.getName());
+		
+		for(String ckp : ckpFilenames) {
+			if(checkpoint < 1 && ckp.endsWith(".zZ.fasta")) {
+				Prompt.debug(String.format("Gene FASTA file found : %s - checkpoint stage %d applied", ckp, 1));
+				checkpoint = 1;
+			}
+			if(checkpoint < 2 && ckp.startsWith("aligned") && ckp.endsWith(".zZ.fasta")) {
+				Prompt.debug(String.format("Aligned gene FASTA file found : %s - checkpoint stage %d applied", ckp, 2));
+				checkpoint = 2;
+			}
+			if(checkpoint < 3 && ckp.equals("aligned_concatenated.zZ.fasta")) {
+				Prompt.debug(String.format("Concatenated FASTA file found : %s - checkpoint stage %d applied", ckp, 3));
+				checkpoint = 3;
+			}
+			if(checkpoint < 4 && ckp.endsWith(".zZ.nwk") && ckp.startsWith("concatenated")) {
+				Prompt.debug(String.format("Concatenated tree found : %s - checkpoint stage %d applied", ckp, 4));
+				checkpoint = 4;
+			}
+			if(checkpoint < 5 && ckp.endsWith(".zZ.nwk") && !ckp.startsWith("concatenated")) {
+				Prompt.debug(String.format("Gene tree file found : %s - checkpoint stage %d applied", ckp, 5));
+				checkpoint = 5;
+			}
+			if(checkpoint < 6 && ckp.startsWith("concatenated_gsi")) {
+				Prompt.debug(String.format("GSI tree file found : %s - checkpoint stage %d applied", ckp, 6));
+				checkpoint = 6;
+			}
+			if(checkpoint < 7 && ckp.equals("concatenated.nwk")) {
+				Prompt.debug(String.format("Label replaced file found : %s - checkpoint stage %d applied", ckp, 7));
+				checkpoint = 7;
+			}
+		}
 	}
 	
 	if(!new File(outDirectory).canWrite()) {
@@ -921,9 +971,6 @@ void calculateGsi() {
 	String tmp = branchAnalysis.markTree(
 			new File(treeZzFileName),
 			false, true, -1, (int) ((100 - gsi_threshold) * genomeNum / 100));
-
-	treeZzGsiFileName = outDirectory + runOutDirName + "concatenated_gsi_" + usedGenes.size() + ".zZ.nwk";
-	treeLabelGsiFileName = outDirectory + runOutDirName + "concatenated_gsi_" + usedGenes.size() + ".nwk";
 	
 	try {
 		FileWriter stFW = new FileWriter(treeZzGsiFileName);
@@ -1611,16 +1658,20 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 		}
 		
 		if (sbNuc.length() != 0 && nuc>3) {
-			FileWriter fileNucWriter = new FileWriter(fastaFileName(gene, AlignMode.nucleotide));
-			fileNucWriter.append(sbNuc.toString());
-			fileNucWriter.close();
+			if(checkpoint < 1) {
+				FileWriter fileNucWriter = new FileWriter(fastaFileName(gene, AlignMode.nucleotide));
+				fileNucWriter.append(sbNuc.toString());
+				fileNucWriter.close();
+			}
 			usedGenes.add(gene);
 		}
 
 		if (sbPro.length() != 0 && pro>3) {
-			FileWriter fileProWriter = new FileWriter(fastaFileName(gene, AlignMode.protein));
-			fileProWriter.append(sbPro.toString());
-			fileProWriter.close();
+			if(checkpoint < 1) {
+				FileWriter fileProWriter = new FileWriter(fastaFileName(gene, AlignMode.protein));
+				fileProWriter.append(sbPro.toString());
+				fileProWriter.close();
+			}
 			usedGenes.add(gene);
 		}
 
@@ -1666,9 +1717,11 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 		}
 		
 		if (sb.length() != 0 && num>3) {
-			FileWriter fileNucWriter = new FileWriter(fastaFileName(gene));
-			fileNucWriter.append(sb.toString());
-			fileNucWriter.close();
+			if(checkpoint < 1) {
+				FileWriter fileNucWriter = new FileWriter(fastaFileName(gene));
+				fileNucWriter.append(sb.toString());
+				fileNucWriter.close();
+			}
 			usedGenes.add(gene);
 		}
 	}
