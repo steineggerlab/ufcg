@@ -16,6 +16,7 @@ public class ProcessGobbler {
 		this.exitValue = exitValue;
 	}
 	public String getLog() {
+		if(log == null) return "NULL";
 		return log;
 	}
 	public void setLog(String log) {

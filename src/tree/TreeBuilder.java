@@ -884,13 +884,14 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	}
 	
 	exeServiceTree.shutdown();
-/*
+	
 	try {
 		for (Future<ProcessGobbler> f : futures) {
 			ProcessGobbler processGobbler = f.get();
 			if (processGobbler.getExitValue() != 0) {
-				ExceptionHandler.pass(processGobbler.getLog());
-				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+				Prompt.debug(String.format("Subprocess exited with value %d : %s", String.valueOf(processGobbler.getExitValue()), processGobbler.getLog()));
+				// ExceptionHandler.pass(processGobbler.getLog());
+				// ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
 		}
 	
@@ -901,7 +902,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	} catch(ExecutionException ex) {
 		ExceptionHandler.handle(ex);
 	}
-*/
+	
 	Prompt.talk("Gene tree reconstruction finished.");
 
 	// merge gene trees
@@ -911,14 +912,14 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 		String geneTree = outDirectory + runOutDirName + ucg + ".zZ.nwk";
 		File treeFile = new File(geneTree);
 		if(!treeFile.exists()) {
-			if(phylogenyTool.equals(PhylogenyTool.raxml) && new File("RAxML_bipartitions." + runOutDirName.replace(File.separator, "") + "_" + ucg).exists()) {
-				new File("RAxML_bipartitions." + runOutDirName.replace(File.separator, "") + "_" + ucg).renameTo(treeFile);
-			}
-			else if(phylogenyTool.equals(PhylogenyTool.iqtree) && new File(alignedFinalGeneFastaFile(ucg) + ".treefile").exists()) {
-				new File(alignedFinalGeneFastaFile(ucg) + ".treefile").renameTo(treeFile);
+			String treeOrigin = geneTree;
+			if(phylogenyTool.equals(PhylogenyTool.raxml)) treeOrigin = "RAxML_bipartitions." + runOutDirName.replace(File.separator, "") + "_" + ucg;
+			if(phylogenyTool.equals(PhylogenyTool.iqtree)) treeOrigin = alignedFinalGeneFastaFile(ucg) + ".treefile";
+			if(new File(treeOrigin).exists()) {
+				new File(treeOrigin).renameTo(treeFile);
 			}
 			else {
-				ExceptionHandler.pass("Tree file of gene " + ucg + " not found.");
+				ExceptionHandler.pass("Tree file of gene " + ucg + " not found : " + treeOrigin);
 				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
 		}
@@ -1394,6 +1395,8 @@ private void runIqtree(int nThreads) {
 	new File(concatenatedSeqFileName + ".log").delete();
 	new File(concatenatedSeqFileName + ".mldist").delete();
 	new File(concatenatedSeqFileName + ".ckp.gz").delete();
+	new File(concatenatedSeqFileName + ".contree").delete();
+	new File(concatenatedSeqFileName + ".splits.nex").delete();
 }
 private void runGeneIqtree(String alignedFastaFile, String run_id, String programPath, int nThreads, String ucg, AlignMode alignMode, String outputDir, String model) {
 	List<String> argTree = new ArrayList<String>();
@@ -1429,6 +1432,8 @@ private void runGeneIqtree(String alignedFastaFile, String run_id, String progra
 	new File(alignedFastaFile + ".log").delete();
 	new File(alignedFastaFile + ".mldist").delete();
 	new File(alignedFastaFile + ".ckp.gz").delete();
+	new File(alignedFastaFile + ".contree").delete();
+	new File(alignedFastaFile + ".splits.nex").delete();
 }
 
 
@@ -1563,6 +1568,14 @@ private void proAlignToCodon() {
 	}
 }
 
+private boolean validSequence(String seq) {
+	boolean valid = false;
+	for(int i = 0; i < seq.length(); i++) {
+		valid |= (seq.charAt(i) != '-');
+	}
+	return valid;
+}
+
 private String removeGapColumns(String concatFasta) {
 	
 	FastaSeqList conFastaSeqList = new FastaSeqList();
@@ -1606,7 +1619,14 @@ private String removeGapColumns(String concatFasta) {
 
 	}
 	
-	return conFastaSeqList.getString();
+	// exclude gap-only reads
+	FastaSeqList exclusiveList = new FastaSeqList();
+	for(FastaSeq fastaSeq : conFastaSeqList.list) {
+		if(validSequence(fastaSeq.sequence)) exclusiveList.list.add(fastaSeq);
+		else Prompt.debug(String.format("Gap-only entry rejected : %s", fastaSeq.title));
+	}
+	
+	return exclusiveList.getString();
 	
 }
 
