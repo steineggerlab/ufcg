@@ -1,5 +1,5 @@
-
 # UFCG pipeline
+[![Github release](https://img.shields.io/github/downloads/endix1029/ufcg/total?logo=github)](https://github.com/endixk/ufcg/releases/latest) [![Docker pulls](https://img.shields.io/docker/pulls/endix1029/ufcg?logo=docker)](https://hub.docker.com/repository/docker/endix1029/ufcg/)
 
 ## Introduction
 UFCG pipeline provides methods for a genome-wide taxonomic profiling and annotation of your own biological sequences of Fungi.
