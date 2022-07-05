@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [ "$#" -ne 1 ] || ! [ -d "$1" ]; then
 	echo "USAGE : $0 [DIR]" >&2
 	exit 1
