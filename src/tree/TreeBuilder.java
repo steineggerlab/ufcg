@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -74,10 +76,10 @@ private int gsi_threshold = 95;
 private List<String> outputLabels = null;
 private int executorLimit = 20;
 
-private ArrayList<Long> genomeList = null;// Genomes used for the analysis
-private HashMap<String, String> replaceMap = null;
-private ArrayList<String> targetGenes = null;
-private HashSet<String> usedGenes = null;
+private List<Long> genomeList = null;// Genomes used for the analysis
+private Map<String, String> replaceMap = null;
+private List<String> targetGenes = null;
+private Set<String> usedGenes = null;
 
 private String treeZzFileName = null;
 private String treeZzGsiFileName = null;
@@ -552,7 +554,7 @@ void alignGenes(int nThreads) {
 
 
 void removeGaps() {
-	Prompt.print("Removing gap columns with threshold " + String.valueOf(filtering) + "%...");
+	Prompt.print("Removing gappy columns with threshold of gap percentage " + String.valueOf(filtering) + "%...");
 	
 	List<String> fileList = new ArrayList<String>();
 
@@ -565,8 +567,10 @@ void removeGaps() {
 		fsl.importFile(fileName);
 		
 		String fasta = fsl.getString();
-		fasta = removeGapColumns(fasta);
+		Prompt.talk("Removing gaps of sequences from " + fileName + "...");
+		if(filtering < 100) fasta = removeGapColumns(fasta);
 		
+		Prompt.talk("Writing result to " + fileName + "...");
 		try {
 			FileWriter fw = new FileWriter(fileName);
 			fw.append(fasta);
@@ -1046,6 +1050,15 @@ void calculateGsi() {
 	} catch (IOException e) {
 		ExceptionHandler.handle(e);
 	}
+}
+
+void sedReplace(String src, String dst, Map<String, String> map) {
+	for(String key : map.keySet()) {
+		String[] cmd = {"sed", "-i", String.format("s/zZ%szZ/%s/g", key, map.get(key)), src};
+		Shell.exec(cmd);
+	}
+	
+	Shell.exec(String.format("mv %s %s", src, dst));
 }
 
 // Zz -> label
@@ -1600,7 +1613,7 @@ private String removeGapColumns(String concatFasta) {
 		}
 	}
 	
-	double percentageFilter = (double) 1  -  (double) filtering/(double)100;
+	double percentageFilter = (double) filtering/(double)100;
 	
 	for(FastaSeq fastaSeq : conFastaSeqList.list){
 		String seq = fastaSeq.sequence;

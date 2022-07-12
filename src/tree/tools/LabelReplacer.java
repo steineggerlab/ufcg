@@ -5,13 +5,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
+import envs.toolkit.Prompt;
 import pipeline.ExceptionHandler;
 
 public class LabelReplacer {
 
-public String replace_name_str(String ori_str, HashMap<String, String> replaceMap) {
+public String replace_name_str(String ori_str, Map<String, String> replaceMap) {
 
 	String[] nodes = ori_str.split("zZ");
 	ReplaceAcc ra = new ReplaceAcc();
@@ -25,7 +26,7 @@ public String replace_name_str(String ori_str, HashMap<String, String> replaceMa
 
 }
 
-public void replace_name(String in_filename, String out_filename, HashMap<String, String> replaceMap) {
+public void replace_name(String in_filename, String out_filename, Map<String, String> replaceMap) {
 	if (in_filename == null) {
 		return;
 	}
@@ -46,7 +47,8 @@ public void replace_name(String in_filename, String out_filename, HashMap<String
 
 }
 
-public void replace_name_delete(String in_filename, String out_filename, HashMap<String, String> replaceMap) {
+public void replace_name_delete(String in_filename, String out_filename, Map<String, String> replaceMap) {
+	Prompt.talk(String.format("Replacing labels... [%s -> %s]", in_filename, out_filename));
 	if (in_filename == null) {
 		return;
 	}

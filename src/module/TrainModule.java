@@ -301,7 +301,7 @@ public class TrainModule {
 							"-n", "msa",
 							"-a", "protein",
 							"-t", String.valueOf(GenericConfig.ThreadPoolSize),
-							"-f", "0"
+							"-f", "100"
 						};
 					Prompt.talk(String.format("[ITER %d/%s] : Running align submodule...", n, N > 0 ? String.valueOf(N) : "inf"));
 					Prompt.debug(String.join(" ", alignArgs));
