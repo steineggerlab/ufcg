@@ -172,7 +172,7 @@ public void jsonsToMsa(int nThreads) throws IOException {
 	readJsonsToFastaFiles();
 	if(checkpoint < 2) alignGenes(nThreads);
 	if(checkpoint < 2) removeGaps();
-	replaceLabelforAlign();
+	replaceLabelforAlign(nThreads);
 }
 
 void checkThirdPartyPrograms(PhylogenyTool phylogenyTool) {
@@ -1064,14 +1064,13 @@ void sedReplace(String src, String dst, Map<String, String> map) {
 // Zz -> label
 void replaceLabel() {
 	// concatenated sequences
-	LabelReplacer replacer = new LabelReplacer();
-	replacer.replace_name_delete(concatenatedSeqFileName, concatenatedSeqLabelFileName, replaceMap);
+	LabelReplacer.replace_name_delete(concatenatedSeqFileName, concatenatedSeqLabelFileName, replaceMap);
 	
 	// default uucg tree file
-	replacer.replace_name_delete(treeZzFileName,treeLabelFileName,replaceMap);
+	LabelReplacer.replace_name_delete(treeZzFileName,treeLabelFileName,replaceMap);
 	
 	// gsi uucg tree file
-	replacer.replace_name_delete(treeZzGsiFileName, treeLabelGsiFileName, replaceMap);
+	LabelReplacer.replace_name_delete(treeZzGsiFileName, treeLabelGsiFileName, replaceMap);
 	
 	for(String ucg : usedGenes) {
 		
@@ -1087,24 +1086,24 @@ void replaceLabel() {
 		String geneTreeFile = outDirectory + runOutDirName + ucg + ".zZ.nwk";
 		String geneTreeLabelFile = outDirectory + runOutDirName + ucg + ".nwk";
 		
-		replacer.replace_name_delete(fastaFile, fastaLabelFile, replaceMap);
-		replacer.replace_name_delete(alignedGene, alignedLabelGene, replaceMap);
-		replacer.replace_name_delete(geneTreeFile, geneTreeLabelFile, replaceMap);
+		LabelReplacer.replace_name_delete(fastaFile, fastaLabelFile, replaceMap);
+		LabelReplacer.replace_name_delete(alignedGene, alignedLabelGene, replaceMap);
+		LabelReplacer.replace_name_delete(geneTreeFile, geneTreeLabelFile, replaceMap);
 	}
 	
 	if(alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
 		for(String gene : usedGenes) {
 			String nucLabelFasta = outDirectory + runOutDirName + gene + "_nuc.fasta";
-			replacer.replace_name_delete(fastaFileName(gene, AlignMode.nucleotide), nucLabelFasta, replaceMap);
+			LabelReplacer.replace_name_delete(fastaFileName(gene, AlignMode.nucleotide), nucLabelFasta, replaceMap);
 		}
 	}
 	
 	Prompt.print("The final tree marked with GSI was written in : " + ANSIHandler.wrapper(treeLabelGsiFileName, 'B'));
 }
 
-void replaceLabelforAlign() {
-	LabelReplacer replacer = new LabelReplacer();
-	
+void replaceLabelforAlign(int nThreads) {
+	List<String> src = new ArrayList<String>();
+	List<String> dst = new ArrayList<String>();
 	for(String ucg : usedGenes) {
 		
 		// gene files
@@ -1115,25 +1114,38 @@ void replaceLabelforAlign() {
 		String alignedGene = alignedFinalGeneFastaFile(ucg);
 		String alignedLabelGene = alignedFinalGeneFastaLabelFile(ucg);
 		
-		replacer.replace_name_delete(fastaFile, fastaLabelFile, replaceMap);
-		replacer.replace_name_delete(alignedGene, alignedLabelGene, replaceMap);
-		
-		File fastaFileZz = new File(fastaFile);
-		if(fastaFileZz.exists()) fastaFileZz.delete();
-		File alignedGeneZz = new File(alignedGene);
-		if(alignedGeneZz.exists()) alignedGeneZz.delete();
+		src.add(fastaFile);
+		src.add(alignedGene);
+		dst.add(fastaLabelFile);
+		dst.add(alignedLabelGene);
 	}
 	
 	if(alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
 		for(String gene : usedGenes) {
 			String nucLabelFasta = outDirectory + runOutDirName + gene + "_nuc.fasta";
-			replacer.replace_name_delete(fastaFileName(gene, AlignMode.nucleotide), nucLabelFasta, replaceMap);
-			
-			File alignedProFasta = new File(alignedFastaFileName(gene));
-			if(alignedProFasta.exists()) {
-				alignedProFasta.delete();
-			}
+			src.add(fastaFileName(gene, AlignMode.nucleotide));
+			dst.add(nucLabelFasta);
 		}
+	}
+	
+	ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+	List<Future<Integer>> futures = new ArrayList<>();
+	
+	for(int i = 0; i < src.size(); i++) {
+		multipleReplace mr = new multipleReplace(src.get(i), dst.get(i), replaceMap);
+		futures.add(executor.submit(mr));
+	}
+	
+	executor.shutdown();
+	try{
+		for(Future<Integer> future : futures) future.get();
+	} catch(Exception e) {
+		ExceptionHandler.handle(e);
+	}
+	
+	for(String name : src) {
+		File srcFile = new File(name);
+		if(srcFile.exists()) srcFile.delete();
 	}
 }
 
@@ -2349,4 +2361,20 @@ public ProcessGobbler call() throws IOException{
 
 	return processGobbler;
 }
+}
+
+class multipleReplace implements Callable<Integer> {
+	String srcFile, dstFile;
+	Map<String, String> replaceMap;
+	
+	public multipleReplace(String srcFile, String dstFile, Map<String, String> replaceMap) {
+		this.srcFile = srcFile;
+		this.dstFile = dstFile;
+		this.replaceMap = replaceMap;
+	}
+	
+	public Integer call() {
+		LabelReplacer.replace_name_delete(srcFile, dstFile, replaceMap);
+		return 0;
+	}
 }

@@ -12,7 +12,7 @@ import pipeline.ExceptionHandler;
 
 public class LabelReplacer {
 
-public String replace_name_str(String ori_str, Map<String, String> replaceMap) {
+public static String replace_name_str(String ori_str, Map<String, String> replaceMap) {
 
 	String[] nodes = ori_str.split("zZ");
 	ReplaceAcc ra = new ReplaceAcc();
@@ -26,7 +26,7 @@ public String replace_name_str(String ori_str, Map<String, String> replaceMap) {
 
 }
 
-public void replace_name(String in_filename, String out_filename, Map<String, String> replaceMap) {
+public static void replace_name(String in_filename, String out_filename, Map<String, String> replaceMap) {
 	if (in_filename == null) {
 		return;
 	}
@@ -47,7 +47,7 @@ public void replace_name(String in_filename, String out_filename, Map<String, St
 
 }
 
-public void replace_name_delete(String in_filename, String out_filename, Map<String, String> replaceMap) {
+public static void replace_name_delete(String in_filename, String out_filename, Map<String, String> replaceMap) {
 	Prompt.talk(String.format("Replacing labels... [%s -> %s]", in_filename, out_filename));
 	if (in_filename == null) {
 		return;

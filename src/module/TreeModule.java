@@ -326,8 +326,7 @@ public class TreeModule {
 			treeFW.flush();
 			treeFW.close();
 
-			LabelReplacer lr = new LabelReplacer();
-			lr.replace_name(treeFileName, treeFileName, replaceMap);
+			LabelReplacer.replace_name(treeFileName, treeFileName, replaceMap);
 
 			Prompt.print("The tree file '" + treeFileName + "' with replaced labels was written.");
 
