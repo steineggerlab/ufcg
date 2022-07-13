@@ -162,7 +162,7 @@ public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 	if(checkpoint < 4) inferTree(tool, nThreads); // fasttree or raxml
 	if(checkpoint < 5) inferGeneTrees(tool, nThreads);
 	if(checkpoint < 6) calculateGsi();
-	if(checkpoint < 7) replaceLabel();
+	if(checkpoint < 7) replaceLabel(nThreads);
 	cleanFiles();
 }
 
@@ -1062,40 +1062,57 @@ void sedReplace(String src, String dst, Map<String, String> map) {
 }
 
 // Zz -> label
-void replaceLabel() {
-	// concatenated sequences
-	LabelReplacer.replace_name_delete(concatenatedSeqFileName, concatenatedSeqLabelFileName, replaceMap);
+void replaceLabel(int nThreads) {
+	List<String> src = new ArrayList<String>();
+	List<String> dst = new ArrayList<String>();
 	
-	// default uucg tree file
-	LabelReplacer.replace_name_delete(treeZzFileName,treeLabelFileName,replaceMap);
-	
-	// gsi uucg tree file
-	LabelReplacer.replace_name_delete(treeZzGsiFileName, treeLabelGsiFileName, replaceMap);
+	src.add(concatenatedSeqFileName);
+	src.add(treeZzFileName);
+	src.add(treeZzGsiFileName);
+	dst.add(concatenatedSeqLabelFileName);
+	dst.add(treeLabelFileName);
+	dst.add(treeLabelGsiFileName);
 	
 	for(String ucg : usedGenes) {
 		
 		// gene files
-		String fastaFile = fastaFileName(ucg);
-		String fastaLabelFile = fastaLabelFileName(ucg);
+		src.add(fastaFileName(ucg));
+		dst.add(fastaLabelFileName(ucg));
 		
 		// aligned gene files
-		String alignedGene = alignedFinalGeneFastaFile(ucg);
-		String alignedLabelGene = alignedFinalGeneFastaLabelFile(ucg);
+		src.add(alignedFinalGeneFastaFile(ucg));
+		dst.add(alignedFinalGeneFastaLabelFile(ucg));
 		
 		// gene tree files
-		String geneTreeFile = outDirectory + runOutDirName + ucg + ".zZ.nwk";
-		String geneTreeLabelFile = outDirectory + runOutDirName + ucg + ".nwk";
-		
-		LabelReplacer.replace_name_delete(fastaFile, fastaLabelFile, replaceMap);
-		LabelReplacer.replace_name_delete(alignedGene, alignedLabelGene, replaceMap);
-		LabelReplacer.replace_name_delete(geneTreeFile, geneTreeLabelFile, replaceMap);
+		src.add(outDirectory + runOutDirName + ucg + ".zZ.nwk");
+		dst.add(outDirectory + runOutDirName + ucg + ".nwk");
 	}
 	
 	if(alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
 		for(String gene : usedGenes) {
-			String nucLabelFasta = outDirectory + runOutDirName + gene + "_nuc.fasta";
-			LabelReplacer.replace_name_delete(fastaFileName(gene, AlignMode.nucleotide), nucLabelFasta, replaceMap);
+			src.add(fastaFileName(gene, AlignMode.nucleotide));
+			dst.add(outDirectory + runOutDirName + gene + "_nuc.fasta");
 		}
+	}
+	
+	ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+	List<Future<Integer>> futures = new ArrayList<>();
+	
+	for(int i = 0; i < src.size(); i++) {
+		multipleReplace mr = new multipleReplace(src.get(i), dst.get(i), replaceMap);
+		futures.add(executor.submit(mr));
+	}
+	
+	executor.shutdown();
+	try{
+		for(Future<Integer> future : futures) future.get();
+	} catch(Exception e) {
+		ExceptionHandler.handle(e);
+	}
+	
+	for(String name : src) {
+		File srcFile = new File(name);
+		if(srcFile.exists()) srcFile.delete();
 	}
 	
 	Prompt.print("The final tree marked with GSI was written in : " + ANSIHandler.wrapper(treeLabelGsiFileName, 'B'));

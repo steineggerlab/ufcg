@@ -263,8 +263,8 @@ public class GenericConfig {
 			"RPB2",   "RPN1",   "SEC7",   "SEC18",  "SEC24",  "SIN3",   "SKI2",   "SLA2",   "SMC2",
 			"SMC3",   "SPB1",   "SPT6",   "SPT16",  "STT4",   "TAF1",   "TEF1",   "TOR1",   "TUB2",
 			"UBA1",   "UTP20",  "VPS13",  "XPO1"
-	};*/
-	public static final String[] FCG_REF = {
+	};
+	public static final String[] FCG_ALT = {
 			"ACO1",   "ACO2",   "ACT1",   "ATP6",   "CCT2",   "CCT4",   "CCT7",   "CCT8",   "CDC21",  "CDC48",
 			"CMD1",   "COB",    "COX1",   "COX2",   "COX3",   "CPA2",   "DBP1",   "DBP2",   "ECM10",  "EFT1",
 			"FAL1",   "FKS1",   "HRR25",  "HSP60",  "ILV2",   "IMD2",   "KAR2",   "KGD1",   "LEU1",   "MCM2",
@@ -273,17 +273,27 @@ public class GenericConfig {
 			"RPT2",   "RPT3",   "RPT5",   "RPT6",   "SAM1",   "SAM2",   "SSA1",   "SSA3",   "SSB1",   "SSC1",
 			"SUP45",  "TCP1",   "TEF1",   "TIF1",   "TOP1",   "TRP3",   "TSR1",   "TUB1",   "TUB2",   "UBI4",
 			"URA2"
+	};*/
+	public static final String[] FCG_REF = {
+			"ACT1","ARP5","ARPC2","ATP6","BMS1","BRE2","BUD23","CCT8","CFT2","CMD1",
+			"COB","COPB","COPG","COX1","COX2","COX3","CTU1","DCUP","DHYS","DOHH",
+			"DPH5","DPOE","DPOG","EIF3A","EIF3B","ELP3","ESF1","HIS2","HIS5","IF5",
+			"KAD6","KHSE","METE","MSS51","MVD1","NAT10","NDI1","NOB1","NOG1","NOP14",
+			"OLI1","PAH1","PGK1","RPB2","PRI2","RAD2","RCD1","RLA0","RLI1","RM19",
+			"RPF2","RPN1","RPO21","RRP5","SDA1","SPB1","SRPR","SUA5","SYFB","SYFM",
+			"TEF1","THDH","TIM44","TOP1","TRM1","TRPG","TSR1","TUB1","TUB2","UTP21",
+			"VA0D","VATA","YB1C","YMR1","ZPR1"
 	};
 	// In order considering the calculation time of each gene
 	public static final String[] FCG_ORD = {
-			"URA2","FKS1","RPO21","CPA2","RPB2","RET1","EFT1","MTR4","KGD1","PRP43",
-			"LEU1","PAH1","ACO2","TOP1","TRP3","MCM7","TSR1","ACO1","MCM2","CCT7",
-			"ILV2","SSB1","SSA3","SSA1","RPT6","KAR2","CDC48","DBP1","CCT8","HSP60",
-			"ECM10","SSC1","NDI1","TUB1","TCP1","CCT4","CCT2","IMD2","RPT2","TUB2",
-			"SAM2","PGK1","SAM1","UBI4","RPL4A","RPT5","TEF1","RPT3","PHO85","CDC21",
-			"SUP45","NBP35","MDH1","HRR25","RPT1","DBP2","TIF1","FAL1","ACT1","RPL3",
-			"RPP0","RPS0A","RPL8A","ATP6","RPL2B","COB","CMD1","COX1","COX3","COX2",
-			"OLI1"
+			"ACT1","ARP5","ARPC2","ATP6","BMS1","BRE2","BUD23","CCT8","CFT2","CMD1",
+			"COB","COPB","COPG","COX1","COX2","COX3","CTU1","DCUP","DHYS","DOHH",
+			"DPH5","DPOE","DPOG","EIF3A","EIF3B","ELP3","ESF1","HIS2","HIS5","IF5",
+			"KAD6","KHSE","METE","MSS51","MVD1","NAT10","NDI1","NOB1","NOG1","NOP14",
+			"OLI1","PAH1","PGK1","RPB2","PRI2","RAD2","RCD1","RLA0","RLI1","RM19",
+			"RPF2","RPN1","RPO21","RRP5","SDA1","SPB1","SRPR","SUA5","SYFB","SYFM",
+			"TEF1","THDH","TIM44","TOP1","TRM1","TRPG","TSR1","TUB1","TUB2","UTP21",
+			"VA0D","VATA","YB1C","YMR1","ZPR1"
 	};
 
 	public static final String[] FCG_COG = {
