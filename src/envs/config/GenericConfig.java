@@ -228,7 +228,7 @@ public class GenericConfig {
 		}
 	}
 	
-	public static double EvalueCutoff = 1e-30;
+	public static double EvalueCutoff = 1e-3;
 	public static void setEvalueCutoff(double cutoff) {
 		EvalueCutoff = cutoff;
 	}
@@ -251,6 +251,8 @@ public class GenericConfig {
 			return 1;
 		}
 	}
+	
+	public static double Coverage = 0.5;
 	
 	// Reference Fungal Core Gene
 /*	public static final String[] FCG_ALT = {

@@ -25,6 +25,10 @@ public class MMseqsWrapper extends ExecHandler {
 		super.addArg("--threads", String.valueOf(threads));
 	}
 	
+	public void setCoverage(double cov) {
+		super.addArg("-c", String.valueOf(cov));
+	}
+	
 	public void setFormatOutput(String formatOutput) {
 		super.addArg("--format-output", formatOutput);
 	}

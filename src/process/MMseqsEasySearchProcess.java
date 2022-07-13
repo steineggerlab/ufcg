@@ -86,13 +86,14 @@ public class MMseqsEasySearchProcess {
 		
 		return res;
 	}
-	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, double evalue, int threads) {
+	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, double evalue, int threads, double cov) {
 		String resultPath = tmpPath + GenericConfig.SESSION_UID + "_" + targetPath.substring(targetPath.lastIndexOf(File.separator) + 1) + ".m8";
 		
 		MMseqsWrapper mm = new MMseqsWrapper();
 		mm.setEasySearch(queryPath, targetPath, resultPath, tmpPath);
 		mm.setSearchType(3);
 		mm.setEvalue(evalue);
+		mm.setCoverage(cov);
 		mm.setThreads(threads);
 		mm.exec();
 		
@@ -121,7 +122,7 @@ public class MMseqsEasySearchProcess {
 	
 	public static void validate(ProfilePredictionEntity pp, String seqPath, String tmpPath, int threads) {
 		String queryPath = pp.export();
-		MMseqsSearchResultEntity res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads);
+		MMseqsSearchResultEntity res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, GenericConfig.Coverage);
 		res.assignLocs();
 		res.purify();
 		res.assignPurified(pp);

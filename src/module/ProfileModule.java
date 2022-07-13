@@ -383,7 +383,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" --fbscutoff FLOAT        Cutoff value for fastBlockSearch process [0.5]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --fbshits INT            Use this amount of top hits from fastBlockSearch results [5]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --augoffset INT          Prediction offset window size for AUGUSTUS process [10000]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" --evalue FLOAT           E-value cutoff for validation [1e-30]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --evalue FLOAT           E-value cutoff for validation [1e-3]", 'x'));
 		System.out.println("");
 		
 		System.exit(0);
