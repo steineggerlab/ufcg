@@ -65,6 +65,7 @@ public class ProfileModule {
 		opts.addOption("k", "keep", true, "keep temp files");
 		opts.addOption("f", "force", true, "force delete");
 		opts.addOption("t", "thread",  true, "number of cpu threads");
+		opts.addOption("q", "quiet", true, "be quiet");
 		
 		opts.addOption(null, "fastblocksearch", true, "fastBlockSearch binary");
 		opts.addOption(null, "augustus", true, "AUGUSTUS binary");
@@ -169,7 +170,10 @@ public class ProfileModule {
 				Prompt.talk("Excluding intron to the result DNA sequences.");
 				GenericConfig.INTRON = false;
 			}
-		}
+		}	
+		if(cmd.hasOption("q"))
+			if(!cmd.getOptionValue("q").equals("0"))
+				GenericConfig.QUIET = true;
 		if(cmd.hasOption("info")) {
 			// check confilct
 			if(cmd.hasOption("m") || PathConfig.InputIsFolder) ExceptionHandler.handle(ExceptionHandler.METAINFO_CONFLICT);
@@ -343,6 +347,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -m STR         File to the list containing metadata", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -n BOOL        Include introns from the predicted ORFs to the result sequences [1]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -q BOOL        Quiet mode - report results only [0]", 'x'));
 		System.out.println("");
 		
 		UFCGMainPipeline.printGeneral();
@@ -901,7 +906,7 @@ public class ProfileModule {
 					executorService.shutdown();
 					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 					
-					Prompt.dynamic(ANSIHandler.wrapper(" DONE                ", 'g') + "\n");
+					if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE                ", 'g') + "\n");
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 					
@@ -937,7 +942,7 @@ public class ProfileModule {
 					executorService.shutdown();
 					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 					
-					Prompt.dynamic(ANSIHandler.wrapper(" DONE               ", 'g') + "\n");
+					if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE               ", 'g') + "\n");
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 					
@@ -1014,8 +1019,8 @@ public class ProfileModule {
 		
 		build += "]";
 		build += " ETA : " + tk.eta(fin, progress.size()) + "        ";
-		Prompt.dynamic("\r");
-		Prompt.dynamicHeader(build);
+		if(!GenericConfig.QUIET) Prompt.dynamic("\r");
+		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build);
 	}
 	
 	static void printProgSimple() {
@@ -1044,8 +1049,8 @@ public class ProfileModule {
 		build += "]";
 		build += " ETA : " + tk.eta(fin, progress.size()) + "        ";
 		
-		Prompt.dynamic("\r");
-		Prompt.dynamicHeader(build);
+		if(!GenericConfig.QUIET) Prompt.dynamic("\r");
+		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build);
 	}
 	
 	static List<String> contigs = new ArrayList<String>();

@@ -59,6 +59,7 @@ public class GenericConfig {
 	
 	public static boolean DEV = false;      // Developer mode
 	public static boolean VERB = false; 	// Program verbosity
+	public static boolean QUIET = false;
 	public static boolean NOCOLOR = false;  // No color escapes
 	public static boolean TSTAMP = true;   // Print timestamp
 	public static boolean INTRON = true;   // Include intron
@@ -252,7 +253,7 @@ public class GenericConfig {
 		}
 	}
 	
-	public static double Coverage = 0.5;
+	public static double Coverage = 0.8;
 	
 	// Reference Fungal Core Gene
 /*	public static final String[] FCG_ALT = {
