@@ -26,6 +26,7 @@ public class MMseqsWrapper extends ExecHandler {
 	}
 	
 	public void setCoverage(double cov) {
+		super.addArg("--cov-mode", "1");
 		super.addArg("-c", String.valueOf(cov));
 	}
 	
