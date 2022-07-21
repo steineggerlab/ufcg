@@ -122,7 +122,16 @@ public class MMseqsEasySearchProcess {
 	
 	public static void validate(ProfilePredictionEntity pp, String seqPath, String tmpPath, int threads) {
 		String queryPath = pp.export();
-		MMseqsSearchResultEntity res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, GenericConfig.Coverage);
+		
+		// 3-step coverage search
+		MMseqsSearchResultEntity res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, 0.8);
+		if(res.size() == 0) {
+			res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, 0.5);
+		}
+		if(res.size() == 0) {
+			res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, 0.0);
+		}
+		
 		res.assignLocs();
 		res.purify();
 		res.assignPurified(pp);
