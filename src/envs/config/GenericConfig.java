@@ -276,25 +276,35 @@ public class GenericConfig {
 			"URA2"
 	};*/
 	public static final String[] FCG_REF = {
-			"ACT1","ARP5","ARPC2","ATP6","BMS1","BRE2","BUD23","CCT8","CFT2","CMD1",
-			"COB","COPB","COPG","COX1","COX2","COX3","CTU1","DCUP","DHYS","DOHH",
-			"DPH5","DPOE","DPOG","EIF3A","EIF3B","ELP3","ESF1","HIS2","HIS5","IF5",
-			"KAD6","KHSE","METE","MSS51","MVD1","NAT10","NDI1","NOB1","NOG1","NOP14",
-			"OLI1","PAH1","PGK1","RPB2","PRI2","RAD2","RCD1","RLA0","RLI1","RM19",
-			"RPF2","RPN1","RPO21","RRP5","SDA1","SPB1","SRPR","SUA5","SYFB","SYFM",
-			"TEF1","THDH","TIM44","TOP1","TRM1","TRPG","TSR1","TUB1","TUB2","UTP21",
-			"VA0D","VATA","YB1C","YMR1","ZPR1"
+			"ACT1","ATP6","BMS1","BRE2","CCT8",
+			"CMD1","COB","COX1","COX2","COX3",
+			"DIP2","DPH5","DYS1","ELP3","ESF1",
+			"FAP7","FRS1","HEM12","HIS4","HIS7",
+			"ILV1","KRE33","MCM7","MET6","MIP1",
+			"MRPL19","MSF1","MSS51","MVD1","NCS6",
+			"NDI1","NOG1","NOP14","OLI1","PAH1",
+			"PGK1","POL2","PRT1","RAD2","RLI1",
+			"RPB2","RPF2","RPN1","RPO21","RPP0",
+			"SDA1","SEC21","SEC26","SPB1","TEF1",
+			"TIF5","TIM44","TOP1","TRM1","TRP3",
+			"TSR1","TUB1","TUB2","UTP21","VMA1",
+			"ZPR1"
 	};
 	// In order considering the calculation time of each gene
 	public static final String[] FCG_ORD = {
-			"ACT1","ARP5","ARPC2","ATP6","BMS1","BRE2","BUD23","CCT8","CFT2","CMD1",
-			"COB","COPB","COPG","COX1","COX2","COX3","CTU1","DCUP","DHYS","DOHH",
-			"DPH5","DPOE","DPOG","EIF3A","EIF3B","ELP3","ESF1","HIS2","HIS5","IF5",
-			"KAD6","KHSE","METE","MSS51","MVD1","NAT10","NDI1","NOB1","NOG1","NOP14",
-			"OLI1","PAH1","PGK1","RPB2","PRI2","RAD2","RCD1","RLA0","RLI1","RM19",
-			"RPF2","RPN1","RPO21","RRP5","SDA1","SPB1","SRPR","SUA5","SYFB","SYFM",
-			"TEF1","THDH","TIM44","TOP1","TRM1","TRPG","TSR1","TUB1","TUB2","UTP21",
-			"VA0D","VATA","YB1C","YMR1","ZPR1"
+			"ACT1","ATP6","BMS1","BRE2","CCT8",
+			"CMD1","COB","COX1","COX2","COX3",
+			"DIP2","DPH5","DYS1","ELP3","ESF1",
+			"FAP7","FRS1","HEM12","HIS4","HIS7",
+			"ILV1","KRE33","MCM7","MET6","MIP1",
+			"MRPL19","MSF1","MSS51","MVD1","NCS6",
+			"NDI1","NOG1","NOP14","OLI1","PAH1",
+			"PGK1","POL2","PRT1","RAD2","RLI1",
+			"RPB2","RPF2","RPN1","RPO21","RPP0",
+			"SDA1","SEC21","SEC26","SPB1","TEF1",
+			"TIF5","TIM44","TOP1","TRM1","TRP3",
+			"TSR1","TUB1","TUB2","UTP21","VMA1",
+			"ZPR1"
 	};
 
 	public static final String[] FCG_COG = {
