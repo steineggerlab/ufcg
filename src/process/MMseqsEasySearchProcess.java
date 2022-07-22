@@ -15,6 +15,8 @@ import wrapper.MMseqsWrapper;
 
 public class MMseqsEasySearchProcess {
 	public static String checkORF(ProfilePredictionEntity pp, String prtn, String orf) {
+		if(orf.equals("*")) return null;
+		
 		String valid = null;
 		GenomeTranslator.createMap();
 		

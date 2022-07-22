@@ -306,7 +306,7 @@ public class ProfileRnaModule {
 			String adb = PathConfig.TempPath + GenericConfig.SESSION_UID + "_ali";
 			mm = new MMseqsWrapper();
 			mm.setSearch(pdb, sdb, adb, PathConfig.TempPath);
-			mm.setSens(0.1);
+			mm.setSens(1.0);
 			mm.setThreads(GenericConfig.ThreadPoolSize);
 			mm.exec();
 			

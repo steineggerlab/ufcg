@@ -47,6 +47,7 @@ public class UFCGMainPipeline {
 	public static final int MODULE_PRUNE		= 0x04;
 	public static final int MODULE_ALIGN		= 0x05;
 	public static final int MODULE_TRAIN		= 0x06;
+	public static final int MODULE_PROFILE_PRO	= 0x07;
 	
 	/* Print the UFCG logo with version number */
 	private static void printLogo() {
@@ -76,6 +77,7 @@ public class UFCGMainPipeline {
 		String module = args[0];
 		if(module.equals("profile")) 		return MODULE_PROFILE;
 		if(module.equals("profile-rna"))	return MODULE_PROFILE_RNA;
+		if(module.equals("profile-pro"))	return MODULE_PROFILE_PRO;
 		if(module.equals("tree"))			return MODULE_TREE;
 		if(module.equals("prune"))			return MODULE_PRUNE;
 		if(module.equals("align"))			return MODULE_ALIGN;
@@ -156,6 +158,7 @@ public class UFCGMainPipeline {
 				ANSIHandler.wrapper(" Module         Description\n", 'c') +
 									" profile        Extract UFCG profile from genome\n"+
 									" profile-rna    Extract UFCG profile from RNA-seq transcriptome\n"+
+									" profile-pro    Extract UFCG profile from proteome\n"+
 									" train          Train and generate sequence model\n"+
 								//	"\n" +
 									" align          Produce sequence alignments from UFCG profiles\n"+

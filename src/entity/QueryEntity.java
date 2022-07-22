@@ -76,7 +76,7 @@ public class QueryEntity {
 		 * 		Rule 1. Input files must have identical extension.
 		 * 		Rule 2. The number of input files must be identical to the number of metadata entities.
 		 * 		Rule 3. All filenames must exist in the metadata.
-		 * 		Rule 4. Input files must share same file type.
+		 * 		[DEPRECATED] Rule 4. Input files must share same file type.
 		 */
 		Prompt.print("Reading input data...");
 		List<String> fnames = new ArrayList<String>();
@@ -160,10 +160,10 @@ public class QueryEntity {
 		// Rule 2
 		if(fnames.size() < METADATA.size()) return 2;
 		
-		String ftype = Shell.exec("file -b " + PathConfig.InputPath + (PathConfig.InputIsFolder ? fnames.get(0) : ""))[0];
+		// String ftype = Shell.exec("file -b " + PathConfig.InputPath + (PathConfig.InputIsFolder ? fnames.get(0) : ""))[0];
 		for(List<String> data : METADATA) {
 			if(!fnames.contains(data.get(EX_FILENAME))) return 3; // Rule 3
-			if(!Shell.exec("file -b " + PathConfig.InputPath + (PathConfig.InputIsFolder ? data.get(EX_FILENAME) : ""))[0].equals(ftype)) return 4; // Rule 4
+			// if(!Shell.exec("file -b " + PathConfig.InputPath + (PathConfig.InputIsFolder ? data.get(EX_FILENAME) : ""))[0].equals(ftype)) return 4; // Rule 4
 		}
 		
 		return 0;

@@ -51,7 +51,7 @@ public class JsonProfileEntity {
 		String gset = ""; int ndet = 0, nsgl = 0, nmul = 0;
 		JSONObject dObj = (JSONObject) root.get("data");
 		for(ProfilePredictionEntity pp : profiles) {
-			String cg = pp.getOrigin() == ProfilePredictionEntity.ORI_AU ? pp.refBlock.cg : pp.mmResult.task;
+			String cg = pp.getTask();
 			gset += cg + ",";
 			
 			if(pp.opt < 0) continue;

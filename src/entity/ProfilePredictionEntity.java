@@ -12,11 +12,13 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class ProfilePredictionEntity {
-	public static final int ORI_AU = 0x00,
-							ORI_MM = 0x01;
+	public static final int ORI_SC = 0xFF, // scratch
+							ORI_AU = 0x00, // augustus
+							ORI_MM = 0x01; // mmseqs
 	public static final int TYPE_NUC = 0x00,
 							TYPE_PRO = 0x01;
 	
+	public String task = null;
 	public BlockProfileEntity refBlock = null;
 	public MMseqsSearchResultEntity mmResult = null;
 	
@@ -28,6 +30,19 @@ public class ProfilePredictionEntity {
 	protected List<String> predGenes;
 	protected List<String> predGseqs;
 	protected List<Double> evalues, scores;
+	
+	public ProfilePredictionEntity(String task, int type) {
+		this.task = task;
+		this.origin = ORI_SC;
+		this.type = type;
+		
+		this.predSeqs = new ArrayList<String>();
+		
+		this.predGenes = new ArrayList<String>(); // predicted protein sequences
+		this.predGseqs = new ArrayList<String>(); // predicted DNA sequences
+		this.evalues   = new ArrayList<Double>();
+		this.scores    = new ArrayList<Double>();
+	}
 	
 	public ProfilePredictionEntity(BlockProfileEntity bp, int type) {
 		this.refBlock = bp;
@@ -75,9 +90,14 @@ public class ProfilePredictionEntity {
 	public void addScore(double score) {scores.add(score);}
 	public void setOpt(int opt) {this.opt = opt;}
 	
+	public String getTask() {
+		if(task != null) return task;
+		else return origin == ORI_MM ? mmResult.task : refBlock.cg;
+	}
+	
 	private String expPath = null;
 	public String export() { // Export predicted sequences in FASTA format
-		String task = origin == ORI_MM ? mmResult.task : refBlock.cg;
+		String task = this.getTask();
 		
 		expPath = String.format("%s%s%s_%s.fasta",
 				PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, task);
@@ -115,6 +135,7 @@ public class ProfilePredictionEntity {
 	public String getDna(int idx) {
 		try{
 			switch(origin) {
+			case ORI_SC: return "*";
 			case ORI_AU: return FastaContigParser.parse(gffLocs.get(idx));
 			case ORI_MM: return FastaContigParser.parse(mmResult, idx);
 			}
