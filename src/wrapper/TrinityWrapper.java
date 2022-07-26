@@ -50,6 +50,7 @@ public class TrinityWrapper extends ExecHandler {
 		tr.setCPU(cpu);
 		tr.setOutput(out);
 		if(paired) tr.setRunAsPaired();
+		tr.addArg("2>/dev/null");
 		tr.exec();
 	}
 	
@@ -61,6 +62,7 @@ public class TrinityWrapper extends ExecHandler {
 		tr.setMaxMemory(mem);
 		tr.setCPU(cpu);
 		tr.setOutput(out);
+		tr.addArg("2>/dev/null");
 		tr.exec();
 	}
 	
