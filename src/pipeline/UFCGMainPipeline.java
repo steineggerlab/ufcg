@@ -192,7 +192,7 @@ public class UFCGMainPipeline {
 	private static void printInfo() {
 		System.out.println(
 				ANSIHandler.wrapper(" UFCG : Profiling Fungi with " + // String.valueOf(GenericConfig.FCG_REF.length) + 
-									"Up-to-date Fungal Core Genes\n", 'Y') +
+									"Universal Fungal Core Genes\n", 'Y') +
 				ANSIHandler.wrapper(" ver. " + VERSION + " (Released: " + RELEASE_DATE + ")\n\n", 'Y') + 
 				" Developed by Daniel Dongwook Kim\n" +
 				" Steinegger Lab, Seoul National University\n\n" +
