@@ -45,4 +45,4 @@ java -jar UFCG.jar align -i <INPUT> -o <OUTPUT> [OPTIONS]
 ~~~
 
 ## How to cite
-Manuscript is under preparation.
+[Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M. UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi. bioRxiv (2022).](https://www.biorxiv.org/content/10.1101/2022.08.16.504087v1)
