@@ -4,7 +4,7 @@
 ## Introduction
 UFCG pipeline provides methods for a genome-wide taxonomic profiling and annotation of your own biological sequences of Fungi.
  * [Homepage](https://ufcg.steineggerlab.com/)
- * [Publication](https://www.biorxiv.org/content/10.1101/2022.08.16.504087v1)
+ * [Preprint](https://www.biorxiv.org/content/10.1101/2022.08.16.504087v1)
 
 ## Requirements
 * Java RE 8+ [Download](https://www.oracle.com/java/technologies/downloads/#java8)
