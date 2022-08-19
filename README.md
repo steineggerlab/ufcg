@@ -14,6 +14,14 @@ unzip UFCG.zip && cd UFCG
 java -jar UFCG.jar
 ~~~
 
+## Quick start with docker
+~~~bash
+docker pull endix1029/ufcg:latest
+docker run -it endix1029/ufcg:latest
+cd UFCG
+java -jar UFCG.jar
+~~~
+
 ## Modules
 ### `profile`
 UFCG `profile` extracts marker gene sequences from your own Fungal biological data, including genome sequences, transcriptome sequences, and proteome sequences.
