@@ -26,7 +26,7 @@ RUN /bin/bash -c "source activate && \
 	conda install -y openjdk=8 augustus mmseqs2 mafft iqtree"
 
 # Download and unzip UFCG pipeline
-RUN wget --quiet http://leb.snu.ac.kr/ufcg/download/pipeline/mini -O ~/ufcg.zip && \
+RUN wget --quiet https://github.com/endixk/ufcg/releases/latest/download/UFCG.zip -O ~/ufcg.zip && \
 	cd && \
 	unzip ~/ufcg.zip && \
 	rm ~/ufcg.zip
