@@ -105,6 +105,9 @@ private String trmFile = null;
  */
 private int checkpoint = 0;
 
+private final static int MODULE_ALIGN = 0, MODULE_TREE = 0;
+private int module = -1;
+
 public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirName, String mafftPath, 
         String raxmlPath, String fasttreePath, String iqtreePath,
         AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit) {
@@ -153,6 +156,7 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 }
 
 public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
+	this.module = MODULE_TREE;
 	checkThirdPartyPrograms(tool);
 	checkPathDirectory();
 	readJsonsToFastaFiles();
@@ -167,6 +171,7 @@ public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 }
 
 public void jsonsToMsa(int nThreads) throws IOException {
+	this.module = MODULE_ALIGN;
 	testMafft(mafftPath);
 	checkPathDirectory();
 	readJsonsToFastaFiles();
@@ -1715,11 +1720,14 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 			}
 		}
 		
-		if(nuc<4 && pro<4) {
+		boolean deficient = false;
+		if(this.module == MODULE_TREE) deficient = nuc < 4 && pro < 4;
+		
+		if(deficient) {
 			Prompt.warn("Less than 4 species have '" + gene + "'. This gene will be excluded");
 		}
 		
-		if (sbNuc.length() != 0 && nuc>3) {
+		if (sbNuc.length() != 0 && (!deficient)) {
 			if(checkpoint < 1) {
 				FileWriter fileNucWriter = new FileWriter(fastaFileName(gene, AlignMode.nucleotide));
 				fileNucWriter.append(sbNuc.toString());
@@ -1728,7 +1736,7 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 			usedGenes.add(gene);
 		}
 
-		if (sbPro.length() != 0 && pro>3) {
+		if (sbPro.length() != 0 && (!deficient)) {
 			if(checkpoint < 1) {
 				FileWriter fileProWriter = new FileWriter(fastaFileName(gene, AlignMode.protein));
 				fileProWriter.append(sbPro.toString());
@@ -1774,11 +1782,14 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 			}
 		}
 		
-		if(num<4) {
+		boolean deficient = false;
+		if(this.module == MODULE_TREE) deficient = num < 4;
+		
+		if(deficient) {
 			Prompt.warn("Less than 4 species have '" + gene + "'. This gene will be excluded");
 		}
 		
-		if (sb.length() != 0 && num>3) {
+		if (sb.length() != 0 && (!deficient)) {
 			if(checkpoint < 1) {
 				FileWriter fileNucWriter = new FileWriter(fastaFileName(gene));
 				fileNucWriter.append(sb.toString());
