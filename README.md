@@ -7,7 +7,7 @@ UFCG pipeline provides methods for a genome-wide taxonomic profiling and annotat
 
 ## Quick start with conda
 ~~~bash
-conda create -n ufcg -c bioconda -c conda-forge openjdk=8 augustus mmseqs2 mafft iqtree
+conda create -n ufcg -c bioconda -c conda-forge openjdk=8 augustus=3.4.0 mmseqs2 mafft iqtree
 conda activate ufcg
 wget -O UFCG.zip https://github.com/endixk/ufcg/releases/latest/download/UFCG.zip
 unzip UFCG.zip && cd UFCG
