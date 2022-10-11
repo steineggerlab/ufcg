@@ -36,10 +36,10 @@ public class FastBlockSearchWrapper extends ExecHandler {
 	
 	// solve dependency
 	public static boolean solve() {
-		String cmd = PathConfig.FastBlockSearchPath + " /dev/null /dev/null 2>&1";
+		String cmd = PathConfig.FastBlockSearchPath + " 2>&1";
 		String[] raw = Shell.exec(cmd);
 			
-		if(raw[0].contains("ProfileInsigError")) return true;
+		if(raw[0].contains("Usage")) return true;
 		else{
 			if(!GenericConfig.INTERACT) Prompt.talk("fBSearch", raw[0]);
 			return false;
