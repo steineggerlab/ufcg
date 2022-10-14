@@ -244,6 +244,8 @@ public class ProfileProModule {
 			String jsonPath = PathConfig.OutputPath + GenericConfig.ACCESS + ".ucg";
 			Prompt.print("Writing results on : " + ANSIHandler.wrapper(jsonPath, 'y'));
 			JsonBuildProcess.build(pps, jsonPath);
+			
+			query.deactivate();
 		}
 		catch(Exception e) {
 			/* Exception handling route; exit with status 1 */

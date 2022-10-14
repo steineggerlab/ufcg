@@ -3,6 +3,9 @@ package entity;
 import java.util.List;
 import java.util.ArrayList;
 
+import java.io.File;
+import java.io.IOException;
+
 import envs.config.GenericConfig;
 import envs.config.PathConfig;
 import envs.toolkit.ANSIHandler;
@@ -10,6 +13,8 @@ import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
 import envs.toolkit.Shell;
 import pipeline.ExceptionHandler;
+
+import org.apache.commons.io.FileUtils;
 
 public class QueryEntity {
 	public static int EX_FILENAME = -1, EX_LABEL = -1, EX_ACCESS = -1, EX_TAXON = -1, EX_NCBI = -1, EX_STRAIN = -1, EX_TAXONOMY = -1;
@@ -204,5 +209,36 @@ public class QueryEntity {
 	public void activate() {
 		initiateSystem();
 		GenericConfig.setSystem(filename, accession, label, taxon, ncbi, strain, taxonomy);
+		
+		// generate temporary directory for query
+		File dir = new File(PathConfig.TempPath + File.separator + accession + File.separator);
+		if(dir.exists()) {
+			if(dir.isFile()) {
+				ExceptionHandler.pass("Failed to create directory: " + ANSIHandler.wrapper(dir, 'B'));
+				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+			}
+			try{
+				FileUtils.cleanDirectory(dir);
+			} catch (IOException e) {
+				ExceptionHandler.handle(e);
+			}
+		}
+		else if(!dir.mkdirs()) {
+			ExceptionHandler.pass("Failed to create directory: " + ANSIHandler.wrapper(dir, 'B'));
+			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+		}
+		PathConfig.OriginalTempPath = PathConfig.TempPath;
+		PathConfig.setTempPath(dir.getAbsolutePath());
+	}
+	
+	// deactivate current query
+	public void deactivate() {
+		// remove temporary directory and restore path
+		try {
+			if(!PathConfig.TempIsCustom) FileUtils.deleteDirectory(new File(PathConfig.TempPath));
+			PathConfig.restoreTempPath();
+		} catch (IOException e) {
+			ExceptionHandler.handle(e);
+		}
 	}
 }

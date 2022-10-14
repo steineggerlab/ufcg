@@ -945,10 +945,11 @@ public class ProfileModule {
 					if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE               ", 'g') + "\n");
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
-					
-					for(String contig : contigs) FileStream.wipe(contig, true);
-					contigs = new ArrayList<String>();
 				}
+				
+				for(String contig : contigs) FileStream.wipe(contig, true);
+				contigs = new ArrayList<String>();
+				ContigDragProcess.clean();
 				
 				/* Write the entire result on a single JSON file */
 				String jsonPath = PathConfig.OutputPath + GenericConfig.ACCESS + ".ucg";
@@ -958,6 +959,7 @@ public class ProfileModule {
 				if(!PathConfig.TempIsCustom) Prompt.talk("Cleaning temporary files up...");
 				// Prompt.test(FileStream.filesToWipe());
 				FileStream.wipeOut();
+				query.deactivate();
 			}
 		}
 		catch(Exception e) {

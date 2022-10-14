@@ -214,6 +214,7 @@ public class PathConfig {
 		return 0;
 	}
 	
+	public static String  OriginalTempPath = "/tmp/";
 	public static String  TempPath = "/tmp/";
 	public static boolean TempIsCustom = false;
 	public static int setTempPath(String path) {		
@@ -242,6 +243,7 @@ public class PathConfig {
 		
 		return 0;
 	}
+	public static void restoreTempPath() {TempPath = OriginalTempPath;}
 	
 	/* Custom configuration files */
 	public static String  MetaPath = null;

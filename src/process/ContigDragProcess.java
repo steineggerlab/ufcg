@@ -73,4 +73,6 @@ public class ContigDragProcess {
 						PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, bp.getCtg(i)));
 		return ctgPaths;
 	}
+	
+	public static void clean() {dragged = new ArrayList<String>();}
 }

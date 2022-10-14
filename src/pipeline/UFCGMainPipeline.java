@@ -37,8 +37,8 @@ import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class UFCGMainPipeline {
-	public static final String VERSION = "1.0";
-	public static final String RELEASE_DATE = "Jun 2022";
+	public static final String VERSION = "1.0.1";
+	public static final String RELEASE_DATE = "Oct 2022";
 	
 	public static final int NO_MODULE			= 0x00;
 	public static final int MODULE_PROFILE		= 0x01;
