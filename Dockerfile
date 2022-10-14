@@ -23,10 +23,10 @@ RUN /bin/bash -c "source activate && \
 	conda config --add channels defaults && \
 	conda config --add channels conda-forge && \
 	conda config --add channels bioconda && \
-	conda install -y openjdk=8 augustus=3.4.0 mmseqs2 mafft iqtree"
+	conda install -y openjdk=8 augustus mmseqs2 mafft iqtree"
 
 # Download and unzip UFCG pipeline
-RUN wget --quiet https://github.com/endixk/ufcg/releases/latest/download/UFCG.zip -O ~/ufcg.zip && \
+RUN wget --quiet https://ufcg.steineggerlab.workers.dev/pipeline/UFCG.zip -O ~/ufcg.zip && \
 	cd && \
 	unzip ~/ufcg.zip && \
 	rm ~/ufcg.zip

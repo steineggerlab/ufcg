@@ -1,15 +1,19 @@
 # UFCG pipeline
-<!-- [![Github release](https://img.shields.io/github/downloads/endix1029/ufcg/total?logo=github)](https://github.com/endixk/ufcg/releases/latest) [![Docker pulls](https://img.shields.io/docker/pulls/endix1029/ufcg?logo=docker)](https://hub.docker.com/repository/docker/endix1029/ufcg/) -->
+<!-- [![Github release](https://img.shields.io/github/downloads/endix1029/ufcg/total?logo=github)](https://github.com/steineggerlab/ufcg/releases/latest) [![Docker pulls](https://img.shields.io/docker/pulls/endix1029/ufcg?logo=docker)](https://hub.docker.com/repository/docker/endix1029/ufcg/) -->
 
 UFCG pipeline provides methods for a genome-wide taxonomic profiling and annotation of your own biological sequences of Fungi.
  * [Homepage](https://ufcg.steineggerlab.com/)
  * [Preprint](https://www.biorxiv.org/content/10.1101/2022.08.16.504087v1)
 
+### Notice
+ * UFCG v1.0.1 now requires augustus v3.5.0. Please update your environment to run the pipeline.
+ * [macOS] augustus v3.5.0 is currently unavailable to run in macOS due to unknown segmentation fault issue. Please use Linux or the docker container, or UFCG v1.0.
+
 ## Quick start with conda
 ~~~bash
-conda create -n ufcg -c bioconda -c conda-forge openjdk=8 augustus=3.4.0 mmseqs2 mafft iqtree
+conda create -n ufcg -c bioconda -c conda-forge openjdk=8 augustus=3.5.0 mmseqs2 mafft iqtree
 conda activate ufcg
-wget -O UFCG.zip https://github.com/endixk/ufcg/releases/latest/download/UFCG.zip
+wget -O UFCG.zip https://github.com/steineggerlab/ufcg/releases/latest/download/UFCG.zip
 unzip UFCG.zip && cd UFCG
 java -jar UFCG.jar
 ~~~
