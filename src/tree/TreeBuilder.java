@@ -105,7 +105,7 @@ private String trmFile = null;
  */
 private int checkpoint = 0;
 
-private final static int MODULE_ALIGN = 0, MODULE_TREE = 0;
+private final static int MODULE_ALIGN = 1, MODULE_TREE = 0;
 private int module = -1;
 
 public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirName, String mafftPath, 
