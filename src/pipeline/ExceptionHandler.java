@@ -9,6 +9,7 @@ public class ExceptionHandler {
 	public static final int EXCEPTION				= 0xF0;
 	public static final int UNEXPECTED_ERROR		= 0xF1;
 	public static final int ERROR_WITH_MESSAGE		= 0xF2;
+	public static final int FAILED_COMMAND			= 0xF3;
 	
 	public static final int UNKNOWN_MODULE			= 0x00;
 	public static final int UNKNOWN_OPTION			= 0x01;
@@ -66,6 +67,8 @@ public class ExceptionHandler {
 			System.out.println("Program terminated by an unexpected error."); break;
 		case ERROR_WITH_MESSAGE:
 			System.out.println(OBJ.toString()); break;
+		case FAILED_COMMAND:
+			System.out.println("Failed subcommand : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		case UNKNOWN_OPTION:
 			System.out.println("Unrecognized option given : " + OBJ.toString()); break;
 		case MISSING_ARGUMENT:

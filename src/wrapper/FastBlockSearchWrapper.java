@@ -4,6 +4,7 @@ import envs.config.GenericConfig;
 import envs.config.PathConfig;
 import envs.toolkit.ExecHandler;
 import envs.toolkit.Shell;
+import pipeline.ExceptionHandler;
 import envs.toolkit.Prompt;
 
 public class FastBlockSearchWrapper extends ExecHandler {
@@ -25,6 +26,15 @@ public class FastBlockSearchWrapper extends ExecHandler {
 		addArg("2>", "/dev/null");
 	}
 	
+	private boolean sanityCheck(String outPath) {
+		String cmd = "head -1 " + outPath;
+		String[] raw = Shell.exec(cmd);
+		
+		if(raw.length < 1) return false;
+		if(raw[0].contains("Hits")) return true;
+		return false;
+	}
+	
 	public static void runFastBlockSearch(String seqPath, String famPath, String outPath) {
 		FastBlockSearchWrapper fbs = new FastBlockSearchWrapper();
 		fbs.setCutoff();
@@ -32,6 +42,12 @@ public class FastBlockSearchWrapper extends ExecHandler {
 		fbs.setFamPath(famPath);
 		fbs.setOutPath(outPath);
 		fbs.exec();
+		
+		// fastBlockSearch failure
+		if(!fbs.sanityCheck(outPath)) {
+			ExceptionHandler.pass(fbs.buildCmd());
+			ExceptionHandler.handle(ExceptionHandler.FAILED_COMMAND);
+		}
 	}
 	
 	// solve dependency

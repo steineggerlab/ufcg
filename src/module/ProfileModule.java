@@ -853,6 +853,7 @@ public class ProfileModule {
 				if(!GenericConfig.FORCE) {
 					if(query.checkResultFileExistence() > 0) {
 						Prompt.print("Result file already exists. To overwrite, use --force option.");
+						query.deactivate();
 						continue;
 					}
 				}

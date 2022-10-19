@@ -3,6 +3,7 @@ package wrapper;
 import envs.config.PathConfig;
 import envs.toolkit.ExecHandler;
 import envs.toolkit.Shell;
+import pipeline.ExceptionHandler;
 
 public class AugustusWrapper extends ExecHandler {
 	public AugustusWrapper() {
@@ -28,6 +29,15 @@ public class AugustusWrapper extends ExecHandler {
 		addArg(">", outPath);
 	}
 	
+	private boolean sanityCheck(String outPath) {
+		String cmd = "head -1 " + outPath;
+		String[] raw = Shell.exec(cmd);
+		
+		if(raw.length < 1) return false;
+		if(raw[0].contains("gff")) return true;
+		return false;
+	}
+	
 	public static void runAugustus(String ctgPath, int pst, int ped, String prfl, String outPath) {
 		AugustusWrapper aug = new AugustusWrapper();
 		aug.setCfg();
@@ -37,6 +47,12 @@ public class AugustusWrapper extends ExecHandler {
 		aug.setCtgPath(ctgPath);
 		aug.setOutPath(outPath);
 		aug.exec();
+		
+		// augustus failure
+		if(!aug.sanityCheck(outPath)) {
+			ExceptionHandler.pass(aug.buildCmd());
+			ExceptionHandler.handle(ExceptionHandler.FAILED_COMMAND);
+		}
 	}
 	
 	// solve dependency

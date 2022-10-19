@@ -25,7 +25,7 @@ public abstract class ExecHandler {
 		argMap.put(val, "");
 	}
 	
-	private String buildCmd() {
+	protected String buildCmd() {
 		String cmd = job;
 		for(String arg : args) {
 			cmd += " " + arg + argMap.get(arg);
