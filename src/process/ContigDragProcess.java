@@ -38,7 +38,7 @@ public class ContigDragProcess {
 					
 					FileStream outStream = new FileStream(ctgPath, 'w');
 					outStream.isTemp();
-					Prompt.talk("Dragging block-containing contig " + bp.getCtg(ci) +
+					Prompt.talk("Dragging block-containing contig " + ctg +
 							" from the assembly on : " + ANSIHandler.wrapper(outStream.PATH, 'y'));
 					
 					outStream.println(line);				
@@ -50,6 +50,13 @@ public class ContigDragProcess {
 					}
 				
 					outStream.close();	
+				}
+				else {
+					line = seqStream.readLine();
+					while(line != null) {
+						if(line.startsWith(">")) break;
+						line = seqStream.readLine();
+					}
 				}
 				ci++;
 			}
