@@ -907,7 +907,7 @@ public class ProfileModule {
 					executorService.shutdown();
 					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 					
-					if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE                ", 'g') + "\n");
+					if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE ", 'g') + "\n");
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 					
@@ -943,7 +943,7 @@ public class ProfileModule {
 					executorService.shutdown();
 					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 					
-					if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE               ", 'g') + "\n");
+					if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE ", 'g') + "\n");
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 				}
@@ -1021,7 +1021,7 @@ public class ProfileModule {
 		}
 		
 		build += "]";
-		build += " ETA : " + tk.eta(fin, progress.size()) + "        ";
+		build += " ETA : " + tk.eta(fin, progress.size()) + " ";
 		if(!GenericConfig.QUIET) Prompt.dynamic("\r");
 		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build);
 	}
@@ -1050,7 +1050,7 @@ public class ProfileModule {
 		}
 		
 		build += "]";
-		build += " ETA : " + tk.eta(fin, progress.size()) + "        ";
+		build += " ETA : " + tk.eta(fin, progress.size()) + " ";
 		
 		if(!GenericConfig.QUIET) Prompt.dynamic("\r");
 		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build);

@@ -38,14 +38,18 @@ public class FileStream {
 	}
 	
 	public static void isTemp(String path) {
-		if(TMP_PATHS.contains(path)) {
-			TMP_STATUS.get((int) PATH_MAP.get(path)).incr();
+		try {
+			if(TMP_PATHS.contains(path)) {
+				if((int) PATH_MAP.get(path) >= TMP_STATUS.size()) return;
+				TMP_STATUS.get((int) PATH_MAP.get(path)).incr();
+			}
+			else {
+				TMP_PATHS.add(path);
+				TMP_STATUS.add(new Counter());
+				PATH_MAP.put(path, PATH_MAP_ITER++);
+			}
 		}
-		else {
-			TMP_PATHS.add(path);
-			TMP_STATUS.add(new Counter());
-			PATH_MAP.put(path, PATH_MAP_ITER++);
-		}
+		catch(NullPointerException | IndexOutOfBoundsException e) {return;}
 	}
 	public static void isTemp(FileStream stream) {
 		isTemp(stream.PATH);
@@ -55,14 +59,14 @@ public class FileStream {
 		if(PathConfig.TempIsCustom) return;
 		try {
 			if(!PATH_MAP.containsKey(path)) return;
+			if((int) PATH_MAP.get(path) >= TMP_STATUS.size()) return;
 			TMP_STATUS.get((int) PATH_MAP.get(path)).decr();
 			if(TMP_STATUS.get((int) PATH_MAP.get(path)).cnt == 0) {
 				Shell.exec("rm " + path);
 				TMP_STATUS.get((int) PATH_MAP.get(path)).handle();
 			}
 		}
-		catch(NullPointerException e) {return;}
-		catch(IndexOutOfBoundsException e) {return;}
+		catch(NullPointerException | IndexOutOfBoundsException e) {return;}
 	}
 	public static void wipe(FileStream stream) {
 		wipe(stream.PATH);
@@ -95,20 +99,22 @@ public class FileStream {
 				if(!PATH_MAP.containsKey(path)) continue;
 				if(PATH_MAP.get(path) >= TMP_STATUS.size()) continue;
 				if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) wipe(path);
-			} catch(NullPointerException e) {continue;}
+			} catch(NullPointerException | IndexOutOfBoundsException e) {continue;}
 		} 
 		init();
 	}
 	
 	public static String filesToWipe() {
 		String res = "";
-		if(PathConfig.TempIsCustom) return res;
-		if(TMP_PATHS == null) return res;
-		for(String path : TMP_PATHS) {
-			if(PATH_MAP.get(path) >= TMP_STATUS.size()) continue;
-			if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) res += path + " ";
-		}
-		return res;
+		try {
+			if(PathConfig.TempIsCustom) return res;
+			if(TMP_PATHS == null) return res;
+			for(String path : TMP_PATHS) {
+				if(PATH_MAP.get(path) >= TMP_STATUS.size()) continue;
+				if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) res += path + " ";
+			}
+			return res;
+		} catch(NullPointerException | IndexOutOfBoundsException e) {return res;}
 	}
 	
 //	public static List<FileStream> ACTIVE_STREAM = new LinkedList<FileStream>();
