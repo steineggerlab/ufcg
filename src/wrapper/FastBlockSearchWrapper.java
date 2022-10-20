@@ -21,30 +21,34 @@ public class FastBlockSearchWrapper extends ExecHandler {
 	void setFamPath(String famPath) {
 		addArg(famPath);
 	}
-	void setOutPath(String outPath) {
-		addArg(">", outPath);
-		addArg("2>", "/dev/null");
+	void setOutPath(String outPath, String errPath) {
+		addArg("1>", outPath);
+		addArg("2>", errPath);
 	}
 	
-	private boolean sanityCheck(String outPath) {
+	private boolean sanityCheck(String outPath, String errPath) {
 		String cmd = "head -1 " + outPath;
 		String[] raw = Shell.exec(cmd);
 		
-		if(raw.length < 1) return false;
+		if(raw.length < 1) {
+			cmd = "tail -2 " + errPath;
+			raw = Shell.exec(cmd);
+			if(raw[0].contains("Insig")) return true;
+		}
 		if(raw[0].contains("Hits")) return true;
 		return false;
 	}
 	
-	public static void runFastBlockSearch(String seqPath, String famPath, String outPath) {
+	public static void runFastBlockSearch(String seqPath, String famPath, String outPath, String errPath) {
 		FastBlockSearchWrapper fbs = new FastBlockSearchWrapper();
 		fbs.setCutoff();
 		fbs.setSeqPath(seqPath);
 		fbs.setFamPath(famPath);
-		fbs.setOutPath(outPath);
+		fbs.setOutPath(outPath, errPath);
 		fbs.exec();
 		
 		// fastBlockSearch failure
-		if(!fbs.sanityCheck(outPath)) {
+		if(!fbs.sanityCheck(outPath, errPath)) {
 			ExceptionHandler.pass(fbs.buildCmd());
 			ExceptionHandler.handle(ExceptionHandler.FAILED_COMMAND);
 		}

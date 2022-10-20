@@ -15,10 +15,12 @@ public class FastBlockSearchProcess {
 		BlockProfileEntity bp = new BlockProfileEntity(cg, famPath);
 
 		String outPath = String.format("%s%s%s_%s.blk", PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, cg);
+		String errPath = String.format("%s%s%s_%s.err", PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, cg);
 		FileStream.isTemp(outPath);
+		FileStream.isTemp(errPath);
 		
 		Prompt.talk("fastBlockSearch is searching genome to find the blocks with the gene profile...");
-		FastBlockSearchWrapper.runFastBlockSearch(seqPath, famPath, outPath);
+		FastBlockSearchWrapper.runFastBlockSearch(seqPath, famPath, outPath, errPath);
 		
 		Prompt.talk("Parsing block search result written on : " + ANSIHandler.wrapper(outPath, 'y'));
 		FastBlockSearchParser.parse(bp, outPath);
