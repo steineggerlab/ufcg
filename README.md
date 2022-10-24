@@ -7,10 +7,10 @@ UFCG pipeline provides methods for a genome-wide taxonomic profiling and annotat
  * [Publication](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkac894/6769744)
 
 ### Notice
- * UFCG v1.0.1 now requires augustus v3.5.0. Please update your environment to run the pipeline.
+UFCG v1.0.2 now requires augustus v3.5.0. Please update your environment to run the pipeline.
  
 ### How to cite
-Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M. UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi. Nucleic Acids Research, gkac894 (2022).
+Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M. UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi. _Nucleic Acids Research_, gkac894 (2022).
 
 ## Quick start with conda
 ~~~bash
