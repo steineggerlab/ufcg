@@ -235,10 +235,10 @@ public class ProfileModule {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}
-		if(!PathConfig.checkModelPath()) {
+		if(PathConfig.checkModelPath()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_MODEL_PATH);
 		}
-		if(!PathConfig.checkSeqPath()) {
+		if(PathConfig.checkSeqPath()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_SEQ_PATH);
 		}
 		
@@ -625,7 +625,7 @@ public class ProfileModule {
 		}
 		
 		/* profile directory validation */
-		if(!PathConfig.checkModelPath()) {
+		if(PathConfig.checkModelPath()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_MODEL_PATH);
 			Prompt.print("Please check the path and content of your core gene profile directory and relaunch the program.\n");
 			System.exit(0);

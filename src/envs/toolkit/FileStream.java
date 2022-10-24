@@ -1,7 +1,6 @@
 package envs.toolkit;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,17 +30,17 @@ public class FileStream {
 	private static int PATH_MAP_ITER = 0;
 	
 	public static void init() {
-		TMP_PATHS     = new ArrayList<String>();
-		TMP_STATUS    = new ArrayList<Counter>();
-		PATH_MAP 	  = new HashMap<String, Integer>();
+		TMP_PATHS     = new ArrayList<>();
+		TMP_STATUS    = new ArrayList<>();
+		PATH_MAP 	  = new HashMap<>();
 		PATH_MAP_ITER = 0;
 	}
 	
 	public static void isTemp(String path) {
 		try {
 			if(TMP_PATHS.contains(path)) {
-				if((int) PATH_MAP.get(path) >= TMP_STATUS.size()) return;
-				TMP_STATUS.get((int) PATH_MAP.get(path)).incr();
+				if(PATH_MAP.get(path) >= TMP_STATUS.size()) return;
+				TMP_STATUS.get(PATH_MAP.get(path)).incr();
 			}
 			else {
 				TMP_PATHS.add(path);
@@ -49,7 +48,7 @@ public class FileStream {
 				PATH_MAP.put(path, PATH_MAP_ITER++);
 			}
 		}
-		catch(NullPointerException | IndexOutOfBoundsException e) {return;}
+		catch(NullPointerException | IndexOutOfBoundsException ignored) {}
 	}
 	public static void isTemp(FileStream stream) {
 		isTemp(stream.PATH);
@@ -59,14 +58,14 @@ public class FileStream {
 		if(PathConfig.TempIsCustom) return;
 		try {
 			if(!PATH_MAP.containsKey(path)) return;
-			if((int) PATH_MAP.get(path) >= TMP_STATUS.size()) return;
-			TMP_STATUS.get((int) PATH_MAP.get(path)).decr();
-			if(TMP_STATUS.get((int) PATH_MAP.get(path)).cnt == 0) {
+			if(PATH_MAP.get(path) >= TMP_STATUS.size()) return;
+			TMP_STATUS.get(PATH_MAP.get(path)).decr();
+			if(TMP_STATUS.get(PATH_MAP.get(path)).cnt == 0) {
 				Shell.exec("rm " + path);
-				TMP_STATUS.get((int) PATH_MAP.get(path)).handle();
+				TMP_STATUS.get(PATH_MAP.get(path)).handle();
 			}
 		}
-		catch(NullPointerException | IndexOutOfBoundsException e) {return;}
+		catch(NullPointerException | IndexOutOfBoundsException ignored) {}
 	}
 	public static void wipe(FileStream stream) {
 		wipe(stream.PATH);
@@ -74,7 +73,7 @@ public class FileStream {
 	public static void wipe(String path, boolean force) {
 		if(force) {
 			Shell.exec("rm " + path);
-			if(PathConfig.TempIsCustom) TMP_STATUS.get((int) PATH_MAP.get(path)).handle();
+			if(PathConfig.TempIsCustom) TMP_STATUS.get(PATH_MAP.get(path)).handle();
 		}
 		else wipe(path);
 	}
@@ -98,12 +97,13 @@ public class FileStream {
 				if(path == null) continue;
 				if(!PATH_MAP.containsKey(path)) continue;
 				if(PATH_MAP.get(path) >= TMP_STATUS.size()) continue;
-				if(!TMP_STATUS.get((int) PATH_MAP.get(path)).handled) wipe(path);
-			} catch(NullPointerException | IndexOutOfBoundsException e) {continue;}
+				if(!TMP_STATUS.get(PATH_MAP.get(path)).handled) wipe(path);
+			} catch(NullPointerException | IndexOutOfBoundsException ignored) {}
 		} 
 		init();
 	}
-	
+
+	/*
 	public static String filesToWipe() {
 		String res = "";
 		try {
@@ -116,13 +116,14 @@ public class FileStream {
 			return res;
 		} catch(NullPointerException | IndexOutOfBoundsException e) {return res;}
 	}
+	*/
 	
 //	public static List<FileStream> ACTIVE_STREAM = new LinkedList<FileStream>();
 	public BufferedReader	reader = null;
 	public PrintWriter 		writer = null;
 	public final String 	PATH;
 	
-	public FileStream(String path, char type) throws IOException, FileNotFoundException {
+	public FileStream(String path, char type) throws IOException {
 		this.PATH = path;
 		switch(type){
 			case 'i': case 'r':

@@ -146,7 +146,7 @@ public class ProfileProModule {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}
-		if(!PathConfig.checkSeqPath()) {
+		if(PathConfig.checkSeqPath()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_SEQ_PATH);
 		}
 		

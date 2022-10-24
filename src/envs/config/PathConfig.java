@@ -1,6 +1,7 @@
 package envs.config;
 
 import java.io.File;
+import java.util.Arrays;
 
 import envs.toolkit.ANSIHandler;
 import envs.toolkit.FileStream;
@@ -62,6 +63,7 @@ public class PathConfig {
 	}
 	
 	public static String HmmsearchPath = "hmmsearch";
+	@Deprecated
 	public static int setHmmsearchPath(String path) {
 		try {
 			Prompt.talk("hmmsearch binary check : " + ANSIHandler.wrapper(path, 'B'));
@@ -83,45 +85,39 @@ public class PathConfig {
 	}
 	
 	public static String MMseqsPath = "mmseqs";
-	public static int setMMseqsPath(String path) {
+	public static void setMMseqsPath(String path) {
 		try {
 			Prompt.talk("MMseqs binary check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
 			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
-				return 1;
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
-			return 2;
 		}
 		
 		MMseqsPath = path;
-		return 0;
 	}
 	
 	public static String TrinityPath = "Trinity";
-	public static int setTrinityPath(String path) {
+	public static void setTrinityPath(String path) {
 		try {
 			Prompt.talk("Trinity binary check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
 			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
-				return 1;
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
-			return 2;
 		}
 		
 		TrinityPath = path;
-		return 0;
 	}
 	
 	/* Runtime I/O configuration */
@@ -153,7 +149,7 @@ public class PathConfig {
 		}	
 		return 0;
 	}
-	public static int checkInputFile(String path) {
+	public static void checkInputFile(String path) {
 		try {
 			Prompt.talk("Input file check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
@@ -167,7 +163,6 @@ public class PathConfig {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
 		}
-		return 0;
 	}
 	
 	public static String OutputPath = null;
@@ -296,7 +291,7 @@ public class PathConfig {
 	}
 	public static boolean checkModelPath() {
 		int[] cnt = new int[GenericConfig.FCG.length];
-		for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
+		Arrays.fill(cnt, -1);
 		
 		String cmd = "ls -1 " + ModelPath + "pro > " + TempPath + GenericConfig.TEMP_HEADER + "model.list";
 		Shell.exec(cmd);
@@ -313,18 +308,18 @@ public class PathConfig {
 			}
 			tmpListStream.wipe(true);
 			
-			for(int c : cnt) if(c < 0) return false;
+			for(int c : cnt) if(c < 0) return true;
 		}
 		catch(java.io.IOException e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
 		}
-		return true;
+		return false;
 	}
 	
 	public static String SeqPath = EnvironmentPath + "config/seq/";
 	private static void renewSeqPath() {SeqPath = EnvironmentPath + "config/seq/";}
-	public static int setSeqPath(String path) {		
+	public static void setSeqPath(String path) {
 		try {
 			Prompt.talk("Gene sequence directory check : " + ANSIHandler.wrapper(path, 'B'));
 			File output = new File(path);
@@ -339,16 +334,14 @@ public class PathConfig {
 		catch(Exception e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
-			return 2;
 		}
 		
 		SeqPath = path;
 		if(!SeqPath.endsWith("/")) SeqPath += "/";
-		return 0;
 	}
 	public static boolean checkSeqPath() {
 		int[] cnt = new int[GenericConfig.FCG.length];
-		for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
+		Arrays.fill(cnt, -1);
 		
 		String cmd = "ls -1 " + SeqPath + "pro > " + TempPath + GenericConfig.TEMP_HEADER + "seq.list";
 		Shell.exec(cmd);
@@ -365,13 +358,13 @@ public class PathConfig {
 			}
 			tmpListStream.wipe(true);
 			
-			for(int c : cnt) if(c < 0) return false;
+			for(int c : cnt) if(c < 0) return true;
 		}
 		catch(java.io.IOException e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
 		}
-		return true;
+		return false;
 	}
 	
 	public static String AugustusConfig = EnvironmentPath + "config/ppx.cfg";

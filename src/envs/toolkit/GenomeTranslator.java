@@ -17,7 +17,7 @@ public class GenomeTranslator {
 			"V", "V", "V", "V", "A", "A", "A", "A", "D", "D", "E", "E", "G", "G", "G", "G"
 	};
 	
-	public static Map<String, String> TSLN = new HashMap<String, String>();
+	public static Map<String, String> TSLN = new HashMap<>();
 	private static boolean mapCreated = false;
 	public static void createMap() {
 		if(mapCreated) return;
@@ -46,16 +46,15 @@ public class GenomeTranslator {
 	}
 	
 	public static String transeq(String seq) {
-		String tsln = ""; int i;
-		for(i = 3; i < seq.length(); i += 3) tsln += translate(seq.substring(i - 3, i));
+		StringBuilder tsln = new StringBuilder(); int i;
+		for(i = 3; i < seq.length(); i += 3) tsln.append(translate(seq.substring(i - 3, i)));
 		return tsln + translate(seq.substring(i - 3));
 	}
 	
 	public static boolean equal(String seqx, String seqy) {
 		if(seqx.length() != seqy.length()) return false;
 		for(int i = 0; i < seqx.length(); i++) {
-			if(seqx.charAt(i) == 'X' || seqy.charAt(i) == 'X') continue;
-			else if(seqx.charAt(i) != seqy.charAt(i)) return false;
+			if(seqx.charAt(i) != 'X' && seqy.charAt(i) != 'X' && seqx.charAt(i) != seqy.charAt(i)) return false;
 		}
 		return true;
 	}
@@ -77,12 +76,14 @@ public class GenomeTranslator {
 	}
 	
 	// return random codon encoding amino acid
+	/*
 	public static String rcodon(String amino) {
-		List<String> avail = new ArrayList<String>();
+		List<String> avail = new ArrayList<>();
 		for(int i = 0; i < AMINO.length; i++) {
 			if(amino.equals(AMINO[i])) avail.add(CODON[i]);
 		}
 		
 		return avail.get(new Random().nextInt(avail.size()));
 	}
+	*/
 }

@@ -7,7 +7,9 @@ public class Prompt {
 	
 	private static String buildMessage(String head, String message, char color) {
 		int hlen = head.length();
-		for(int i = 0; i < GenericConfig.HLEN - hlen; i++) head += " ";
+		StringBuilder headBuilder = new StringBuilder(head);
+		for(int i = 0; i < GenericConfig.HLEN - hlen; i++) headBuilder.append(" ");
+		head = headBuilder.toString();
 		String header = ANSIHandler.wrapper(GenericConfig.TSTAMP ?
 				String.format("[%s] %s |:", TimeKeeper.timeStamp(), head) :
 				String.format(" %s |:", head), color);
@@ -55,6 +57,7 @@ public class Prompt {
 	public static void print_nnc(String message){ print_nnc(GenericConfig.PHEAD, message); }
 	public static void dynamicHeader(String message) { if(!GenericConfig.VERB) print_nnc(message);}
 	public static void dynamic(String message) { if(!GenericConfig.VERB) if(!SUPPRESS) System.out.print(message);}
+	/*
 	public static void erase(String msg, int sub) {
 		for(int x = 0; x < msg.length() - sub; x++) System.out.print("\b");
 		for(int x = 0; x < msg.length() - sub; x++) System.out.print(" ");
@@ -62,4 +65,5 @@ public class Prompt {
 		for(int x = 0; x < msg.length() - sub; x++) System.out.print("\b");
 	}
 	public static void erase(String msg) {erase(msg, 0);}
+	*/
 }

@@ -12,8 +12,8 @@ public abstract class ExecHandler {
 	
 	protected void init(String job) {
 		this.job = job;
-		this.args = new ArrayList<String>();
-		this.argMap = new HashMap<String, String>();
+		this.args = new ArrayList<>();
+		this.argMap = new HashMap<>();
 	}
 	
 	protected void addArg(String opt, String val) {
@@ -26,11 +26,11 @@ public abstract class ExecHandler {
 	}
 	
 	protected String buildCmd() {
-		String cmd = job;
+		StringBuilder cmd = new StringBuilder(job);
 		for(String arg : args) {
-			cmd += " " + arg + argMap.get(arg);
+			cmd.append(" ").append(arg).append(argMap.get(arg));
 		}
-		return cmd;
+		return cmd.toString();
 	}
 	
 	protected String[] exec() {

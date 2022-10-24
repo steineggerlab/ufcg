@@ -22,7 +22,7 @@ public class GenericConfig {
 			Long.parseLong(Shell.exec("sysctl -n hw.ncpu")[0]);
 	public static long MEM_SIZE = OS.equals("Linux") ?
 			Long.parseLong(Shell.exec("free -b | grep Mem | awk '{print $2}'", true)[0]):
-			Long.parseLong(Shell.exec("sysctl -n hw.memsize")[0]);;
+			Long.parseLong(Shell.exec("sysctl -n hw.memsize")[0]);
 	
 	/* Running project status */
 	public static String PHEAD = ""; 		// Prompt header
@@ -120,7 +120,7 @@ public class GenericConfig {
 			}
 			
 			if(size > CPU_COUNT) {
-				Prompt.warn("Given CPU count is larger than the system value. Reducing the count down to " + String.valueOf(CPU_COUNT));
+				Prompt.warn("Given CPU count is larger than the system value. Reducing the count down to " + CPU_COUNT);
 				size = (int) CPU_COUNT;
 			}
 			setThreadPoolSize(size);
@@ -161,7 +161,7 @@ public class GenericConfig {
 	public static void setFastBlockSearchHits(int hits) {
 		FastBlockSearchHits = hits;
 	}
-	public static int setFastBlockSearchHits(String val) {
+	public static void setFastBlockSearchHits(String val) {
 		try {
 			Prompt.talk("Custom fastBlockSearch hits check : " + ANSIHandler.wrapper(val, 'B'));
 			int hits = Integer.parseInt(val);
@@ -172,12 +172,10 @@ public class GenericConfig {
 			}
 			
 			setFastBlockSearchHits(hits);
-			return 0;
 		}
 		catch(NumberFormatException nfe) {
 			ExceptionHandler.pass(val + " (Integer value expected)");
 			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
-			return 1;
 		}
 	}
 	
@@ -233,7 +231,7 @@ public class GenericConfig {
 	public static void setEvalueCutoff(double cutoff) {
 		EvalueCutoff = cutoff;
 	}
-	public static int setEvalueCutoff(String val) {
+	public static void setEvalueCutoff(String val) {
 		try {
 			Prompt.talk("Custom e-value cutoff check : " + ANSIHandler.wrapper(val, 'B'));
 			double cutoff = Double.parseDouble(val);
@@ -243,17 +241,15 @@ public class GenericConfig {
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			}
 			
-			setHmmsearchScoreCutoff(cutoff);
-			return 0;
+			setEvalueCutoff(cutoff);
 		}
 		catch(NumberFormatException nfe) {
 			ExceptionHandler.pass(val + " (Floating point value expected)");
 			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
-			return 1;
 		}
 	}
 	
-	public static double Coverage = 0.8;
+	// public static double Coverage = 0.8;
 	
 	// Reference Fungal Core Gene
 /*	public static final String[] FCG_ALT = {
@@ -506,22 +502,29 @@ public class GenericConfig {
 	public static String[] FCG = FCG_ORD; // core genes for this process
 	public static void setGeneset(String geneset) {GENESET = geneset;}
 	
-	public static final int TARGET_NUC = 0x01,
-							TARGET_PRO = 0x02,
-							TARGET_BUSCO = 0x03;
+	public static final int TARGET_PRO = 0x01,
+							TARGET_BUSCO = 0x02;
 	
 	public static boolean NUC = false, PRO = false, BUSCO = false;
 	public static int TARGET = 0;
 	public static int solveGeneset() {
-		List<String> pros = new ArrayList<String>(); // custom protein marker set
+		List<String> pros = new ArrayList<>(); // custom protein marker set
 		for(String ele : GENESET.split(",")) {
-			if(ele.equals("NUC")) NUC = true;
-			else if(ele.equals("PRO")) PRO = true;
-			else if(ele.equals("BUSCO")) BUSCO = true;
-			// else if(!Arrays.asList(FCG_REF).contains(ele)) return 1; // not allowing non-core protein markers
-			else {
-				PRO = true;
-				pros.add(ele);
+			switch (ele) {
+				case "NUC":
+					NUC = true;
+					break;
+				case "PRO":
+					PRO = true;
+					break;
+				case "BUSCO":
+					BUSCO = true;
+					break;
+				// else if(!Arrays.asList(FCG_REF).contains(ele)) return 1; // not allowing non-core protein markers
+				default:
+					PRO = true;
+					pros.add(ele);
+					break;
 			}
 		}
 		
@@ -535,7 +538,7 @@ public class GenericConfig {
 	
 	public static String[] BUSCOS = null;
 	public static int getBuscos() {
-		List<String> bids = new ArrayList<String>();
+		List<String> bids = new ArrayList<>();
 		
 		// get list from sequence directory
 		String cmd = "ls -1 " + PathConfig.SeqPath + "busco > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.seq.list";
@@ -562,7 +565,7 @@ public class GenericConfig {
 		Shell.exec(cmd);
 		try {
 			int[] cnt = new int[BUSCOS.length];
-			for(int i = 0; i < cnt.length; i++) cnt[i] = -1;
+			Arrays.fill(cnt, -1);
 			
 			FileStream tmpListStream = new FileStream(PathConfig.TempPath + GenericConfig.TEMP_HEADER + "busco.model.list", 'r');
 			tmpListStream.isTemp();
@@ -612,8 +615,8 @@ public class GenericConfig {
 	} */
 	
 	public static String geneString() {
-		String gstr = "";
-		for(String fcg : FCG_REF) gstr += fcg + ",";
+		StringBuilder gstr = new StringBuilder();
+		for(String fcg : FCG_REF) gstr.append(fcg).append(",");
 		return gstr.substring(0, gstr.length() - 1);
 	}
 }

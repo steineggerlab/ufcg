@@ -218,10 +218,10 @@ public class ProfileRnaModule {
 			ExceptionHandler.pass(PathConfig.TrinityPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}
-		if(!PathConfig.checkModelPath()) {
+		if(PathConfig.checkModelPath()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_MODEL_PATH);
 		}
-		if(!PathConfig.checkSeqPath()) {
+		if(PathConfig.checkSeqPath()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_SEQ_PATH);
 		}
 		
