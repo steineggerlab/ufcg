@@ -77,13 +77,13 @@ public static void replace_name_delete(String in_filename, String out_filename, 
 
 static public String readTextFile2StringWithCR(String filename) throws IOException // with carrige return
 {
-	StringBuffer sb = new StringBuffer("");
+	StringBuilder sb = new StringBuilder();
 
-	FileReader fr = new FileReader(new File(filename));
+	FileReader fr = new FileReader(filename);
 	BufferedReader br = new BufferedReader(fr);
-	String line = null;
+	String line;
 	while ((line = br.readLine()) != null) {
-		sb.append(line + "\n");
+		sb.append(line).append("\n");
 	}
 	br.close();
 	fr.close();

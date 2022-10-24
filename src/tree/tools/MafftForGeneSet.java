@@ -9,7 +9,7 @@ public class MafftForGeneSet {
 	AlignMode alignMode;
 	String ProgramPath;
 
-	private List<String> arguments = new ArrayList<String>();
+	private final List<String> arguments = new ArrayList<>();
 
 	public MafftForGeneSet(String programPath, AlignMode alignMode) {
 		this.alignMode = alignMode;
@@ -35,9 +35,8 @@ public class MafftForGeneSet {
 		mafft.waitFor();
 
 		int exitValue = mafft.exitValue();
-		ProcessGobbler processGobbler = new ProcessGobbler(exitValue, stdError.LogMessage());
-		
-		return processGobbler;
+
+		return new ProcessGobbler(exitValue, stdError.LogMessage());
 	}
 	
 	@Override

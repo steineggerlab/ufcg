@@ -226,14 +226,14 @@ public class ProfileModule {
 		if(!AugustusWrapper.checkConfigPath()) {
 			ExceptionHandler.handle(ExceptionHandler.CONFIG_PATH_UNDEFINED);
 		}
-		if(!AugustusWrapper.checkConfigFile()) {
+		if(AugustusWrapper.checkConfigFile()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_PPX_CONFIG);
 		}
 //		if(!HmmsearchWrapper.solve()) {
 //			ExceptionHandler.pass(PathConfig.HmmsearchPath);
 //			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 //		}
-		if(!MMseqsWrapper.solve()) {
+		if(MMseqsWrapper.solve()) {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}
@@ -665,7 +665,7 @@ public class ProfileModule {
 		}
 		
 		/* config file validation */
-		if(!AugustusWrapper.checkConfigFile()) {
+		if(AugustusWrapper.checkConfigFile()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_PPX_CONFIG);
 			Prompt.print("Please check the path and content of your config file and relaunch the program.\n");
 			System.exit(0);

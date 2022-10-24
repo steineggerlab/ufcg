@@ -10,65 +10,45 @@ public class DetectedGeneDomain implements Serializable {
 	private static final long serialVersionUID = 830018460048146372L;
 
 //	private static final String[] keyList = {"protein","dna","evalue","bitscore"};
-	
-	private String geneName = null;
-	
-	private double eValue = 0;
-	private double bitScore = 0;
-	
+
+//	private String geneName = null;
+
 	private String dna = null;
 	private String protein = null;
-	
-	
-	
-	public DetectedGeneDomain() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	
-	public DetectedGeneDomain(JSONObject jsonObject) {
-		
-		try {
-			String key = null;
-			Iterator<String> iterator = jsonObject.keys();
-			
-			while(iterator.hasNext()) {
-				key = (String) iterator.next();
-				switch (key) {
-				case "protein":
-					this.protein = (String) jsonObject.get(key);
-					break;
 
-				case "dna":
-					this.dna = (String) jsonObject.get(key);
-					break;
-				
-				case "evalue":
-					this.eValue = (double) jsonObject.get(key);
-					break;
-				case "bitscore":
-					Object ob = jsonObject.get(key);
-					//System.out.println(ob);
-					if(ob instanceof Integer) {
-						this.bitScore =  ((Integer) ob).doubleValue();
+	public DetectedGeneDomain(JSONObject jsonObject) {
+
+		try {
+			String key;
+			Iterator<String> iterator = jsonObject.keys();
+
+			while (iterator.hasNext()) {
+				key = iterator.next();
+				switch (key) {
+					case "protein":
+						this.protein = (String) jsonObject.get(key);
 						break;
-					}
-					this.bitScore = (double) ob;
-					break;
+
+					case "dna":
+						this.dna = (String) jsonObject.get(key);
+						break;
+
+					case "evalue":
+					case "bitscore":
+						break;
 				}
 			}
-		}catch(JSONException e) {
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	/*
 	 *  getters & setters
 	 */
-	public String getGeneName() {
-		return geneName;
-	}
+	/*
+	public String getGeneName() {return geneName;}
 	public void setGeneName(String geneName) {
 		this.geneName = geneName;
 	}
@@ -84,20 +64,21 @@ public class DetectedGeneDomain implements Serializable {
 	public void setBitScore(double bitScore) {
 		this.bitScore = bitScore;
 	}
+	*/
 	public String getDna() {
 		return dna;
 	}
-	public void setDna(String dna) {
-		this.dna = dna;
-	}
+
+	// public void setDna(String dna) {this.dna = dna;}
 	public String getProtein() {
 		return protein;
 	}
+
 	public void setProtein(String protein) {
 		this.protein = protein;
 	}
 	
-	
+	/*
 	public JSONObject toJsonObject(){
 		
 		JSONObject detectedGeneJO = new JSONObject();
@@ -114,6 +95,5 @@ public class DetectedGeneDomain implements Serializable {
 		return detectedGeneJO;
 		
 	}
-	
-	
+	*/
 }

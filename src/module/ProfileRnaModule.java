@@ -208,10 +208,10 @@ public class ProfileRnaModule {
 		if(!AugustusWrapper.checkConfigPath()) {
 			ExceptionHandler.handle(ExceptionHandler.CONFIG_PATH_UNDEFINED);
 		}
-		if(!AugustusWrapper.checkConfigFile()) {
+		if(AugustusWrapper.checkConfigFile()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_PPX_CONFIG);
 		}
-		if(!MMseqsWrapper.solve()) {
+		if(MMseqsWrapper.solve()) {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}

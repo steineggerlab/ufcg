@@ -14,10 +14,10 @@ public class AugustusWrapper extends ExecHandler {
 		addArg("--optCfgFile=" + PathConfig.AugustusConfig);
 	}
 	void setStart(int pst) {
-		addArg("--predictionStart=" + String.valueOf(pst));
+		addArg("--predictionStart=" + pst);
 	}
 	void setEnd(int ped) {
-		addArg("--predictionEnd=" + String.valueOf(ped));
+		addArg("--predictionEnd=" + ped);
 	}
 	void setPrfl(String prfl) {
 		addArg("--proteinprofile=" + prfl);
@@ -34,8 +34,7 @@ public class AugustusWrapper extends ExecHandler {
 		String[] raw = Shell.exec(cmd);
 		
 		if(raw.length < 1) return false;
-		if(raw[0].contains("gff")) return true;
-		return false;
+		return raw[0].contains("gff");
 	}
 	
 	public static void runAugustus(String ctgPath, int pst, int ped, String prfl, String outPath) {
@@ -74,8 +73,7 @@ public class AugustusWrapper extends ExecHandler {
 		
 		int error_loc = 0;
 		for(; !raw[error_loc].contains("ERROR"); error_loc++);
-		if(raw[++error_loc].contains("AUGUSTUS_CONFIG_PATH")) return false;
-		return true;
+		return !raw[++error_loc].contains("AUGUSTUS_CONFIG_PATH");
 	}
 	
 	public static boolean checkConfigFile() {
@@ -84,7 +82,6 @@ public class AugustusWrapper extends ExecHandler {
 		
 		int error_loc = 0;
 		for(; !raw[error_loc].contains("ERROR"); error_loc++);
-		if(raw[++error_loc].contains("No sequences found")) return true;
-		return false;
+		return !raw[++error_loc].contains("No sequences found");
 	}
 }

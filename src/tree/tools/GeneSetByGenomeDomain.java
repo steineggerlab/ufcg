@@ -25,109 +25,24 @@ public class GeneSetByGenomeDomain implements Serializable{
 	 */
 	private Long uid = Math.abs(new Random().nextLong());
 	private String label = null;
-	private String targetTaxon = null;
 	private String accession = null;
 	private String taxonName = null;
-	private String ncbiName = null;
 	private String strainName = null;
 	private Boolean isTpyeStrain = null;
-	private String strainProperty = null;
 	private String taxonomy = null;
-	
-	/*
-	 * about run
-	 */
-	private String runTime = null;
-	private int targetGenes = 0;
-	private String usedHmmProfile = null;
 	private String targetGeneSet = null;
 	private int totalDetectedGenes = 0;
-	private int singleCopyGenes = 0;
-	private int multipleCopyGenes = 0;
-	private int paralogs = 0;
-	
+
 	/*
 	 * data
 	 */
 	private HashMap<String, ArrayList<DetectedGeneDomain>> dataMap = new HashMap<>();
-	
-	
 
-	/*
-	 * formatting JSON
-	 */
-	public JSONObject toJsonObject(){
-		
 
-		JSONObject genomeInfoJO = new JSONObject();
-		
-		JSONObject runInfoJO = new JSONObject();
-		
-		JSONObject dataJO = new JSONObject();
-
-		try {
-
-			putJsonObjectValueNull(genomeInfoJO, "uid", uid);
-			putJsonObjectValueNull(genomeInfoJO, "label", label);
-			putJsonObjectValueNull(genomeInfoJO, "target_taxon", targetTaxon);
-			putJsonObjectValueNull(genomeInfoJO, "accession", accession);
-			putJsonObjectValueNull(genomeInfoJO, "taxon_name", taxonName);
-			putJsonObjectValueNull(genomeInfoJO, "ncbi_name", ncbiName);
-			putJsonObjectValueNull(genomeInfoJO, "strain_name", strainName);
-			putJsonObjectValueNull(genomeInfoJO, "isTypeStrain", isTpyeStrain);
-			putJsonObjectValueNull(genomeInfoJO, "strain_property", strainProperty);
-			putJsonObjectValueNull(genomeInfoJO, "taxonomy", taxonomy);
-
-			runInfoJO.put("n_paralogs", paralogs);
-			runInfoJO.put("n_multiple_copy_genes", multipleCopyGenes);
-			runInfoJO.put("n_single_copy_genes", singleCopyGenes);
-			runInfoJO.put("n_total_detected_genes", totalDetectedGenes);
-			runInfoJO.put("target_gene_set", targetGeneSet);
-			runInfoJO.put("used_hmm_profile", usedHmmProfile);
-			runInfoJO.put("n_target_genes", targetGenes);
-			runInfoJO.put("run_time", runTime);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		
-			
-		for(String gene : dataMap.keySet()){
-			
-			ArrayList<DetectedGeneDomain> dgdL = dataMap.get(gene);
-			
-			JSONArray dgdJL = new JSONArray();
-			
-			for(DetectedGeneDomain dgd: dgdL){
-				JSONObject dgdJO = dgd.toJsonObject();
-				dgdJL.put(dgdJO);
-			}
-			
-			try {
-				dataJO.put(gene, dgdJL);
-			}catch(JSONException e2) {
-				e2.printStackTrace();
-			}
-			
-		}
-
-		
-		JSONObject geneSetByGenomeJO = new JSONObject();
-		
-		try {
-			geneSetByGenomeJO.put("genome_info", genomeInfoJO);
-			geneSetByGenomeJO.put("run_info", runInfoJO);
-			geneSetByGenomeJO.put("data", dataJO);
-		}catch(JSONException e3) {
-			e3.printStackTrace();
-		}
-		
-		return geneSetByGenomeJO;
-	}
-
-	
 	public static GeneSetByGenomeDomain jsonToDomain(String geneSetJson) throws JSONException{
-		
-		GeneSetByGenomeDomain geneSet = new GeneSetByGenomeDomain();
+
+		new GeneSetByGenomeDomain();
+		GeneSetByGenomeDomain geneSet;
 		
 		JSONObject geneSetJO = stringToJsonObject(geneSetJson);
 		
@@ -149,7 +64,7 @@ public class GeneSetByGenomeDomain implements Serializable{
 		
 		//Mandatory
 		Object object = genomeInfoJO.get("uid");
-			long uid = 0;
+			long uid;
 		if(object instanceof Integer) {
 			uid = (long) (int) object;
 			geneSet.setUid(uid);
@@ -263,15 +178,15 @@ public class GeneSetByGenomeDomain implements Serializable{
 			geneSet.setUsedHmmProfile((String) runInfoJO.get("used_hmm_profile"));
 		}
 		
-		HashMap<String, ArrayList<DetectedGeneDomain>> dataMap = new HashMap<String, ArrayList<DetectedGeneDomain>>();
+		HashMap<String, ArrayList<DetectedGeneDomain>> dataMap = new HashMap<>();
 		
 		Iterator<String> dataIterator = dataJO.keys();
 		
 		while(dataIterator.hasNext()) {
-			String geneName = (String) dataIterator.next();
+			String geneName = dataIterator.next();
 			JSONArray jsonArray = (JSONArray) dataJO.get(geneName);
 			
-			ArrayList<DetectedGeneDomain> detectedGeneDomainList = new ArrayList<DetectedGeneDomain>();
+			ArrayList<DetectedGeneDomain> detectedGeneDomainList = new ArrayList<>();
 			
 			for(int i=0; i<jsonArray.length(); i++) {
 				JSONObject jsonObject = (JSONObject) jsonArray.get(i);
@@ -291,42 +206,17 @@ public class GeneSetByGenomeDomain implements Serializable{
 	
 	
 	private static JSONObject stringToJsonObject(String geneSetJson) throws JSONException{
-		
-		JSONObject geneSetJO = new JSONObject(geneSetJson);
-		
-		return geneSetJO;
+
+		return new JSONObject(geneSetJson);
 		
 	}
 	
 	private static boolean containKey(JSONObject jsonObject, String key) {
 		return jsonObject.keySet().contains(key);
 	}
-	
-	private static void putJsonObjectValueNull(JSONObject jsonObject, String key, Object object) {
-		if(object!=null) {
-			jsonObject.put(key, object);
-		}else {
-			jsonObject.put(key, JSONObject.NULL);
-		}
-	}
-
-	public String getStrainProperty() {
-		return strainProperty;
-	}
 
 
-	public void setStrainProperty(String strainProperty) {
-		this.strainProperty = strainProperty;
-	}
-
-
-	public String getUsedHmmProfile() {
-		return usedHmmProfile;
-	}
-
-
-	public void setUsedHmmProfile(String usedHmmProfile) {
-		this.usedHmmProfile = usedHmmProfile;
+	public void setUsedHmmProfile(String ignoredUsedHmmProfile) {
 	}
 
 
@@ -346,12 +236,7 @@ public class GeneSetByGenomeDomain implements Serializable{
 		this.label = label;
 	}
 
-	public String getTargetTaxon() {
-		return targetTaxon;
-	}
-
-	public void setTargetTaxon(String targetTaxon) {
-		this.targetTaxon = targetTaxon;
+	public void setTargetTaxon(String ignoredTargetTaxon) {
 	}
 
 	public String getAccession() {
@@ -370,13 +255,7 @@ public class GeneSetByGenomeDomain implements Serializable{
 		this.taxonName = taxonName;
 	}
 
-	public String getNcbiName() {
-		return ncbiName;
-	}
-
-	public void setNcbiName(String ncbiName) {
-		this.ncbiName = ncbiName;
-	}
+	public void setNcbiName(String ignoredNcbiName) {}
 
 	public String getStrainName() {
 		return strainName;
@@ -394,12 +273,7 @@ public class GeneSetByGenomeDomain implements Serializable{
 		this.isTpyeStrain = isTpyeStrain;
 	}
 
-	public String getStrainPproperty() {
-		return strainProperty;
-	}
-
-	public void setStrainPproperty(String strainPproperty) {
-		this.strainProperty = strainPproperty;
+	public void setStrainPproperty(String ignoredStrainPproperty) {
 	}
 
 	public String getTaxonomy() {
@@ -410,21 +284,9 @@ public class GeneSetByGenomeDomain implements Serializable{
 		this.taxonomy = taxonomy;
 	}
 
-	public String getRunTime() {
-		return runTime;
-	}
+	public void setRunTime(String ignoredRunTime) {}
 
-	public void setRunTime(String runTime) {
-		this.runTime = runTime;
-	}
-
-	public int getTargetGenes() {
-		return targetGenes;
-	}
-
-	public void setTargetGenes(int targetGenes) {
-		this.targetGenes = targetGenes;
-	}
+	public void setTargetGenes(int ignoredTargetGenes) {}
 
 	public String getTargetGeneSet() {
 		return targetGeneSet;
@@ -442,29 +304,11 @@ public class GeneSetByGenomeDomain implements Serializable{
 		this.totalDetectedGenes = totalDetectedGenes;
 	}
 
-	public int getSingleCopyGenes() {
-		return singleCopyGenes;
-	}
+	public void setSingleCopyGenes(int ignoredSingleCopyGenes) {}
 
-	public void setSingleCopyGenes(int singleCopyGenes) {
-		this.singleCopyGenes = singleCopyGenes;
-	}
+	public void setMultipleCopyGenes(int ignoredMultipleCopyGenes) {}
 
-	public int getMultipleCopyGenes() {
-		return multipleCopyGenes;
-	}
-
-	public void setMultipleCopyGenes(int multipleCopyGenes) {
-		this.multipleCopyGenes = multipleCopyGenes;
-	}
-
-	public int getParalogs() {
-		return paralogs;
-	}
-
-	public void setParalogs(int paralogs) {
-		this.paralogs = paralogs;
-	}
+	public void setParalogs(int ignoredParalogs) {}
 
 	public HashMap<String, ArrayList<DetectedGeneDomain>> getDataMap() {
 		return dataMap;
@@ -473,9 +317,4 @@ public class GeneSetByGenomeDomain implements Serializable{
 	public void setDataMap(HashMap<String, ArrayList<DetectedGeneDomain>> dataMap) {
 		this.dataMap = dataMap;
 	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
 }

@@ -9,7 +9,7 @@ public class StreamGobbler extends Thread {
 	
 	InputStream is;
 	String type;
-	boolean showMessage = false;
+	boolean showMessage;
 	String log;
 
 	public StreamGobbler(InputStream is, String type, boolean showMessage) {
@@ -27,8 +27,8 @@ public class StreamGobbler extends Thread {
 		try {
 			InputStreamReader isr = new InputStreamReader(is);
 			BufferedReader br = new BufferedReader(isr);
-			String line = null;
-			StringBuffer sb = new StringBuffer();
+			String line;
+			StringBuilder sb = new StringBuilder();
 			while ((line = br.readLine()) != null) {
 				sb.append(line);
 				if (showMessage)

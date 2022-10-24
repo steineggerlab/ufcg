@@ -5,11 +5,11 @@ import java.util.HashMap;
 
 public class ReplaceAcc {
 
-	ArrayList<String> accList = new ArrayList<String>();
-	ArrayList<String> labelList = new ArrayList<String>();
+	ArrayList<String> accList = new ArrayList<>();
+	ArrayList<String> labelList = new ArrayList<>();
 	
-	HashMap<String,Integer> hashAcc =   new HashMap<String,Integer>();
-	HashMap<String,Integer> hashLabel =   new HashMap<String,Integer>();
+	HashMap<String,Integer> hashAcc = new HashMap<>();
+	HashMap<String,Integer> hashLabel = new HashMap<>();
 	
 	int count = 1;
 	String flag = "zZ";

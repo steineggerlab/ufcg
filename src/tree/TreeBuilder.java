@@ -6,7 +6,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 //import java.nio.file.Files;
@@ -60,38 +59,23 @@ import tree.tools.LabelReplacer;
  */
 public class TreeBuilder{
 
-private String ucgDirectory = null;
-private String outDirectory = null;
-private String runOutDirName = null;
+private final String ucgDirectory, outDirectory, mafftPath, raxmlPath, fasttreePath, iqtreePath, model;
+private String runOutDirName;
+private final AlignMode alignMode;
+private final int filtering, gsi_threshold, executorLimit;
+private final List<String> outputLabels;
 
-private String mafftPath = null;
-private String raxmlPath = null;
-private String fasttreePath = null;
-private String iqtreePath = null;
+private final List<Long> genomeList;// Genomes used for the analysis
+private final Map<String, String> replaceMap;
+private List<String> targetGenes;
+private final Set<String> usedGenes;
 
-private AlignMode alignMode = AlignMode.codon;
-private int filtering = 50; // removes the column which has more than 50% gaps
-private String model = null;
-private int gsi_threshold = 95;
-private List<String> outputLabels = null;
-private int executorLimit = 20;
-
-private List<Long> genomeList = null;// Genomes used for the analysis
-private Map<String, String> replaceMap = null;
-private List<String> targetGenes = null;
-private Set<String> usedGenes = null;
-
-private String treeZzFileName = null;
+private final String treeZzFileName;
 private String treeZzGsiFileName = null;
 
 // output files
-private String concatenatedSeqFileName = null;
-private String concatenatedSeqLabelFileName = null;
-private String treeLabelFileName = null;
+private final String concatenatedSeqFileName, concatenatedSeqLabelFileName, treeLabelFileName, allGeneTreesFile, logFileName, trmFile;
 private String treeLabelGsiFileName = null;
-private String allGeneTreesFile = null;
-private String logFileName = null;
-private String trmFile = null;
 
 /* checkpoint
  *     0 : initial state
@@ -137,13 +121,14 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 	this.genomeList = new ArrayList<>();
 	this.replaceMap = new HashMap<>();
 	this.targetGenes = new ArrayList<>();
-	this.usedGenes = new HashSet<String>();
+	this.usedGenes = new HashSet<>();
 
 	this.concatenatedSeqFileName = this.outDirectory + this.runOutDirName + "aligned_concatenated.zZ.fasta";
 	this.concatenatedSeqLabelFileName = this.outDirectory + this.runOutDirName + "aligned_concatenated.fasta";
 	this.treeZzFileName = this.outDirectory + this.runOutDirName + "concatenated." + alignMode + ".zZ.nwk";
 	this.treeLabelFileName = this.outDirectory + this.runOutDirName + "concatenated" + ".nwk";
 	this.allGeneTreesFile = this.outDirectory + this.runOutDirName + "all_genetrees.txt";
+	assert runOutDirName != null;
 	this.logFileName = this.outDirectory + this.runOutDirName + runOutDirName.replace(File.separator, "") + ".log";
 	this.trmFile = this.outDirectory + this.runOutDirName + runOutDirName.replace(File.separator, "") + ".trm";
 	this.alignMode = alignMode;
@@ -336,7 +321,7 @@ private void testRaxml(String raxmlPath) {
 		ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 	}
 }
-private void testIqtree(String fasttreePath) {
+private void testIqtree(String iqtreePath) {
 	boolean iqtree = false;
 
 	List<String> argiqtree = new ArrayList<>();
@@ -394,20 +379,15 @@ void readJsonsToFastaFiles() throws IOException{
 		ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
 	}
 	
-	File[] files = dir.listFiles(new FilenameFilter() {
-
-		@Override
-		public boolean accept(File dir, String name) {
-			return name.toLowerCase().endsWith(".ucg");
-		}
-	});
+	File[] files = dir.listFiles((dir1, name) -> name.toLowerCase().endsWith(".ucg"));
 	
 	// 1. check all of the ucg has same target gene set
+	assert files != null;
 	checkIfSameTargetGeneSets(files);
 	
 	// 2. jsons to geneSetByGenomeDomains
 	List<GeneSetByGenomeDomain> geneSetsDomainList = jsonsToGeneSetDomains(files);
-	HashMap<String, Integer> labelCountMap = new HashMap<String, Integer>();
+	HashMap<String, Integer> labelCountMap = new HashMap<>();
 	HashSet<Long> uidSet = new HashSet<>();
 	
 	for(GeneSetByGenomeDomain domain : geneSetsDomainList) {
@@ -494,7 +474,8 @@ private void checkPathDirectory() {
 		
 		// define checkpoint step
 		File[] ckpFiles = runPath.listFiles();
-		List<String> ckpFilenames = new ArrayList<String>();
+		List<String> ckpFilenames = new ArrayList<>();
+		assert ckpFiles != null;
 		for(File ckpFile : ckpFiles) ckpFilenames.add(ckpFile.getName());
 		
 		for(String ckp : ckpFilenames) {
@@ -559,9 +540,9 @@ void alignGenes(int nThreads) {
 
 
 void removeGaps() {
-	Prompt.print("Removing gappy columns with threshold of gap percentage " + String.valueOf(filtering) + "%...");
+	Prompt.print("Removing gappy columns with threshold of gap percentage " + filtering + "%...");
 	
-	List<String> fileList = new ArrayList<String>();
+	List<String> fileList = new ArrayList<>();
 
 	for (String gene : usedGenes) {
 		fileList.add(alignedFinalGeneFastaFile(gene));
@@ -590,15 +571,15 @@ void concatenateAlignedGenes() {
 	
 	Prompt.print("Concatenating aligned genes...");
 	
-	List<String> fileList = new ArrayList<String>();
+	List<String> fileList = new ArrayList<>();
 
 	for (String gene : usedGenes) {
 		fileList.add(alignedFinalGeneFastaFile(gene));
 	}
 	
-	HashMap<String, Integer> geneLengthMap = new HashMap<String, Integer>();
+	HashMap<String, Integer> geneLengthMap = new HashMap<>();
 
-	LinkedHashMap<String, FastaSeqList> geneFastaSeqListMap = new LinkedHashMap<String, FastaSeqList>();
+	LinkedHashMap<String, FastaSeqList> geneFastaSeqListMap = new LinkedHashMap<>();
 
 	for (String fileName : fileList) {
 		FastaSeqList fsl = new FastaSeqList();
@@ -643,29 +624,29 @@ void concatenateAlignedGenes() {
 //		FileWriter tmpWriter = new FileWriter(tmpFileName, true);
 //		BufferedWriter tmpBufferedWriter = new BufferedWriter(tmpWriter);
 
-		String tmpFasta = "";
+		StringBuilder tmpFasta = new StringBuilder();
 		
 		int count = 0;
 		for (Long genomeUid : genomeList) {
 
 			String zZgenomeUid = "zZ" + genomeUid + "zZ";
 
-			StringBuffer concatenatedFasta = new StringBuffer();
+			StringBuilder concatenatedFasta = new StringBuilder();
 
 			if (count == 0) {
-				concatenatedFasta.append(">" + zZgenomeUid + "\n");
+				concatenatedFasta.append(">").append(zZgenomeUid).append("\n");
 			} else {
-				concatenatedFasta.append("\n>" + zZgenomeUid + "\n");
+				concatenatedFasta.append("\n>").append(zZgenomeUid).append("\n");
 			}
 			count++;
 
 			for (String key : geneFastaSeqListMap.keySet()) {
-				if (geneFastaSeqListMap.get(key).find(String.valueOf(zZgenomeUid)) == null) {
-					StringBuffer gaps = new StringBuffer();
+				if (geneFastaSeqListMap.get(key).find(zZgenomeUid) == null) {
+					StringBuilder gaps = new StringBuilder();
 					for (int i = 0; i < geneLengthMap.get(key); i++) {
 						gaps.append("-");
 					}
-					concatenatedFasta.append(gaps.toString());
+					concatenatedFasta.append(gaps);
 				} else {
 					concatenatedFasta.append(geneFastaSeqListMap.get(key).find(zZgenomeUid).sequence);
 				}
@@ -673,7 +654,7 @@ void concatenateAlignedGenes() {
 
 //			tmpBufferedWriter.append(concatenatedFasta.toString());
 			
-			tmpFasta = tmpFasta + concatenatedFasta.toString();
+			tmpFasta.append(concatenatedFasta);
 		}
 
 //		tmpBufferedWriter.close();
@@ -684,7 +665,7 @@ void concatenateAlignedGenes() {
 //		String tmpFasta = new String (Files.readAllBytes(Paths.get(tmpFileName)));
 //		new File(tmpFileName).delete();
 
-		String filteredFasta = removeGapColumns(tmpFasta);
+		String filteredFasta = removeGapColumns(tmpFasta.toString());
 
 		FileWriter fw = new FileWriter(concatenatedSeqFileName);
 		fw.append(filteredFasta);
@@ -700,7 +681,7 @@ void inferTree(PhylogenyTool tool, int nThreads) {
 	Prompt.print("Reconstructing the final tree...");
 	
 	if(tool.equals(PhylogenyTool.raxml)) runRaxml(nThreads);
-	if(tool.equals(PhylogenyTool.fasttree)) runFasttree(nThreads);
+	if(tool.equals(PhylogenyTool.fasttree)) runFasttree();
 	if(tool.equals(PhylogenyTool.iqtree)) runIqtree(nThreads); 
 	
 	Prompt.print("The final tree was written in : " + ANSIHandler.wrapper(treeLabelFileName, 'B'));
@@ -716,6 +697,7 @@ void inferGeneTrees(PhylogenyTool phylogenyTool, int nThreads) {
 		inferGeneTreesSequentially(phylogenyTool, nThreads);
 	}*/
 }
+@Deprecated
 void inferGeneTreesSequentially(PhylogenyTool phylogenyTool, int nThreads) {
 	Prompt.print("Reconstructing gene trees...");
 
@@ -728,7 +710,7 @@ void inferGeneTreesSequentially(PhylogenyTool phylogenyTool, int nThreads) {
 	conFsl.importFile(concatFile);
 
 	logSB.append("//\n\n");
-	logSB.append("Length of the concatenated alignment: " + conFsl.list.get(1).sequence.length());
+	logSB.append("Length of the concatenated alignment: ").append(conFsl.list.get(1).sequence.length());
 	logSB.append("\n\n");
 
 	logSB.append("Length of gene alignments\n");
@@ -745,7 +727,7 @@ void inferGeneTreesSequentially(PhylogenyTool phylogenyTool, int nThreads) {
 			FastaSeqList fsl = new FastaSeqList();
 			fsl.importFile(alignedGeneFasta);
 
-			logSB.append(ucg + ": " + fsl.list.get(0).sequence.length() + "\n");
+			logSB.append(ucg).append(": ").append(fsl.list.get(0).sequence.length()).append("\n");
 			
 		}
 	}
@@ -767,7 +749,7 @@ void inferGeneTreesSequentially(PhylogenyTool phylogenyTool, int nThreads) {
 			runGeneRaxml(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), raxmlPath, nThreads, ucg, alignMode, outDirectory, model);
 		}
 		else if(phylogenyTool.equals(PhylogenyTool.fasttree)) {
-			runGeneFasttree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), fasttreePath, nThreads, ucg, alignMode, outDirectory, model);
+			runGeneFasttree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), fasttreePath, ucg, alignMode, outDirectory, model);
 		}
 		else if(phylogenyTool.equals(PhylogenyTool.iqtree)) {
 			runGeneIqtree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), iqtreePath, nThreads, ucg, alignMode, outDirectory, model);
@@ -826,7 +808,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	conFsl.importFile(concatFile);
 
 	logSB.append("//\n\n");
-	logSB.append("Length of the concatenated alignment: " + conFsl.list.get(1).sequence.length());
+	logSB.append("Length of the concatenated alignment: ").append(conFsl.list.get(1).sequence.length());
 	logSB.append("\n\n");
 
 	logSB.append("Length of gene alignments\n");
@@ -845,7 +827,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 			FastaSeqList fsl = new FastaSeqList();
 			fsl.importFile(alignedGeneFasta);
 
-			logSB.append(ucg + ": " + fsl.list.get(0).sequence.length() + "\n");
+			logSB.append(ucg).append(": ").append(fsl.list.get(0).sequence.length()).append("\n");
 			
 		}
 	}
@@ -864,7 +846,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	Prompt.talk("Total number of gene trees to be reconstructed : " + numOfGenes);
 	
 	// Distribute cores to services
-	int nServices = (nThreads > executorLimit) ? executorLimit : nThreads,
+	int nServices = Math.min(nThreads, executorLimit),
 		nCores = (nThreads > executorLimit) ? nThreads / executorLimit : 1;
 	
 	ExecutorService exeServiceTree = Executors.newFixedThreadPool(nServices);
@@ -875,7 +857,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	if (phylogenyTool.equals(PhylogenyTool.fasttree)){
 		for (String ucg : usedGenes) {
 			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleFastTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), fasttreePath, counterTree, ucg, alignMode,
-					numOfGenes, outDirectory, model, nCores));
+					numOfGenes, outDirectory, model));
 			futures.add(f);
 		}
 	} else if (phylogenyTool.equals(PhylogenyTool.raxml)){
@@ -898,7 +880,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 		for (Future<ProcessGobbler> f : futures) {
 			ProcessGobbler processGobbler = f.get();
 			if (processGobbler.getExitValue() != 0) {
-				Prompt.debug(String.format("Subprocess exited with value %d : %s", String.valueOf(processGobbler.getExitValue()), processGobbler.getLog()));
+				Prompt.debug(String.format("Subprocess exited with value %d : %s", processGobbler.getExitValue(), processGobbler.getLog()));
 				// ExceptionHandler.pass(processGobbler.getLog());
 				// ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
@@ -906,12 +888,10 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	
 		while (!exeServiceTree.awaitTermination(1, TimeUnit.SECONDS)) {
 		}
-	} catch(InterruptedException e) {
+	} catch(InterruptedException | ExecutionException e) {
 		ExceptionHandler.handle(e);
-	} catch(ExecutionException ex) {
-		ExceptionHandler.handle(ex);
 	}
-	
+
 	Prompt.talk("Gene tree reconstruction finished.");
 
 	// merge gene trees
@@ -970,6 +950,7 @@ void calculateGsi() {
 
 	int genomeNum = 0;
 
+	assert tempUcgJsonFileList != null;
 	for (File jsonFile : tempUcgJsonFileList) {
 		if (jsonFile.getName().endsWith(".ucg")) {
 			genomeNum++;
@@ -980,7 +961,7 @@ void calculateGsi() {
 	BranchAnalysis branchAnalysis = new BranchAnalysis(new File(allGeneTreesFile));
 	String tmp = branchAnalysis.markTree(
 			new File(treeZzFileName),
-			false, true, -1, (int) ((100 - gsi_threshold) * genomeNum / 100));
+			false, true, -1, (100 - gsi_threshold) * genomeNum / 100);
 	
 	try {
 		FileWriter stFW = new FileWriter(treeZzGsiFileName);
@@ -1057,6 +1038,7 @@ void calculateGsi() {
 	}
 }
 
+/*
 void sedReplace(String src, String dst, Map<String, String> map) {
 	for(String key : map.keySet()) {
 		String[] cmd = {"sed", "-i", String.format("s/zZ%szZ/%s/g", key, map.get(key)), src};
@@ -1065,11 +1047,12 @@ void sedReplace(String src, String dst, Map<String, String> map) {
 	
 	Shell.exec(String.format("mv %s %s", src, dst));
 }
+*/
 
 // Zz -> label
 void replaceLabel(int nThreads) {
-	List<String> src = new ArrayList<String>();
-	List<String> dst = new ArrayList<String>();
+	List<String> src = new ArrayList<>();
+	List<String> dst = new ArrayList<>();
 	
 	src.add(concatenatedSeqFileName);
 	src.add(treeZzFileName);
@@ -1124,8 +1107,8 @@ void replaceLabel(int nThreads) {
 }
 
 void replaceLabelforAlign(int nThreads) {
-	List<String> src = new ArrayList<String>();
-	List<String> dst = new ArrayList<String>();
+	List<String> src = new ArrayList<>();
+	List<String> dst = new ArrayList<>();
 	for(String ucg : usedGenes) {
 		
 		// gene files
@@ -1187,7 +1170,7 @@ void cleanFiles() {
 
 private void runRaxml(int nThreads) {
 	
-	List<String> argTree = new ArrayList<String>();
+	List<String> argTree = new ArrayList<>();
 	
 	String prefix = runOutDirName.substring(0, runOutDirName.length()-1);
 	
@@ -1241,7 +1224,7 @@ private void runRaxml(int nThreads) {
 
 }
 private void runGeneRaxml(String alignedFastaFile, String run_id, String programPath, int nThreads, String ucg, AlignMode alignMode, String outputDir, String model) {
-	List<String> argTree = new ArrayList<String>();
+	List<String> argTree = new ArrayList<>();
 
 	argTree.add(programPath);
 
@@ -1306,9 +1289,9 @@ private void runGeneRaxml(String alignedFastaFile, String run_id, String program
 		reducedFile.delete();
 	}
 }
-private void runFasttree(int nThreads) {
+private void runFasttree() {
 	
-	List<String> argTree = new ArrayList<String>();
+	List<String> argTree = new ArrayList<>();
 	
 	argTree.add("bash");
 	argTree.add("-c");
@@ -1350,8 +1333,8 @@ private void runFasttree(int nThreads) {
 	
 	runPhylogenyToolByProcess(argTree);
 }
-private void runGeneFasttree(String alignedFastaFile, String run_id, String programPath, int nThreads, String ucg, AlignMode alignMode, String outputDir, String model) {
-	List<String> argTree = new ArrayList<String>();
+private void runGeneFasttree(String alignedFastaFile, String run_id, String programPath, String ucg, AlignMode alignMode, String outputDir, String model) {
+	List<String> argTree = new ArrayList<>();
 
 	argTree.add("bash");
 	argTree.add("-c");
@@ -1416,7 +1399,7 @@ private void runGeneFasttree(String alignedFastaFile, String run_id, String prog
 	runPhylogenyToolByProcess(argTree);
 }
 private void runIqtree(int nThreads) {
-	List<String> argTree = new ArrayList<String>();
+	List<String> argTree = new ArrayList<>();
 	
 	argTree.add(iqtreePath);
 	argTree.add("-s");
@@ -1446,7 +1429,7 @@ private void runIqtree(int nThreads) {
 	new File(concatenatedSeqFileName + ".splits.nex").delete();
 }
 private void runGeneIqtree(String alignedFastaFile, String run_id, String programPath, int nThreads, String ucg, AlignMode alignMode, String outputDir, String model) {
-	List<String> argTree = new ArrayList<String>();
+	List<String> argTree = new ArrayList<>();
 
 	argTree.add(programPath);
 
@@ -1519,7 +1502,7 @@ private void align(int nThreads) {
 	try{
 		ExecutorService exeService = Executors.newFixedThreadPool(nThreads);
 	
-		int counter[] = {0};
+		int[] counter = {0};
 		
 		List<Future<ProcessGobbler>> futures = new ArrayList<>();
 		for(String gene : usedGenes){
@@ -1544,12 +1527,10 @@ private void align(int nThreads) {
 		while(!exeService.awaitTermination(1, TimeUnit.SECONDS)){
 		}
 		
-	}catch(InterruptedException e){
+	}catch(InterruptedException | ExecutionException e){
 		ExceptionHandler.handle(e);
-	}catch(ExecutionException ex) {
-		ExceptionHandler.handle(ex);
 	}
-	
+
 }
 
 private void proAlignToCodon() {
@@ -1581,7 +1562,7 @@ private void proAlignToCodon() {
 				dnaSeq = dnaSeq + "TAA";
 			}	
 			
-			StringBuffer alignedCodonSB = new StringBuffer(dnaSeq);
+			StringBuilder alignedCodonSB = new StringBuilder(dnaSeq);
 			
 			for(int k=0; k<alignedSeq.length;k++){
 				char ch = alignedSeq[k];
@@ -1597,7 +1578,7 @@ private void proAlignToCodon() {
 				
 			}else if(alignMode.equals(AlignMode.codon12)) {
 				char[] seqArray = alignedCodonSB.toString().toCharArray();
-				StringBuffer codon12SB = new StringBuffer();
+				StringBuilder codon12SB = new StringBuilder();
 				
 				for(int k=0;k<seqArray.length;k++){
 					if(k%3!=2){
@@ -1652,14 +1633,10 @@ private String removeGapColumns(String concatFasta) {
 	for(FastaSeq fastaSeq : conFastaSeqList.list){
 		String seq = fastaSeq.sequence;
 		char[] seqArray = seq.toCharArray();
-		StringBuffer seqSB = new StringBuffer();
+		StringBuilder seqSB = new StringBuilder();
 		
 		for(int pos=0;pos<seq.length();pos++){
-			if(numGaps[pos] > ((float) numOfGenome * percentageFilter)){
-				continue;
-			}else{
-				seqSB.append(seqArray[pos]);
-			}
+			if(numGaps[pos] <= ((float) numOfGenome * percentageFilter)) seqSB.append(seqArray[pos]);
 		}
 	
 		fastaSeq.sequence = seqSB.toString();
@@ -1681,8 +1658,8 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 	
 	for (String gene : targetGenes) {
 
-		StringBuffer sbNuc = new StringBuffer();
-		StringBuffer sbPro = new StringBuffer();
+		StringBuilder sbNuc = new StringBuilder();
+		StringBuilder sbPro = new StringBuilder();
 		
 		int nuc = 0;
 		int pro = 0;
@@ -1704,13 +1681,13 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 						ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 					}
 					if (nucSeq != null) {
-						sbNuc.append(">zZ" + uid + "zZ\n");
+						sbNuc.append(">zZ").append(uid).append("zZ\n");
 						sbNuc.append(nucSeq);
 						sbNuc.append("\n");
 						nuc++;
 					}
 					if (proSeq != null) {
-						sbPro.append(">zZ" + uid + "zZ\n");
+						sbPro.append(">zZ").append(uid).append("zZ\n");
 						sbPro.append(proSeq);
 						sbPro.append("\n");
 						pro++;
@@ -1751,7 +1728,7 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 	
 	for (String gene : targetGenes) {
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		int num = 0;
 		
@@ -1773,7 +1750,7 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 					}
 					
 					if (seq != null) {
-						sb.append(">zZ" + uid + "zZ\n");
+						sb.append(">zZ").append(uid).append("zZ\n");
 						sb.append(seq);
 						sb.append("\n");
 						num++;
@@ -1801,7 +1778,7 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 }
 
 private List<GeneSetByGenomeDomain> jsonsToGeneSetDomains(File[] files) {
-	List<GeneSetByGenomeDomain> geneSetsDomainList = new ArrayList<GeneSetByGenomeDomain>();
+	List<GeneSetByGenomeDomain> geneSetsDomainList = new ArrayList<>();
 
 	for (File file : files) {
 
@@ -1814,7 +1791,7 @@ private List<GeneSetByGenomeDomain> jsonsToGeneSetDomains(File[] files) {
 	
 	return geneSetsDomainList;
 }
-private boolean checkIfSameTargetGeneSets(File[] files) throws JSONException {
+private void checkIfSameTargetGeneSets(File[] files) throws JSONException {
 	
 	Prompt.print(files.length + " ucg files are detected.");
 	
@@ -1822,9 +1799,7 @@ private boolean checkIfSameTargetGeneSets(File[] files) throws JSONException {
 		ExceptionHandler.pass("Three or more .ucg profiles are required.");
 		ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 	}
-	
-	boolean same = false;
-	
+
 	File refFile = files[0];
 	//System.out.println(refFile.getAbsolutePath());
 	ArrayList<String> refTargetGenes = fileToTargetGeneList(refFile);
@@ -1838,9 +1813,7 @@ private boolean checkIfSameTargetGeneSets(File[] files) throws JSONException {
 			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 		}
 	}
-	same = true;
-	
-	return same;
+
 }
 
 private ArrayList<String> fileToTargetGeneList(File geneSetJsonFile) throws JSONException {
@@ -1849,8 +1822,7 @@ private ArrayList<String> fileToTargetGeneList(File geneSetJsonFile) throws JSON
 	GeneSetByGenomeDomain geneSetByGenomeDomain = GeneSetByGenomeDomain.jsonToDomain(geneSetJson);
 	String geneSet = geneSetByGenomeDomain.getTargetGeneSet();
 	String[] targetGenes = geneSet.split(",");
-	ArrayList<String> list = new ArrayList<String>(Arrays.asList(targetGenes));
-	return list;
+	return new ArrayList<>(Arrays.asList(targetGenes));
 }
 
 private boolean sameTargetGenes(ArrayList<String> ref, ArrayList<String> target) {
@@ -1923,12 +1895,10 @@ private String alignedFastaFileName(String gene) {
 }
 
 private String alignedCodonFile(String gene) {
-	String fasta = outDirectory + runOutDirName + "aligned_" + gene + "_codon.zZ.fasta";
-	return fasta;
+	return outDirectory + runOutDirName + "aligned_" + gene + "_codon.zZ.fasta";
 }
 private String alignedCodon12File(String gene) {
-	String fasta = outDirectory + runOutDirName + "aligned_" + gene + "_codon12.zZ.fasta";
-	return fasta;
+	return outDirectory + runOutDirName + "aligned_" + gene + "_codon12.zZ.fasta";
 }
 private String alignedFinalGeneFastaFile(String gene) {
 	String fasta = null;
@@ -1946,10 +1916,8 @@ private String alignedFinalGeneFastaFile(String gene) {
 	return fasta;
 }
 private String alignedFinalGeneFastaLabelFile(String gene) {
-	
-	String fasta = outDirectory + runOutDirName + "aligned_" + gene + ".fasta";
-	
-//	if(alignMode.equals(AlignMode.nucleotide)) {
+
+	//	if(alignMode.equals(AlignMode.nucleotide)) {
 //		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_nuc.fasta";
 //	}else if(alignMode.equals(AlignMode.protein)) {
 //		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_pro.fasta";
@@ -1959,7 +1927,7 @@ private String alignedFinalGeneFastaLabelFile(String gene) {
 //		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_codon12.label.fasta";
 //	}
 		
-	return fasta;
+	return outDirectory + runOutDirName + "aligned_" + gene + ".fasta";
 }
 
 
@@ -1969,10 +1937,10 @@ private void writeGenomeInfoToLogFile(List<GeneSetByGenomeDomain> geneSetByGenom
 	StringBuffer logSB = new StringBuffer();
 	
 	// info of the run
-	logSB.append("Run ID: " + runOutDirName.replace(File.separator, "") + "\n");
-	logSB.append("Genomes produced: " + geneSetByGenomeDomains.size() + "\n");
-	logSB.append("Alignment mode: " + alignMode + "\n");
-	logSB.append("Filtered by: " + filtering + "%\n\n");
+	logSB.append("Run ID: ").append(runOutDirName.replace(File.separator, "")).append("\n");
+	logSB.append("Genomes produced: ").append(geneSetByGenomeDomains.size()).append("\n");
+	logSB.append("Alignment mode: ").append(alignMode).append("\n");
+	logSB.append("Filtered by: ").append(filtering).append("%\n\n");
 	logSB.append("Genomes included in the analysis\n");
 	logSB.append("uid\tlabel\tacc\ttaxon_name\tstrain_name\ttype\ttaxonomy\tUUCG\n");
 	
@@ -1986,7 +1954,7 @@ private void writeGenomeInfoToLogFile(List<GeneSetByGenomeDomain> geneSetByGenom
 		String taxonomy = dom.getTaxonomy();
 		int numDetectedGenes = dom.getTotalDetectedGenes();
 		
-		logSB.append(uid + "\t" + label + "\t" + acc + "\t" + taxon_name + "\t" + strain_name + "\t" + type + "\t" + taxonomy + "\t"+ numDetectedGenes + "\n");
+		logSB.append(uid).append("\t").append(label).append("\t").append(acc).append("\t").append(taxon_name).append("\t").append(strain_name).append("\t").append(type).append("\t").append(taxonomy).append("\t").append(numDetectedGenes).append("\n");
 	}
 	
 	try {
@@ -2061,7 +2029,7 @@ String outputDir;
 String model;
 
 public multipleFastTree(String alignedFastaFile, String run_id, String programPath, int[] counter, String ucg, AlignMode alignMode,
-		 int ucgNum, String outputDir, String model, int nThreads) {
+		 int ucgNum, String outputDir, String model) {
 	this.alignedFastaFile = alignedFastaFile;
 	this.run_id = run_id;
 	this.programPath = programPath;
@@ -2080,15 +2048,14 @@ public static synchronized void updateCounter(String ucg, int[] counter, int ucg
 }
 
 public ProcessGobbler call() throws IOException{
-	List<String> argTree = new ArrayList<String>();
+	List<String> argTree = new ArrayList<>();
 
 	argTree.add("bash");
 	argTree.add("-c");
 
 	File inputFile = new File(alignedFastaFile);
 	if (!inputFile.exists()) {
-		ProcessGobbler processGobbler = new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' doesn't exist to run FastTree.");
-		return processGobbler;
+		return new ProcessGobbler(1, "Error : Input file '" + alignedFastaFile + "' doesn't exist to run FastTree.");
 	}
 
 	if (model == null) {
@@ -2163,8 +2130,7 @@ public ProcessGobbler call() throws IOException{
 	// finished
 	updateCounter(ucg, counter, ucgNum);
 
-	ProcessGobbler processGobbler = new ProcessGobbler(exitValue, errorLog);
-	return processGobbler;
+	return new ProcessGobbler(exitValue, errorLog);
 }
 
 }
@@ -2204,7 +2170,7 @@ public static synchronized void updateCounter(String ucg, int[] counter, int ucg
 }
 
 public ProcessGobbler call() throws IOException{
-	List<String> argTree = new ArrayList<String>();
+	List<String> argTree = new ArrayList<>();
 
 	argTree.add(programPath);
 
@@ -2327,7 +2293,7 @@ public static synchronized void updateCounter(String ucg, int[] counter, int ucg
 }
 
 public ProcessGobbler call() throws IOException{
-	List<String> argTree = new ArrayList<String>();
+	List<String> argTree = new ArrayList<>();
 
 	argTree.add(programPath);
 

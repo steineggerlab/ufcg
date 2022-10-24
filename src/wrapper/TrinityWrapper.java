@@ -13,13 +13,8 @@ public class TrinityWrapper extends ExecHandler {
 		super.addArg("--seqType", seqType);
 	}
 	
-	void setLeft(String file) {
-		super.addArg("--left", file);
-	}
-	
-	void setRight(String file) {
-		super.addArg("--right", file);
-	}
+	// void setLeft(String file) {super.addArg("--left", file);}
+	// void setRight(String file) {super.addArg("--right", file);}
 	
 	void setSingle(String file) {
 		super.addArg("--single", file);
@@ -27,7 +22,7 @@ public class TrinityWrapper extends ExecHandler {
 	
 	// convert bytes to gigabytes
 	void setMaxMemory(long maxMemory) {
-		super.addArg("--max_memory", String.valueOf(maxMemory / (1<<30)) + "G");
+		super.addArg("--max_memory", maxMemory / (1 << 30) + "G");
 	}
 	
 	void setCPU(int cpu) {
@@ -53,7 +48,8 @@ public class TrinityWrapper extends ExecHandler {
 		tr.addArg("2>/dev/null");
 		tr.exec();
 	}
-	
+
+	/*
 	public static void runDual(String seqType, String left, String right, long mem, int cpu, String out) {
 		TrinityWrapper tr = new TrinityWrapper();
 		tr.setSeqType(seqType);
@@ -65,7 +61,8 @@ public class TrinityWrapper extends ExecHandler {
 		tr.addArg("2>/dev/null");
 		tr.exec();
 	}
-	
+	*/
+
 	// solve dependency
 	public static boolean solve() {
 		String cmd = PathConfig.TrinityPath + " 2>&1";

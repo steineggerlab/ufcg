@@ -4,5 +4,5 @@ public enum AlignMode {
 	nucleotide,
 	protein,
 	codon,
-	codon12;
+	codon12
 }

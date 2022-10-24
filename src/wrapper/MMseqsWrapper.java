@@ -99,10 +99,10 @@ public class MMseqsWrapper extends ExecHandler {
 	public static boolean solve() {
 		String cmd = PathConfig.MMseqsPath + " 2>&1";
 		String[] raw = Shell.exec(cmd);
-		if(raw[0].contains("not found")) return false;
+		if(raw[0].contains("not found")) return true;
 		for(int error_loc = 0; !raw[error_loc].contains("MMseqs2"); error_loc++) {
-			if(error_loc + 1 == raw.length) return false; 
+			if(error_loc + 1 == raw.length) return true;
 		}
-		return true;
+		return false;
 	}
 }

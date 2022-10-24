@@ -68,7 +68,7 @@ public class BlockProfileEntity {
 	
 	// reduce hit entries to count by scores
 	public void reduce(int count) {
-		Collections.sort(this.hits, Collections.reverseOrder());
+		this.hits.sort(Collections.reverseOrder());
 		
 		int size = Math.min(count, getCnt());
 		List<HitEntry> reduced = new ArrayList<>();

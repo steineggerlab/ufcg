@@ -35,8 +35,7 @@ public class FastBlockSearchWrapper extends ExecHandler {
 			raw = Shell.exec(cmd);
 			if(raw[0].contains("Insig")) return true;
 		}
-		if(raw[0].contains("Hits")) return true;
-		return false;
+		return raw[0].contains("Hits");
 	}
 	
 	public static void runFastBlockSearch(String seqPath, String famPath, String outPath, String errPath) {
