@@ -12,7 +12,7 @@ public class FastBlockSearchParser {
 		FileStream blockStream = new FileStream(blockPath, 'r');
 		
 		String line, cbuf = null, sbuf = null;
-		List<Integer> pos = new ArrayList<Integer>();
+		List<Integer> pos = new ArrayList<>();
 		while((line = blockStream.readLine()) != null) {
 			if(line.startsWith("Hits")) cbuf = line.split(" ")[3];
 			if(line.startsWith("Score")) sbuf = line.split(":")[1];
@@ -22,8 +22,9 @@ public class FastBlockSearchParser {
 					pos.add(Integer.parseInt(line.split("\t")[0]));
 				}
 				// Prompt.test(String.format("Updating : %s [%d - %d]", cbuf, pos.get(0), pos.get(pos.size() - 1)));
+				assert sbuf != null;
 				bp.update(cbuf, pos, Double.parseDouble(sbuf));
-				pos = new ArrayList<Integer>();
+				pos = new ArrayList<>();
 			}
 		}
 		

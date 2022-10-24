@@ -20,16 +20,16 @@ public class GffTableParser {
 			
 			// protein found
 			if(line.contains("protein sequence")) {
-				String seq = line.split(" = ")[1].substring(1);
+				StringBuilder seq = new StringBuilder(line.split(" = ")[1].substring(1));
 				
 				// build up
-				if(!seq.contains("]")) {
+				if(!seq.toString().contains("]")) {
 					String tmp;
 					while(!(tmp = gffStream.readLine()).contains("]")) {
 						if(tmp.contains("block")) break;
-						seq += tmp.substring(2);
+						seq.append(tmp.substring(2));
 					}
-					seq += tmp.substring(2);
+					seq.append(tmp.substring(2));
 				}
 				
 				// write protein

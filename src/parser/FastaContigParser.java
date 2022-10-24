@@ -18,18 +18,18 @@ public class FastaContigParser {
 	}
 
 	public static String revcomp(String seq){
-		String rev = "";
+		StringBuilder rev = new StringBuilder();
 
 		for(int i = seq.length(); i > 0; i--){
-			rev += reverse(seq.charAt(i - 1));
+			rev.append(reverse(seq.charAt(i - 1)));
 		}
 
-		return rev;
+		return rev.toString();
 	}
 	
 	public static String parse(GffLocationEntity loc) throws java.io.IOException {
 		Prompt.talk(String.format("Extracting cDNA sequence of gene %s...", loc.refProfile.refBlock.cg));
-		String seq = "";
+		StringBuilder seq = new StringBuilder();
 		FileStream ctgStream = new FileStream(loc.ctgPath, 'r');
 		String buf = ctgStream.readLine();
 		while(buf.startsWith(">")) buf = ctgStream.readLine();
@@ -40,27 +40,26 @@ public class FastaContigParser {
 			offset += bsize;
 		}
 		
-		seq += buf;
-		for(bloc = offset; bloc < loc.trxTail; bloc += bsize) seq += ctgStream.readLine();
+		seq.append(buf);
+		for(bloc = offset; bloc < loc.trxTail; bloc += bsize) seq.append(ctgStream.readLine());
 		ctgStream.close();
-		
-		String gDNA = seq.substring(loc.trxHead - offset, loc.trxTail - offset + 1);
-		
-		String cDNA = gDNA;
+
+		StringBuilder cDNA = new StringBuilder(seq.substring(loc.trxHead - offset, loc.trxTail - offset + 1));
 		if(loc.intronHeads.size() > 0 && !GenericConfig.INTRON) {
-			cDNA = seq.substring(loc.trxHead - offset, loc.intronHeads.get(0) - offset);
+			cDNA = new StringBuilder(seq.substring(loc.trxHead - offset, loc.intronHeads.get(0) - offset));
 			for(int i = 0; i < loc.intronHeads.size() - 1; i++) {
-				cDNA += seq.substring(loc.intronTails.get(i) - offset + 1, loc.intronHeads.get(i + 1) - offset);
+				cDNA.append(seq.substring(loc.intronTails.get(i) - offset + 1, loc.intronHeads.get(i + 1) - offset));
 			}
-			cDNA += seq.substring(loc.intronTails.get(loc.intronHeads.size() - 1) - offset + 1, loc.trxTail - offset + 1);
+			cDNA.append(seq.substring(loc.intronTails.get(loc.intronHeads.size() - 1) - offset + 1, loc.trxTail - offset + 1));
 		}
 		
-		return loc.fwd ? cDNA : revcomp(cDNA);
+		return loc.fwd ? cDNA.toString() : revcomp(cDNA.toString());
 	}
 	
 	public static String parse(MMseqsSearchResultEntity res, int index) throws java.io.IOException {
-		String seq = "", buf;
-		
+		StringBuilder seq = new StringBuilder();
+		String buf;
+
 		String contig = res.getContig(index);
 		int start = res.getStart(index), end = res.getEnd(index);
 		
@@ -69,7 +68,7 @@ public class FastaContigParser {
 		
 		// find contig header
 		FileStream stream = new FileStream(res.srcPath, 'r');
-		while(!(buf = stream.readLine()).contains(contig));
+		while(!stream.readLine().contains(contig));
 		
 		// trace length
 		for(buf = stream.readLine(); buf != null; buf = stream.readLine()) {
@@ -83,17 +82,17 @@ public class FastaContigParser {
 		
 		/* extract sequence block */
 		stream = new FileStream(res.srcPath, 'r');
-		while(!(buf = stream.readLine()).contains(contig));
+		while(!stream.readLine().contains(contig));
 		
 		buf = stream.readLine();
 		int sbuf = 0, ebuf = buf.length(), bsize = buf.length();
-		while(true) {
-			if(sbuf >= end) break; // end-point
-			if(ebuf >= start) { // mid-point
+		// end-point
+		while (sbuf < end) {
+			if (ebuf >= start) { // mid-point
 				int s = 0, e = buf.length();
-				if(start > sbuf) s = start - sbuf; // handle starting fragment
-				if(end < ebuf)   e = bsize - ebuf + end; // handle ending fragment
-				seq += buf.substring(s, e);
+				if (start > sbuf) s = start - sbuf; // handle starting fragment
+				if (end < ebuf) e = bsize - ebuf + end; // handle ending fragment
+				seq.append(buf, s, e);
 			}
 			buf = stream.readLine();
 			sbuf += bsize;
@@ -119,6 +118,6 @@ public class FastaContigParser {
 		System.out.println("");
 		*/
 		
-		return seq;
+		return seq.toString();
 	}
 }
