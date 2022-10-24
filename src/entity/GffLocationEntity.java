@@ -22,8 +22,8 @@ public class GffLocationEntity {
 		this.trxTail = getTail(trxStr);
 		this.fwd = getSign(trxStr).equals("+");
 		
-		this.intronHeads = new ArrayList<Integer>();
-		this.intronTails = new ArrayList<Integer>();
+		this.intronHeads = new ArrayList<>();
+		this.intronTails = new ArrayList<>();
 	}
 	
 	public void feed(String str) {

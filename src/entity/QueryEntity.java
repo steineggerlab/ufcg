@@ -18,7 +18,7 @@ import org.apache.commons.io.FileUtils;
 
 public class QueryEntity {
 	public static int EX_FILENAME = -1, EX_LABEL = -1, EX_ACCESS = -1, EX_TAXON = -1, EX_NCBI = -1, EX_STRAIN = -1, EX_TAXONOMY = -1;
-	private static List<List<String>> METADATA = new ArrayList<List<String>>();
+	private static List<List<String>> METADATA = new ArrayList<>();
 	public static void importMetadata() throws java.io.IOException {
 		if(!PathConfig.MetaExists) {
 			Prompt.talk("No metadata file given.");
@@ -33,16 +33,32 @@ public class QueryEntity {
 		String[] headers = buf.split("\t");
 		for(int i = 0; i < headers.length; i++) {
 			String header = headers[i];
-			if(header.equals("filename"))			EX_FILENAME = i;
-			else if(header.equals("label")) 		EX_LABEL = i;
-			else if(header.equals("accession")) 	EX_ACCESS = i;
-			else if(header.equals("taxon_name")) 	EX_TAXON = i;
-			else if(header.equals("ncbi_name")) 	EX_NCBI = i;
-			else if(header.equals("strain_name")) 	EX_STRAIN = i;
-			else if(header.equals("taxonomy")) 		EX_TAXONOMY = i;
-			else {
-				ExceptionHandler.pass(header);
-				ExceptionHandler.handle(ExceptionHandler.INVALID_META_HEADER);
+			switch (header) {
+				case "filename":
+					EX_FILENAME = i;
+					break;
+				case "label":
+					EX_LABEL = i;
+					break;
+				case "accession":
+					EX_ACCESS = i;
+					break;
+				case "taxon_name":
+					EX_TAXON = i;
+					break;
+				case "ncbi_name":
+					EX_NCBI = i;
+					break;
+				case "strain_name":
+					EX_STRAIN = i;
+					break;
+				case "taxonomy":
+					EX_TAXONOMY = i;
+					break;
+				default:
+					ExceptionHandler.pass(header);
+					ExceptionHandler.handle(ExceptionHandler.INVALID_META_HEADER);
+					break;
 			}
 		}
 		
@@ -62,7 +78,7 @@ public class QueryEntity {
 		// parse elements
 		while((buf = metaStream.readLine()) != null) {
 			if(buf.length() == 0) break;
-			List<String> data = new ArrayList<String>();
+			List<String> data = new ArrayList<>();
 			String[] values = buf.split("\t");
 			if(headers.length != values.length) ExceptionHandler.handle(ExceptionHandler.INVALID_METADATA);
 			
@@ -73,7 +89,7 @@ public class QueryEntity {
 			METADATA.add(data);
 		}
 		
-		Prompt.talk("Metadata file with " + String.valueOf(METADATA.size()) + " entities successfully imported.");
+		Prompt.talk("Metadata file with " + METADATA.size() + " entities successfully imported.");
 	}
 	
 	public static int testIntegrity() throws java.io.IOException {
@@ -84,7 +100,7 @@ public class QueryEntity {
 		 * 		[DEPRECATED] Rule 4. Input files must share same file type.
 		 */
 		Prompt.print("Reading input data...");
-		List<String> fnames = new ArrayList<String>();
+		List<String> fnames = new ArrayList<>();
 		
 		// fetch filenames from input directory
 		if(PathConfig.InputIsFolder) {
@@ -107,7 +123,7 @@ public class QueryEntity {
 		
 		// if metadata not given
 		if(!PathConfig.MetaExists) {
-			METADATA = new ArrayList<List<String>>();
+			METADATA = new ArrayList<>();
 			// if metadata information is given as a string
 			if(PathConfig.MetaString != null) {
 				EX_FILENAME = 0; EX_LABEL = 1; EX_ACCESS = 2; EX_TAXON = 3; EX_NCBI = 4; EX_STRAIN = 5; EX_TAXONOMY = 6;
@@ -117,7 +133,7 @@ public class QueryEntity {
 				if(metaContainer.length < 7) {
 					Prompt.warn("Metadata information is improperly formatted.");
 					String[] tmpContainer = new String[7];
-					for(int i = 0; i < metaContainer.length; i++) tmpContainer[i] = metaContainer[i];
+					System.arraycopy(metaContainer, 0, tmpContainer, 0, metaContainer.length);
 					for(int i = metaContainer.length; i < 7; i++) tmpContainer[i] = "";
 					metaContainer = tmpContainer;
 				}
@@ -175,13 +191,13 @@ public class QueryEntity {
 	}
 	
 	public static List<QueryEntity> createQuery(){
-		List<QueryEntity> queries = new ArrayList<QueryEntity>();
+		List<QueryEntity> queries = new ArrayList<>();
 		for(List<String> data : METADATA) queries.add(new QueryEntity(data));
 		return queries;
 	}
 	
 	public String filename, accession;
-	private String label, taxon, ncbi, strain, taxonomy;
+	private final String label, taxon, ncbi, strain, taxonomy;
 	public QueryEntity(List<String> data) {
 		this.filename  = data.get(EX_FILENAME);
 		this.label     = data.get(EX_LABEL);

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class MMseqsSearchResultEntity {
-	private class M8Entry implements Comparable<M8Entry> {
+	private static class M8Entry implements Comparable<M8Entry> {
 		String query, contig;
 		Integer start, end;
 		Double evalue;
@@ -46,7 +46,7 @@ public class MMseqsSearchResultEntity {
 			this.score = Integer.parseInt(split[11]);
 		}
 		
-		M8Entry(String buf, int uoff, int doff, boolean abs){
+		M8Entry(String buf, int uoff, int doff, boolean ignoredAbs){
 			String[] split = buf.split("\t");
 			this.query = split[0];
 			this.contig = split[1];
@@ -67,20 +67,18 @@ public class MMseqsSearchResultEntity {
 		int getScore() {return this.score;}
 		
 		public int compareTo(M8Entry cmp) {
-			if(evalue < cmp.evalue) return -1;
-			if(evalue > cmp.evalue) return 1;
-			return 0;
+			return evalue.compareTo(cmp.evalue);
 		}
 	}
 	
 	public final String task, srcPath, resPath;
-	protected List<M8Entry> entries = null;
+	protected List<M8Entry> entries;
 	
 	public MMseqsSearchResultEntity(String task, String srcPath, String resPath) {
 		this.task = task;
 		this.srcPath = srcPath;
 		this.resPath = resPath;
-		this.entries = new ArrayList<M8Entry>();
+		this.entries = new ArrayList<>();
 	}
 	
 	public void add(String buf) {
@@ -90,7 +88,7 @@ public class MMseqsSearchResultEntity {
 		this.entries.add(new M8Entry(buf, uoff, doff));
 	}
 	public void add(String buf, int uoff, int doff, boolean abs) {
-		if(abs) this.entries.add(new M8Entry(buf, uoff, doff, abs));
+		if(abs) this.entries.add(new M8Entry(buf, uoff, doff, true));
 		else this.entries.add(new M8Entry(buf, uoff, doff));
 	}
 	
@@ -103,12 +101,14 @@ public class MMseqsSearchResultEntity {
 	public int getEnd(int index) {
 		return this.entries.get(index).getEnd();
 	}
+	/*
 	public double getEvalue(int index) {
 		return this.entries.get(index).getEvalue();
 	}
 	public int getScore(int index) {
 		return this.entries.get(index).getScore();
 	}
+	*/
 	public int size() {
 		return this.entries.size();
 	}
@@ -118,8 +118,8 @@ public class MMseqsSearchResultEntity {
 		if(sx >= ey) return 0;
 		
 		// calculate overlapping length and total length (shorter)
-		int olen = (ex < ey ? ex : ey) - (sx > sy ? sx : sy);
-		int tlen = (ex - sx) < (ey - sy) ? (ex - sx) : (ey - sy);
+		int olen = Math.min(ex, ey) - Math.max(sx, sy);
+		int tlen = Math.min(ex - sx, ey - sy);
 		return olen * 100 / tlen;
 	}
 	
@@ -132,7 +132,7 @@ public class MMseqsSearchResultEntity {
 	
 	// remove overlapping entries
 	public void reduce() {
-		List<M8Entry> reducedEntries = new ArrayList<M8Entry>();
+		List<M8Entry> reducedEntries = new ArrayList<>();
 		for(M8Entry entry : entries) {
 			boolean reducible = false;
 			for(M8Entry reducedEntry : reducedEntries) {
@@ -155,7 +155,7 @@ public class MMseqsSearchResultEntity {
 	public void purify() {
 		if(size() == 0) return;
 		
-		List<M8Entry> collection = new ArrayList<M8Entry>();
+		List<M8Entry> collection = new ArrayList<>();
 		collection.add(entries.get(0));
 		
 		String qbuf = entries.get(0).query;
@@ -184,7 +184,7 @@ public class MMseqsSearchResultEntity {
 			}
 			else {
 				int loc = entry.loc;
-				String prtn = pp.getSeq(loc), orf = pp.getDna(loc), valid = null;
+				String prtn = pp.getSeq(loc), orf = pp.getDna(loc), valid;
 				if(!GenericConfig.INTRON) {
 					if((valid = MMseqsEasySearchProcess.checkORF(pp, prtn, orf)) == null) continue;
 				}

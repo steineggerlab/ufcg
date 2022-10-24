@@ -36,12 +36,12 @@ public class ProfilePredictionEntity {
 		this.origin = ORI_SC;
 		this.type = type;
 		
-		this.predSeqs = new ArrayList<String>();
+		this.predSeqs = new ArrayList<>();
 		
-		this.predGenes = new ArrayList<String>(); // predicted protein sequences
-		this.predGseqs = new ArrayList<String>(); // predicted DNA sequences
-		this.evalues   = new ArrayList<Double>();
-		this.scores    = new ArrayList<Double>();
+		this.predGenes = new ArrayList<>(); // predicted protein sequences
+		this.predGseqs = new ArrayList<>(); // predicted DNA sequences
+		this.evalues   = new ArrayList<>();
+		this.scores    = new ArrayList<>();
 	}
 	
 	public ProfilePredictionEntity(BlockProfileEntity bp, int type) {
@@ -49,13 +49,13 @@ public class ProfilePredictionEntity {
 		this.origin = ORI_AU;
 		this.type = type;
 		
-		this.predSeqs = new ArrayList<String>();
-		this.gffLocs  = new ArrayList<GffLocationEntity>();
+		this.predSeqs = new ArrayList<>();
+		this.gffLocs  = new ArrayList<>();
 		
-		this.predGenes = new ArrayList<String>(); // predicted protein sequences
-		this.predGseqs = new ArrayList<String>(); // predicted DNA sequences
-		this.evalues   = new ArrayList<Double>();
-		this.scores    = new ArrayList<Double>();
+		this.predGenes = new ArrayList<>(); // predicted protein sequences
+		this.predGseqs = new ArrayList<>(); // predicted DNA sequences
+		this.evalues   = new ArrayList<>();
+		this.scores    = new ArrayList<>();
 	}
 	
 	public ProfilePredictionEntity(MMseqsSearchResultEntity res, int type) {
@@ -63,15 +63,16 @@ public class ProfilePredictionEntity {
 		this.origin = ORI_MM;
 		this.type = type;
 		
-		this.predSeqs = new ArrayList<String>();
+		this.predSeqs = new ArrayList<>();
 		
-		this.predGenes = new ArrayList<String>(); // predicted protein sequences
-		this.predGseqs = new ArrayList<String>(); // predicted DNA sequences
-		this.evalues   = new ArrayList<Double>();
-		this.scores    = new ArrayList<Double>();
+		this.predGenes = new ArrayList<>(); // predicted protein sequences
+		this.predGseqs = new ArrayList<>(); // predicted DNA sequences
+		this.evalues   = new ArrayList<>();
+		this.scores    = new ArrayList<>();
 	}
 	
 	/* generate list of empty profile entities */
+	/*
 	public List<ProfilePredictionEntity> generateProfiles() {
 		List<ProfilePredictionEntity> profiles = new ArrayList<ProfilePredictionEntity>();
 		
@@ -81,6 +82,7 @@ public class ProfilePredictionEntity {
 		
 		return profiles;
 	}
+	*/
 	
 	public void addSeq(String seq) {predSeqs.add(seq);}
 	public void addLoc(GffLocationEntity loc) {gffLocs.add(loc);}
@@ -129,7 +131,7 @@ public class ProfilePredictionEntity {
 	}
 	
 	public int getType() {return type;}
-	public int getOrigin() {return origin;}
+	// public int getOrigin() {return origin;}
 	public int nseq() {return predSeqs.size();}
 	public String getSeq(int idx) {return predSeqs.get(idx);}
 	public String getDna(int idx) {
@@ -144,11 +146,12 @@ public class ProfilePredictionEntity {
 		catch(java.io.IOException e) {ExceptionHandler.handle(e);}
 		return null;
 	}
-	
+	/*
 	public String getOptSeq() {
 		if(opt < 0) return null;
 		return predSeqs.get(opt);
 	}
+	*/
 	public boolean valid() {return opt >= 0;}
 	public boolean multiple() {return predGenes.size() > 1;}
 }

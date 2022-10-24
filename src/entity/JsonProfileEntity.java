@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 public class JsonProfileEntity {
-	private List<ProfilePredictionEntity> profiles;
+	private final List<ProfilePredictionEntity> profiles;
 	public JSONObject root;
 	
 	@SuppressWarnings("unchecked")
@@ -48,11 +48,11 @@ public class JsonProfileEntity {
 		riObj.put("run_time", TimeKeeper.timeStampExtended());
 		riObj.put("n_target_genes", profiles.size());
 		
-		String gset = ""; int ndet = 0, nsgl = 0, nmul = 0;
+		StringBuilder gset = new StringBuilder(); int ndet = 0, nsgl = 0, nmul = 0;
 		JSONObject dObj = (JSONObject) root.get("data");
 		for(ProfilePredictionEntity pp : profiles) {
 			String cg = pp.getTask();
-			gset += cg + ",";
+			gset.append(cg).append(",");
 			
 			if(pp.opt < 0) continue;
 			
