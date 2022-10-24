@@ -63,7 +63,9 @@ public class AlignModule {
 					mae.getOption().getLongOpt());
 			ExceptionHandler.handle(ExceptionHandler.MISSING_ARGUMENT);
 		}
-		
+
+		if(cmd == null) ExceptionHandler.handle(ExceptionHandler.UNEXPECTED_ERROR);
+		assert cmd != null;
 		if(cmd.hasOption("v"))		 GenericConfig.VERB = true;
 		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
 		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
@@ -84,7 +86,7 @@ public class AlignModule {
 			GenericConfig.setThreadPoolSize(cmd.getOptionValue("t"));
 		
 		/* parse configuration options */
-		leaves = new ArrayList<String>();
+		leaves = new ArrayList<>();
 		
 		if(cmd.hasOption("l")) {
 			leaves = Arrays.asList(cmd.getOptionValue("l").split(","));
@@ -99,17 +101,23 @@ public class AlignModule {
 		
 		if(cmd.hasOption("a")) {
 			String align = cmd.getOptionValue("a");
-			if(align.equals("nucleotide")) {
-				alignMode = AlignMode.nucleotide;
-			}else if(align.equals("codon")) {
-				alignMode = AlignMode.codon;
-			}else if(align.equals("codon12")) {
-				alignMode = AlignMode.codon12;
-			}else if(align.equals("protein")) {
-				alignMode = AlignMode.protein;
-			}else {
-				ExceptionHandler.pass(align);
-				ExceptionHandler.handle(ExceptionHandler.INVALID_ALIGN_MODE);
+			switch (align) {
+				case "nucleotide":
+					alignMode = AlignMode.nucleotide;
+					break;
+				case "codon":
+					alignMode = AlignMode.codon;
+					break;
+				case "codon12":
+					alignMode = AlignMode.codon12;
+					break;
+				case "protein":
+					alignMode = AlignMode.protein;
+					break;
+				default:
+					ExceptionHandler.pass(align);
+					ExceptionHandler.handle(ExceptionHandler.INVALID_ALIGN_MODE);
+					break;
 			}
 		}
 		if(cmd.hasOption("-n"))
@@ -168,16 +176,16 @@ public class AlignModule {
 	private static void printAlignHelp() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - align", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Align genes and provide multiple sequence alignments from UFCG profiles", 'g'));
-		System.out.println("");
+		System.out.println();
 	
 		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar align -i <INPUT> -o <OUTPUT> [...]");
-		System.out.println("");
+		System.out.println();
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -i STR         Input directory containing UFCG profiles", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory for alignments", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
@@ -187,7 +195,7 @@ public class AlignModule {
 		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [nucleotide]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50]", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
 		

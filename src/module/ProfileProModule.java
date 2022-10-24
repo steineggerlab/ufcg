@@ -2,6 +2,7 @@ package module;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -74,6 +75,7 @@ public class ProfileProModule {
 					mae.getOption().getLongOpt());
 			ExceptionHandler.handle(ExceptionHandler.MISSING_ARGUMENT);
 		}
+		assert cmd != null;
 		if(cmd.hasOption("developer")) {
 			GenericConfig.DEV = true;
 			GenericConfig.VERB = true;
@@ -156,16 +158,16 @@ public class ProfileProModule {
 	private static void printManual() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - profile-pro", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal proteome", 'g'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n USAGE :", 'Y') + " java -jar UFCG.jar profile-pro -i <INPUT> -o <OUTPUT> [...]");
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -i STR         File containing fungal protein sequences", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
@@ -173,7 +175,7 @@ public class ProfileProModule {
 		System.out.println(ANSIHandler.wrapper(" -k BOOL        Keep the temporary products [0]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -f BOOL        Force to overwrite the existing files [0]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument          Description", 'c'));
@@ -181,13 +183,13 @@ public class ProfileProModule {
 		System.out.println(ANSIHandler.wrapper(" --mmseqs STR      Path to MMseqs2 binary [mmseqs]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --seqpath STR     Path to the directory containing gene sequences [./config/seq]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --evalue FLOAT    E-value cutoff for validation [1e-3]", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
 		
 		System.out.println(ANSIHandler.wrapper("\n Notes", 'y'));
 		System.out.println(" * Currently, profile-pro module is only capable of extracting UFCG markers. (-s PRO)");
-		System.out.println("");
+		System.out.println();
 		
 		System.exit(0);
 	}
@@ -207,29 +209,30 @@ public class ProfileProModule {
 			query.activate();
 			
 			// import sequences
-			SEQS = new ArrayList<String>();
+			SEQS = new ArrayList<>();
 			FileStream inStream = new FileStream(PathConfig.InputPath, 'r');
-			String buf = "", sbuf = "";
+			String buf;
+			StringBuilder sbuf = new StringBuilder();
 			while((buf = inStream.readLine()) != null) {
 				if(buf.startsWith(">")) {
-					if(sbuf.length() > 0) SEQS.add(sbuf);
-					sbuf = "";
+					if(sbuf.length() > 0) SEQS.add(sbuf.toString());
+					sbuf = new StringBuilder();
 				}
-				else sbuf += buf;
+				else sbuf.append(buf);
 			}
 			inStream.close();
 			
 			initProg();
 			printProg();
 			
-			List<ProfilePredictionEntity> pps = new ArrayList<ProfilePredictionEntity>();
+			List<ProfilePredictionEntity> pps = new ArrayList<>();
 			nSgl = 0; nMul = 0; nUid = 0;
 			
 			ExecutorService executorService = Executors.newFixedThreadPool(GenericConfig.ThreadPoolSize);
-			List<Future<ProfilePredictionEntity>> futures = new ArrayList<Future<ProfilePredictionEntity>>();
+			List<Future<ProfilePredictionEntity>> futures = new ArrayList<>();
 			
 			for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) {
-				CreateProfile creator = new ProfileProModule().new CreateProfile(g);
+				CreateProfile creator = new CreateProfile(g);
 				futures.add(executorService.submit(creator));
 				Thread.sleep(500);
 			}
@@ -237,7 +240,7 @@ public class ProfileProModule {
 			executorService.shutdown();
 			for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 			
-			if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE                ", 'g') + "\n");
+			if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE ", 'g') + "\n");
 			Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 					ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 			
@@ -258,7 +261,7 @@ public class ProfileProModule {
 		} */
 	}
 	
-	static List<Status> progress = new LinkedList<Status>();
+	static List<Status> progress = new LinkedList<>();
 	static TimeKeeper tk = null;
 	private static class Status {
 		private String stat;
@@ -284,31 +287,28 @@ public class ProfileProModule {
 	}
 	
 	static void printProg() {	
-		String build = "PROGRESS : [";
+		StringBuilder build = new StringBuilder("PROGRESS : [");
 		int fin = 0;
 		
 		try{
 			for(Status s : progress) {
-				build += s.stat;
+				build.append(s.stat);
 				if(s.proc == 2) fin++;
 			}
 		}
-		catch(java.util.ConcurrentModificationException cme) {
+		catch(ConcurrentModificationException | NullPointerException cme) {
 			return;
 		}
-		catch(NullPointerException npe) {
-			return;
-		}
-		
-		build += "]";
-		build += " ETA : " + tk.eta(fin, progress.size()) + "        ";
+
+		build.append("]");
+		build.append(" ETA : ").append(tk.eta(fin, progress.size()));
 		if(!GenericConfig.QUIET) Prompt.dynamic("\r");
-		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build);
+		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build.toString());
 	}
 	
 	static int nSgl, nMul, nUid;
-	private class CreateProfile implements Callable<ProfilePredictionEntity> {
-		private int g;
+	private static class CreateProfile implements Callable<ProfilePredictionEntity> {
+		private final int g;
 		public CreateProfile(int gid) {
 			this.g = gid;
 		}
@@ -326,7 +326,7 @@ public class ProfileProModule {
 				MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + "pro" + File.separator + cg + ".fa", PathConfig.TempPath, 1);
 				
 				/* Record obtained result */
-				String result = "";
+				String result;
 				if(pp.valid()) {
 					if(pp.multiple()) {
 						/* Multiple copies */

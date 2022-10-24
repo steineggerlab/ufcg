@@ -9,10 +9,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.UnrecognizedOptionException;
 
 import java.io.File;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 import envs.config.GenericConfig;
 import envs.config.PathConfig;
@@ -33,8 +30,8 @@ public class TrainModule {
 	static final Integer TYPE_NUC = 0, TYPE_PRO = 1;
 	static Integer TYPE = TYPE_PRO;
 	static Integer N = -1;
-	static String typeStr() {return TYPE == TYPE_NUC ? "nuc" : "pro";}
-	
+	static String typeStr() {return Objects.equals(TYPE, TYPE_NUC) ? "nuc" : "pro";}
+
 	private static int parseArgument(String[] args) throws ParseException {
 		/* option argument setup */
 		Options opts = new Options();
@@ -70,6 +67,7 @@ public class TrainModule {
 					mae.getOption().getLongOpt());
 			ExceptionHandler.handle(ExceptionHandler.MISSING_ARGUMENT);
 		}
+		assert cmd != null;
 		if(cmd.hasOption("developer")) {
 			GenericConfig.DEV = true;
 			GenericConfig.VERB = true;
@@ -100,13 +98,13 @@ public class TrainModule {
 			}
 			
 			// list input directory and define marker sequences
-			MARKERS = new LinkedList<String>();
-			MNAMES = new LinkedList<String>();
-			for(File fa : ifile.listFiles()) {
+			MARKERS = new LinkedList<>();
+			MNAMES = new LinkedList<>();
+			for(File fa : Objects.requireNonNull(ifile.listFiles())) {
 				MARKERS.add(fa.getAbsolutePath());
 				MNAMES.add(fa.getName().substring(0, fa.getName().lastIndexOf('.')));
 			}
-			NMAP = new HashMap<String, Integer>();
+			NMAP = new HashMap<>();
 			for(int i = 0; i < MNAMES.size(); i++) NMAP.put(MNAMES.get(i), i);
 		} else ExceptionHandler.handle(ExceptionHandler.NO_INPUT);
 		
@@ -189,10 +187,10 @@ public class TrainModule {
 	private static void printManual() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - train", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Train and generate sequence model of fungal markers", 'g'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n USAGE :", 'Y') + " java -jar UFCG.jar train -i <MARKER> -g <GENOME> -o <OUTPUT> -s <TYPE> [...]");
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
@@ -200,7 +198,7 @@ public class TrainModule {
 		System.out.println(ANSIHandler.wrapper(" -g STR         Directory containing reference genome sequences in FASTA format", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory", 'x'));
 //		System.out.println(ANSIHandler.wrapper(" -s STR         Sequence type {NUC, PRO}", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Configurations", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
@@ -208,7 +206,7 @@ public class TrainModule {
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -w STR         Directory to write temporary files [/tmp]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -c STR         Checkpoint directory that contains precomputed files", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
 		
@@ -220,7 +218,7 @@ public class TrainModule {
 		System.out.println(ANSIHandler.wrapper(" mafft                align", 'x'));
 		System.out.println(ANSIHandler.wrapper(" prepareAlign         train", 'x'));
 		System.out.println(ANSIHandler.wrapper(" msa2prfl.pl          train", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.exit(0);
 	}
@@ -246,7 +244,7 @@ public class TrainModule {
 			String[] finalSeqs = new String[MARKERS.size()], finalHmms = new String[MARKERS.size()];
 			String[] seqs = new String[MARKERS.size()], hmms = new String[MARKERS.size()];
 			Prompt.print("Producing initial models...");
-			String dir = PathConfig.TempPath + SESSION_UID + File.separator + "iter" + String.valueOf(n) + File.separator;
+			String dir = PathConfig.TempPath + SESSION_UID + File.separator + "iter" + n + File.separator;
 			new File(dir).mkdir();
 			new File(dir + typeStr()).mkdir();
 			for(int i = 0; i < MARKERS.size(); i++) {
@@ -268,7 +266,7 @@ public class TrainModule {
 			// iteration
 			while(n++ != N) {
 				new File((dir + "ucg")).mkdir();
-				Prompt.print("Running iteration " + String.valueOf(n) + "...");
+				Prompt.print("Running iteration " + n + "...");
 				
 				// store initial counts
 				int[] scnts = new int[MARKERS.size()];
@@ -317,11 +315,11 @@ public class TrainModule {
 				Prompt.SUPPRESS = false; 
 					
 				// produce profile
-				String next = PathConfig.TempPath + SESSION_UID + File.separator + "iter" + String.valueOf(n) + File.separator;
+				String next = PathConfig.TempPath + SESSION_UID + File.separator + "iter" + n + File.separator;
 				new File(next).mkdir();
 				new File(next + typeStr()).mkdir();
 				
-				List<Integer> remove = new LinkedList<Integer>();
+				List<Integer> remove = new LinkedList<>();
 				for(int i = 0; i < MARKERS.size(); i++) {
 					String MNAME = MNAMES.get(i);
 					String nseq = next + typeStr() + File.separator + MNAME + ".fa";
@@ -338,7 +336,7 @@ public class TrainModule {
 					
 					// compare sequence count
 					String grep = Shell.exec("grep '^>' " + nseq + " | wc -l", true)[0];
-					int ecnt = 0;
+					int ecnt;
 					try{ 
 						ecnt = Integer.parseInt(grep);
 					} catch(NumberFormatException e) {

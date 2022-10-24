@@ -80,6 +80,7 @@ public class ProfileRnaModule {
 					mae.getOption().getLongOpt());
 			ExceptionHandler.handle(ExceptionHandler.MISSING_ARGUMENT);
 		}
+		assert cmd != null;
 		if(cmd.hasOption("developer")) {
 			GenericConfig.DEV = true;
 			GenericConfig.VERB = true;
@@ -231,11 +232,11 @@ public class ProfileRnaModule {
 	private static void printManual() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - profile-rna", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal RNA-seq reads", 'g'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n USAGE :", 'Y') + " java -jar UFCG.jar profile-rna -p <PAIRED> -i <INPUT> -o <OUTPUT> [...]");
 		System.out.println(ANSIHandler.wrapper(  "        ", 'Y') + " java -jar UFCG.jar profile-rna -p 1 -l <LEFT> -r <RIGHT> -o <OUTPUT> [...]");
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
@@ -244,13 +245,13 @@ public class ProfileRnaModule {
 		System.out.println(ANSIHandler.wrapper(" -l, -r STR *   File containing left/right reads in FASTQ/FASTA format", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory", 'x'));
 		System.out.println(ANSIHandler.wrapper(" * Select one of above", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Configurations", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" --info STR     Comma-separated metadata string (Filename*, Label*, Accession*, Taxon, NCBI, Strain, Taxonomy)", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --trinity STR  Path to Trinity binary [Trinity]", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
 		
@@ -273,7 +274,7 @@ public class ProfileRnaModule {
 			Prompt.print(ANSIHandler.wrapper("STEP 1/5", 'Y') + " : Creating MMseqs2 databases...");
 			String pdb = PathConfig.EnvironmentPath + "config/db/mm_pro";
 			String sdb = PathConfig.TempPath + GenericConfig.SESSION_UID + "_rna";
-			MMseqsWrapper mm = null;
+			MMseqsWrapper mm;
 			if(SINGLE) {
 				mm = new MMseqsWrapper();
 				mm.setCreatedb(PATHL, sdb);
@@ -353,7 +354,7 @@ public class ProfileRnaModule {
 			Shell.exec(String.format("rm -rf %s", trinity));
 			
 			Prompt.print(ANSIHandler.wrapper("STEP 5/5", 'Y') + " : Launching profile submodule...");
-			String meta = null;
+			String meta;
 			if(PathConfig.MetaString == null) meta = String.format("%s,%s,%s,,,,", afa, GenericConfig.SESSION_UID, GenericConfig.SESSION_UID);
 			else meta = afa + PathConfig.MetaString.substring(PathConfig.MetaString.indexOf(","));
 			String[] profileArgs = {

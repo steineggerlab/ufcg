@@ -30,7 +30,7 @@ import tree.tools.LabelReplacer;
 public class TreeModule {
 
 //	final String version = "1.0";
-	final String[] method = { "align", "replace" };
+//	final String[] method = { "align", "replace" };
 	String[] parameters = null;
 	List<String> paramList = null;
 	HashMap<String, String> programPath = null;
@@ -67,7 +67,7 @@ public class TreeModule {
 	}
 
 	private void align() {
-		String ucgDirectory = null;
+		String ucgDirectory;
 		String outDirectory = "." + File.separator;
 		
 		String mafftPath = programPath.get("mafft");
@@ -98,17 +98,22 @@ public class TreeModule {
 		
 		String align = arg.get("-a");
 		if(align!=null && !align.equals("")) {
-			if(align.equals("nucleotide")) {
-				alignMode = AlignMode.nucleotide;
-			}else if(align.equals("codon")) {
-				alignMode = AlignMode.codon;
-			}else if(align.equals("codon12")) {
-				alignMode = AlignMode.codon12;
-			}else if(align.equals("protein")) {
-				alignMode = AlignMode.protein;
-			}else {
-				ExceptionHandler.pass(align);
-				ExceptionHandler.handle(ExceptionHandler.INVALID_ALIGN_MODE);
+			switch (align) {
+				case "nucleotide":
+					break;
+				case "codon":
+					alignMode = AlignMode.codon;
+					break;
+				case "codon12":
+					alignMode = AlignMode.codon12;
+					break;
+				case "protein":
+					alignMode = AlignMode.protein;
+					break;
+				default:
+					ExceptionHandler.pass(align);
+					ExceptionHandler.handle(ExceptionHandler.INVALID_ALIGN_MODE);
+					break;
 			}
 		}
 		
@@ -147,7 +152,7 @@ public class TreeModule {
 		
 		if (arg.get("-gsi_threshold") != null) {
 			try {
-				gsi_threshold = Integer.valueOf(arg.get("-gsi_threshold"));
+				gsi_threshold = Integer.parseInt(arg.get("-gsi_threshold"));
 			} catch (NumberFormatException e) {
 				ExceptionHandler.handle(e);
 			}
@@ -160,7 +165,7 @@ public class TreeModule {
 			ExceptionHandler.handle(ExceptionHandler.UNEXPECTED_ERROR);
 		}
 		// labels
-		outputLabels = new ArrayList<String>();
+		outputLabels = new ArrayList<>();
 		
 		String[] leafOpt = arg.get("-leaf").split(",");
 		List<String> leafOptList = Arrays.asList(leafOpt);
@@ -194,14 +199,15 @@ public class TreeModule {
 		
 		if(arg.get("-x") != null) {
 			try {
-				executorLimit = Integer.valueOf(arg.get("-x"));
+				executorLimit = Integer.parseInt(arg.get("-x"));
 			} catch (NumberFormatException e) {
 				ExceptionHandler.handle(e);
 			}
 		} else {
 			executorLimit = nThreads;
 		}
-		
+
+		assert ucgDirectory != null;
 		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runOutDirName, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit);
 
 		try {
@@ -259,8 +265,8 @@ public class TreeModule {
 				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
 
-			HashMap<String, String> replaceMap = new HashMap<String, String>();
-			HashMap<String, Integer> checkLabelName = new HashMap<String, Integer>();
+			HashMap<String, String> replaceMap = new HashMap<>();
+			HashMap<String, Integer> checkLabelName = new HashMap<>();
 
 			JSONArray labelLists = (JSONArray) jsonObject.get("list");
 
@@ -577,17 +583,17 @@ public class TreeModule {
 	private void printTreeHelp() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - tree", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Reconstruct the phylogenetic relationship with UFCG profiles", 'g'));
-		System.out.println("");
+		System.out.println();
 	
 		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar tree -i <INPUT> -l <LABEL> [...]");
-		System.out.println("");
+		System.out.println();
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -i STR         Input directory containing UFCG profiles ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -l STR         Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
 		System.out.println(ANSIHandler.wrapper("                {uid, acc, label, taxon, strain, type, taxonomy}", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
@@ -600,7 +606,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" -m STR         ML tree inference model [JTT+ (proteins); GTR+ (nucleotides)] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -g INT         GSI value threshold {1 - 100} [95] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -x INT         Maximum number of gene tree executors; lower this if the RAM usage is excessive {1 - threads} [equal to -t]", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
 		
@@ -609,10 +615,10 @@ public class TreeModule {
 	private void printPruneHelp() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - prune", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Fix UFCG tree labels or get a single gene tree", 'g'));
-		System.out.println("");
+		System.out.println();
 	
 		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar prune -i <INPUT> -g <GENE> -l <LABEL>");
-		System.out.println("");
+		System.out.println();
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
@@ -620,7 +626,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" -g STR         Gene name - \"UFCG\" for a UFCG tree, proper gene name for a single gene tree ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -l STR         Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
 		System.out.println(ANSIHandler.wrapper("                [uid, acc, label, taxon, strain, type, taxonomy] ", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
 

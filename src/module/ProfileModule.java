@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -104,6 +105,7 @@ public class ProfileModule {
 					mae.getOption().getLongOpt());
 			ExceptionHandler.handle(ExceptionHandler.MISSING_ARGUMENT);
 		}
+		assert cmd != null;
 		if(cmd.hasOption("developer")) {
 			GenericConfig.DEV = true;
 			GenericConfig.VERB = true;
@@ -326,17 +328,17 @@ public class ProfileModule {
 		
 		System.out.println(ANSIHandler.wrapper(" UFCG - profile", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal whole genome sequences", 'g'));
-		System.out.println("");
+		System.out.println();
 	
 		System.out.println(ANSIHandler.wrapper("\n INTERACTIVE MODE :", 'Y') + " java -jar UFCG.jar profile -u");
 		System.out.println(ANSIHandler.wrapper(" ONE-LINER MODE   :", 'Y') + " java -jar UFCG.jar profile -i <INPUT> -o <OUTPUT> [...]");
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -i STR         Input directory containing fungal genome assemblies", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory to store the result files", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
@@ -348,7 +350,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" -m STR         File to the list containing metadata", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -n BOOL        Include introns from the predicted ORFs to the result sequences [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -q BOOL        Quiet mode - report results only [0]", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
 		
@@ -360,24 +362,24 @@ public class ProfileModule {
 	public static void printManualAdvanced() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - profile", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal whole genome sequences", 'g'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Defining set of markers", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Name      Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" NUC       Extract nucleotide marker sequences (Partial SSU/ITS1/5.8S/ITS2/Partial LSU)", 'x'));
 		System.out.println(ANSIHandler.wrapper(" PRO       Extract protein marker sequences (Run " + ANSIHandler.wrapper("java -jar UFCG.jar --core", 'B') + " to see the full list)", 'x'));
 		System.out.println(ANSIHandler.wrapper(" BUSCO     Extract BUSCO sequences (758 orthologs from fungi_odb10)", 'x'));
-		System.out.println("");
+		System.out.println();
 		System.out.println(ANSIHandler.wrapper(" * Provide a comma-separated string consists of following sets (ex: NUC,PRO / PRO,BUSCO etc.)", 'x'));
 		System.out.println(ANSIHandler.wrapper(" * Use specific gene names to extract custom set of markers (ex: ACT1,TEF1,TUB1 / NUC,CMD1,RPB2)", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Dependencies", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument                 Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" --fastblocksearch STR    Path to fastBlockSearch binary [fastBlockSearch]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --augustus STR           Path to AUGUSTUS binary [augustus]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --mmseqs STR             Path to MMseqs2 binary [mmseqs]", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument                 Description", 'c'));
@@ -389,16 +391,16 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" --fbshits INT            Use this amount of top hits from fastBlockSearch results [5]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --augoffset INT          Prediction offset window size for AUGUSTUS process [10000]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --evalue FLOAT           E-value cutoff for validation [1e-3]", 'x'));
-		System.out.println("");
+		System.out.println();
 		
 		System.exit(0);
 	}
 	
 	/* Interactive route */
-	private static int interactiveRoute(String arg) throws IOException {
+	private static int interactiveRoute() throws IOException {
 		GenericConfig.INTERACT = true;
 		BufferedReader stream = new BufferedReader(new InputStreamReader(System.in));
-		String buf = null;
+		String buf;
 		boolean proceed = false;
 		
 		/* obtain runtime environment */
@@ -408,10 +410,10 @@ public class ProfileModule {
 		String[] exeSplit = exePath.split("/");
 		int common = 0; while(jarSplit[common].equals(exeSplit[common])) common++;
 		
-		String runPath = "";
-		for(int i = common; i < exeSplit.length - 1; i++) runPath += "../";
-		for(int i = common; i < jarSplit.length; i++) runPath += jarSplit[i] + "/";
-		String command = "java -jar " + runPath.substring(0, runPath.length() - 1) + " profile";
+		StringBuilder runPath = new StringBuilder();
+		for(int i = common; i < exeSplit.length - 1; i++) runPath.append("../");
+		for(int i = common; i < jarSplit.length; i++) runPath.append(jarSplit[i]).append("/");
+		StringBuilder command = new StringBuilder("java -jar " + runPath.substring(0, runPath.length() - 1) + " profile");
 		jarPath = jarPath.substring(0, jarPath.lastIndexOf('/') + 1);
 		
 		/* initiate and get mandatory option */
@@ -427,7 +429,7 @@ public class ProfileModule {
 			if(buf.length() == 0) continue;
 			if(PathConfig.setInputPath(buf) == 0) {
 				proceed = true;
-				command += " --input " + buf;
+				command.append(" --input ").append(buf);
 			}
 		}
 		proceed = false;
@@ -439,7 +441,7 @@ public class ProfileModule {
 			if(buf.length() == 0) continue;
 			if(PathConfig.setOutputPath(buf) == 0) {
 				proceed = true;
-				command += " --output " + buf;
+				command.append(" --output ").append(buf);
 			}
 		}
 		proceed = false;
@@ -452,7 +454,7 @@ public class ProfileModule {
 			GenericConfig.setGeneset(buf);
 			if(GenericConfig.solveGeneset() == 0) {
 				proceed = true;
-				command += " --set " + buf;
+				command.append(" --set ").append(buf);
 			}
 		}
 		proceed = false;
@@ -465,7 +467,7 @@ public class ProfileModule {
 				if(buf.startsWith("y") || buf.startsWith("Y")) {
 					GenericConfig.FORCE = true;
 					proceed = true;
-					command += " --force 1";
+					command.append(" --force 1");
 				}
 				else if(buf.startsWith("n") || buf.startsWith("N")) {
 					GenericConfig.FORCE = false;
@@ -486,7 +488,7 @@ public class ProfileModule {
 					if(buf.length() == 0) continue;
 					if(PathConfig.setTempPath(buf) == 0) {
 						proceed = true;
-						command += " --keep " + buf;
+						command.append(" --keep ").append(buf);
 					}
 				}
 			}
@@ -517,7 +519,7 @@ public class ProfileModule {
 			}
 		}
 		proceed = false;
-		if(solvedPath != null) command += " --fastblocksearch " + solvedPath;
+		if(solvedPath != null) command.append(" --fastblocksearch ").append(solvedPath);
 		
 		// --augustus
 		solvedPath = null;
@@ -531,7 +533,6 @@ public class ProfileModule {
 						System.exit(0);
 					}
 				}
-				proceed = true;
 			}
 			else {
 				Prompt.print("Failed to solve : " + PathConfig.AugustusPath);
@@ -548,7 +549,7 @@ public class ProfileModule {
 			}
 		}
 		proceed = false;
-		if(solvedPath != null) command += " --augustus " + solvedPath;
+		if(solvedPath != null) command.append(" --augustus ").append(solvedPath);
 /*		
 		// --hmmsearch
 		solvedPath = null;
@@ -579,7 +580,7 @@ public class ProfileModule {
 			if(buf.length() == 0) continue;
 			if(GenericConfig.setThreadPoolSize(buf) == 0) {
 				proceed = true;
-				command += " --thread " + buf;
+				command.append(" --thread ").append(buf);
 			}
 		}
 		proceed = false;
@@ -595,7 +596,7 @@ public class ProfileModule {
 					if(buf.length() == 0) continue;
 					if(PathConfig.setMetaPath(buf) == 0) {
 						proceed = true;
-						command += " --metadata " + buf;
+						command.append(" --metadata ").append(buf);
 					}
 				}
 			}
@@ -618,7 +619,7 @@ public class ProfileModule {
 				if(buf.length() == 0) continue;
 				if(PathConfig.setModelPath(buf) == 0) {
 					proceed = true;
-					command += " --modelpath " + buf;
+					command.append(" --modelpath ").append(buf);
 				}
 			}
 			proceed = false;
@@ -657,7 +658,7 @@ public class ProfileModule {
 				if(buf.length() == 0) continue;
 				if(PathConfig.setAugustusConfig(buf) == 0) {
 					proceed = true;
-					command += " --ppxcfg " + buf;
+					command.append(" --ppxcfg ").append(buf);
 				}
 			}
 			proceed = false;
@@ -694,7 +695,7 @@ public class ProfileModule {
 				if(buf.startsWith("n") || buf.startsWith("N")) proceed = true;
 				if(buf.startsWith("y") || buf.startsWith("Y")) {
 					GenericConfig.VERB = true;
-					command += " --verbose ";
+					command.append(" --verbose ");
 					proceed = true;
 				}
 			}
@@ -723,7 +724,7 @@ public class ProfileModule {
 				if(buf.startsWith("n") || buf.startsWith("N")) proceed = true;
 				if(buf.startsWith("y") || buf.startsWith("Y")) {
 					GenericConfig.INTRON = true;
-					command += " --intron ";
+					command.append(" --intron ");
 					proceed = true;
 				}
 			}
@@ -736,7 +737,7 @@ public class ProfileModule {
 				if(buf.length() == 0) continue;
 				if(GenericConfig.setFastBlockSearchCutoff(buf) == 0) {
 					proceed = true;
-					command += " --fbscutoff " + buf;
+					command.append(" --fbscutoff ").append(buf);
 				}
 			}
 			proceed = false;
@@ -748,7 +749,7 @@ public class ProfileModule {
 				if(buf.length() == 0) continue;
 				if(GenericConfig.setAugustusPredictionOffset(buf) == 0) {
 					proceed = true;
-					command += " --augoffset " + buf;
+					command.append(" --augoffset ").append(buf);
 				}
 			}
 			proceed = false;
@@ -760,14 +761,14 @@ public class ProfileModule {
 				if(buf.length() == 0) continue;
 				if(GenericConfig.setHmmsearchScoreCutoff(buf) == 0) {
 					proceed = true;
-					command += " --hmmscore " + buf;
+					command.append(" --hmmscore ").append(buf);
 				}
 			}
 			proceed = false;
 		}
 		
 		/* Final confirmation */
-		Prompt.print("Following command will be executed : " + ANSIHandler.wrapper(command, 'y'));
+		Prompt.print("Following command will be executed : " + ANSIHandler.wrapper(command.toString(), 'y'));
 		while(!proceed) {
 			Prompt.print_nnc("Confirm? Enter y (confirm) / n (reset) / x (exit) : ");
 			buf = stream.readLine();
@@ -777,7 +778,7 @@ public class ProfileModule {
 				return 1;
 			}
 			if(buf.startsWith("x") || buf.startsWith("X")) {
-				System.out.println("");
+				System.out.println();
 				System.exit(0);
 			}
 		}
@@ -805,14 +806,14 @@ public class ProfileModule {
 			case -1: printManual();
 			case -2: printManualAdvanced();
 			case -4: Prompt.print(GenericConfig.geneString()); break;
-			case  1: while(interactiveRoute(args[0]) > 0); break;
+			case  1: while(interactiveRoute() > 0); break;
 			case  0: solveDependency(); break;
 			default: System.exit(1);
 			}
 			
 			/* Core pipeline begins here */
 			Prompt.talk("Launching UFCG profile module...\n");
-			if(GenericConfig.INTERACT && !GenericConfig.VERB) System.out.println("");
+			if(GenericConfig.INTERACT && !GenericConfig.VERB) System.out.println();
 //			if(!GenericConfig.INTERACT) printLogo();
 			GenericConfig.INTERACT = false;
 			
@@ -858,7 +859,7 @@ public class ProfileModule {
 					}
 				}
 				
-				List<ProfilePredictionEntity> pps = new ArrayList<ProfilePredictionEntity>();
+				List<ProfilePredictionEntity> pps = new ArrayList<>();
 				/* Step 1. Nucleotide barcode prediction */
 				if(GenericConfig.NUC) {
 					Prompt.print("Extracting nucleotide markers...");
@@ -896,10 +897,10 @@ public class ProfileModule {
 					nSgl = 0; nMul = 0; nUid = 0;
 					
 					ExecutorService executorService = Executors.newFixedThreadPool(GenericConfig.ThreadPoolSize);
-					List<Future<ProfilePredictionEntity>> futures = new ArrayList<Future<ProfilePredictionEntity>>();
+					List<Future<ProfilePredictionEntity>> futures = new ArrayList<>();
 					
 					for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) {
-						CreateProfile creator = new ProfileModule().new CreateProfile(g);
+						CreateProfile creator = new CreateProfile(g);
 						futures.add(executorService.submit(creator));
 						Thread.sleep(500);
 					}
@@ -932,10 +933,10 @@ public class ProfileModule {
 					nSgl = 0; nMul = 0; nUid = 0;
 					
 					ExecutorService executorService = Executors.newFixedThreadPool(GenericConfig.ThreadPoolSize);
-					List<Future<ProfilePredictionEntity>> futures = new ArrayList<Future<ProfilePredictionEntity>>();
+					List<Future<ProfilePredictionEntity>> futures = new ArrayList<>();
 					
 					for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) {
-						CreateProfile creator = new ProfileModule().new CreateProfile(g);
+						CreateProfile creator = new CreateProfile(g);
 						futures.add(executorService.submit(creator));
 						Thread.sleep(500);
 					}
@@ -949,7 +950,7 @@ public class ProfileModule {
 				}
 				
 				for(String contig : contigs) FileStream.wipe(contig, true);
-				contigs = new ArrayList<String>();
+				contigs = new ArrayList<>();
 				ContigDragProcess.clean();
 				
 				/* Write the entire result on a single JSON file */
@@ -973,7 +974,7 @@ public class ProfileModule {
 		} */
 	}
 	
-	static List<Status> progress = new LinkedList<Status>();
+	static List<Status> progress = new LinkedList<>();
 	static TimeKeeper tk = null;
 	private static class Status {
 		private String stat;
@@ -1004,26 +1005,23 @@ public class ProfileModule {
 			return;
 		}
 		
-		String build = "PROGRESS : [";
+		StringBuilder build = new StringBuilder("PROGRESS : [");
 		int fin = 0;
 		
 		try{
 			for(Status s : progress) {
-				build += s.stat;
+				build.append(s.stat);
 				if(s.proc == 2) fin++;
 			}
 		}
-		catch(java.util.ConcurrentModificationException cme) {
+		catch(ConcurrentModificationException | NullPointerException e) {
 			return;
 		}
-		catch(NullPointerException npe) {
-			return;
-		}
-		
-		build += "]";
-		build += " ETA : " + tk.eta(fin, progress.size()) + " ";
+
+		build.append("]");
+		build.append(" ETA : ").append(tk.eta(fin, progress.size())).append(" ");
 		if(!GenericConfig.QUIET) Prompt.dynamic("\r");
-		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build);
+		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build.toString());
 	}
 	
 	static void printProgSimple() {
@@ -1042,13 +1040,10 @@ public class ProfileModule {
 			build += " / Processing : " + ANSIHandler.wrapper(String.valueOf(proc), 'Y');
 			build += " / Finished : " + ANSIHandler.wrapper(String.valueOf(fin), 'G');
 		}
-		catch(java.util.ConcurrentModificationException cme) {
+		catch(ConcurrentModificationException | NullPointerException e) {
 			return;
 		}
-		catch(NullPointerException npe) {
-			return;
-		}
-		
+
 		build += "]";
 		build += " ETA : " + tk.eta(fin, progress.size()) + " ";
 		
@@ -1056,10 +1051,10 @@ public class ProfileModule {
 		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build);
 	}
 	
-	static List<String> contigs = new ArrayList<String>();
+	static List<String> contigs = new ArrayList<>();
 	static int nSgl, nMul, nUid;
-	private class CreateProfile implements Callable<ProfilePredictionEntity> {
-		private int g;
+	private static class CreateProfile implements Callable<ProfilePredictionEntity> {
+		private final int g;
 		public CreateProfile(int gid) {
 			this.g = gid;
 		}
@@ -1107,7 +1102,7 @@ public class ProfileModule {
 				for(String ctgPath : ctgPaths) if(!contigs.contains(ctgPath)) contigs.add(ctgPath);
 				
 				/* Record obtained result */
-				String result = "";
+				String result;
 				if(pp.valid()) {
 					if(pp.multiple()) {
 						/* Multiple copies */
