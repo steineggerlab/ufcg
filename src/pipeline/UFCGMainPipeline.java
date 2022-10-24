@@ -33,7 +33,6 @@ import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.cli.MissingArgumentException;
 
 import sun.misc.Signal;
-import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class UFCGMainPipeline {
@@ -124,6 +123,7 @@ public class UFCGMainPipeline {
 					mae.getOption().getLongOpt());
 			ExceptionHandler.handle(ExceptionHandler.MISSING_ARGUMENT);
 		}
+		assert cmd != null;
 		if(cmd.hasOption("developer")) {
 			GenericConfig.DEV = true;
 			GenericConfig.VERB = true;
@@ -175,7 +175,7 @@ public class UFCGMainPipeline {
 									" --core         Print core gene list\n"
 				);
 		printGeneral();
-		System.out.println("");
+		System.out.println();
 		
 		System.exit(0);
 	}
@@ -210,8 +210,8 @@ public class UFCGMainPipeline {
 				);
 		
 		Prompt.debug("SYSTEM CHECK : OS  = " + GenericConfig.OS);
-		Prompt.debug("SYSTEM CHECK : CPU = " + String.valueOf(GenericConfig.CPU_COUNT));
-		Prompt.debug("SYSTEM CHECK : MEM = " + String.valueOf(GenericConfig.MEM_SIZE) + " B");
+		Prompt.debug("SYSTEM CHECK : CPU = " + GenericConfig.CPU_COUNT);
+		Prompt.debug("SYSTEM CHECK : MEM = " + GenericConfig.MEM_SIZE + " B");
 		System.exit(0);
 	}
 	
@@ -220,10 +220,10 @@ public class UFCGMainPipeline {
 		System.out.println(ANSIHandler.wrapper("  Gene          Category      Function", 'Y'));
 		for(int i = 0; i < GenericConfig.FCG_REF.length; i++) {
 			System.out.print(ANSIHandler.wrapper(String.format("  %-14s", GenericConfig.FCG_REF[i]), 'C'));
-			System.out.print(String.format("%-14s", GenericConfig.FCG_COG[i]));
+			System.out.printf("%-14s", GenericConfig.FCG_COG[i]);
 			System.out.println(GenericConfig.FCG_DSC[i]);
 		}
-		System.out.println("");
+		System.out.println();
 		System.exit(0);
 	}
 	
@@ -239,16 +239,14 @@ public class UFCGMainPipeline {
 		 * 		 therefore the running process may not terminate immediately,
 		 * 		 and may shortly print some additional prompts between handling and termination.
 		 */
-		Signal.handle(new Signal("INT"), new SignalHandler() {
-			public void handle(Signal sig) {
-				System.out.println("");
-				Prompt.debug("SIGINT detected");
-				GenericConfig.setHeader("SIGNAL");
-				Prompt.print("Keyboard interrupt detected. Terminating process.");
-				if(GenericConfig.INTERACT) Prompt.print("Use -h option to see the user manual.\n");
-				else System.out.println("");
-				System.exit(0);
-			}
+		Signal.handle(new Signal("INT"), sig -> {
+			System.out.println();
+			Prompt.debug("SIGINT detected");
+			GenericConfig.setHeader("SGNL");
+			Prompt.print("Keyboard interrupt detected. Terminating process.");
+			if(GenericConfig.INTERACT) Prompt.print("Use -h option to see the user manual.\n");
+			else System.out.println();
+			System.exit(0);
 		});
 		try {
 			/* Environment setup and path definition */
@@ -256,7 +254,7 @@ public class UFCGMainPipeline {
 			GenericConfig.setHeaderLength(5);
 			String jarPath = UFCGMainPipeline.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 			PathConfig.setEnvironmentPath(jarPath.substring(0, jarPath.lastIndexOf("/") + 1));
-			System.out.println("");
+			System.out.println();
 			FileStream.init();
 			
 			/* Module parsing */

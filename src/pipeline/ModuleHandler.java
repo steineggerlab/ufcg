@@ -96,6 +96,7 @@ public class ModuleHandler {
 		}
 		
 		/* apply general options */
+		assert cmd != null;
 		if(cmd.hasOption("v"))		 GenericConfig.VERB = true;
 		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
 		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
@@ -106,7 +107,7 @@ public class ModuleHandler {
 		}
 		
 		/* prepare arguments compatible to tree module */
-		List<String> argList = new ArrayList<String>();
+		List<String> argList = new ArrayList<>();
 		argList.add("align");
 		
 		if(cmd.hasOption("h")) argList.add("-h");
@@ -164,7 +165,7 @@ public class ModuleHandler {
 		}
 		
 	//	Prompt.debug("Running : " + ANSIHandler.wrapper("tree.jar " + String.join(" ", argList), 'B'));
-		TreeModule.run(argList.toArray(new String[argList.size()]));
+		TreeModule.run(argList.toArray(new String[0]));
 	}
 	private void handle_prune() {
 		Prompt.talk("UFCG prune v" + UFCGMainPipeline.VERSION);
@@ -201,6 +202,7 @@ public class ModuleHandler {
 		}
 		
 		/* apply general options */
+		assert cmd != null;
 		if(cmd.hasOption("v"))		 GenericConfig.VERB = true;
 		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
 		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
@@ -211,7 +213,7 @@ public class ModuleHandler {
 		}
 		
 		/* prepare arguments compatible to tree module */
-		List<String> argList = new ArrayList<String>();
+		List<String> argList = new ArrayList<>();
 		argList.add("replace");
 		
 		if(cmd.hasOption("h")) argList.add("-h");
@@ -229,7 +231,7 @@ public class ModuleHandler {
 		}
 		
 	//	Prompt.debug("Running : " + ANSIHandler.wrapper("tree.jar " + String.join(" ", argList), 'B'));
-		TreeModule.run(argList.toArray(new String[argList.size()]));
+		TreeModule.run(argList.toArray(new String[0]));
 	}
 	
 	public void handle() {

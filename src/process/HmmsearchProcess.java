@@ -14,6 +14,7 @@ import wrapper.HmmsearchWrapper;
 
 @Deprecated
 public class HmmsearchProcess {
+	@Deprecated
 	public static void search(ProfilePredictionEntity pp, String hmmPath) throws java.io.IOException {
 		String seqPath = pp.export();
 		String tblPath = String.format("%s%s%s_%s.tbl",
@@ -30,13 +31,13 @@ public class HmmsearchProcess {
 		tblStream.readLine();
 		
 		boolean optFlag = true;
-		String line = null;
+		String line;
 		while(!(line = tblStream.readLine()).startsWith("#")) {
 			String tgt = line.split(" ")[0];
 			int loc = Integer.parseInt(tgt.substring(tgt.lastIndexOf("_") + 2));
 			
 			/* ORF validation */
-			String prtn = pp.getSeq(loc), orf = pp.getDna(loc), valid = null;
+			String prtn = pp.getSeq(loc), orf = pp.getDna(loc), valid;
 			if(!GenericConfig.INTRON) {
 				if((valid = MMseqsEasySearchProcess.checkORF(pp, prtn, orf)) == null) continue;
 			}

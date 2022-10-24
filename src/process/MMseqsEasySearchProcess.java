@@ -17,11 +17,16 @@ public class MMseqsEasySearchProcess {
 	public static String checkORF(ProfilePredictionEntity pp, String prtn, String orf) {
 		if(orf.equals("*")) return null;
 		
-		String valid = null;
+		String valid;
 		GenomeTranslator.createMap();
 		
 		if(!GenomeTranslator.equal(prtn + "*", GenomeTranslator.transeq(orf))) {
 			int frame = GenomeTranslator.frame(orf, prtn);
+			if(frame < 0) {
+				Prompt.talk(ANSIHandler.wrapper("ORF fix failed: ", 'r') + "could not find the valid reading frame.");
+				return null;
+			}
+
 			valid = orf.substring(frame);
 			
 			boolean stop = orf.endsWith("TAA") || orf.endsWith("TAG") || orf.endsWith("TGA");
@@ -31,11 +36,8 @@ public class MMseqsEasySearchProcess {
 					frame == 0 ? ANSIHandler.wrapper("O", 'g') : ANSIHandler.wrapper("X", 'r'),
 					stop ? ANSIHandler.wrapper("O", 'g') : ANSIHandler.wrapper("X", 'r'),
 					prtn.length() * 3 + 3 - orf.length()));
-			
-			if(frame < 0) {
-				Prompt.talk(ANSIHandler.wrapper("ORF fix failed: ", 'r') + "could not find the valid reading frame.");
-				return null;
-			}
+
+
 			if(!stop) {
 				if(valid.length() < prtn.length() * 3) {
 					Prompt.talk(ANSIHandler.wrapper("ORF fix failed: ", 'r') + "could not find the locus for a stop codon.");

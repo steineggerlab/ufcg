@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class ContigDragProcess {
-	static List<String> dragged = new ArrayList<String>();
-	
+	static List<String> dragged = new ArrayList<>();
+
 	private static String contain(String line, List<String> ctgs) {
 		for(String ctg : ctgs) if(line.contains(ctg)) return ctg;
 		return null;
@@ -23,7 +23,7 @@ public class ContigDragProcess {
 		FileStream seqStream = new FileStream(seqPath, 'r');
 		String line = seqStream.readLine();
 		
-		List<String> ctgs = new ArrayList<String>();
+		List<String> ctgs = new ArrayList<>();
 		for(int i = 0; i < bp.size(); i++) if(!ctgs.contains(bp.getCtg(i))) ctgs.add(bp.getCtg(i));
 		
 		int ci = 0;
@@ -75,11 +75,11 @@ public class ContigDragProcess {
 		}
 		seqStream.close();
 		
-		List<String> ctgPaths = new ArrayList<String>();
+		List<String> ctgPaths = new ArrayList<>();
 		for(int i = 0; i < bp.size(); i++) ctgPaths.add(String.format("%s%s%s_%s.fna",
 						PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, bp.getCtg(i)));
 		return ctgPaths;
 	}
 	
-	public static void clean() {dragged = new ArrayList<String>();}
+	public static void clean() {dragged = new ArrayList<>();}
 }

@@ -25,7 +25,7 @@ public class FastBlockSearchProcess {
 		Prompt.talk("Parsing block search result written on : " + ANSIHandler.wrapper(outPath, 'y'));
 		FastBlockSearchParser.parse(bp, outPath);
 		
-		Prompt.talk("fastBlockSearch found " + String.valueOf(bp.getCnt()) + " block(s) containing the target gene.");
+		Prompt.talk("fastBlockSearch found " + bp.getCnt() + " block(s) containing the target gene.");
 		FileStream.wipe(outPath);
 		
 		return bp;

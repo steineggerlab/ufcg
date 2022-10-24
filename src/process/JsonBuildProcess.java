@@ -9,47 +9,47 @@ import org.json.simple.JSONObject;
 
 public class JsonBuildProcess {
 	private static String jsonStrFix(String jstr) {
-		String jsonFix = "";
+		StringBuilder jsonFix = new StringBuilder();
 		
 		int level = 0;
 		for(int i = 0; i < jstr.length(); i++) {		
 			char ch = jstr.charAt(i);
 			if(ch == '\"') {
 				int j = jstr.indexOf('\"', i + 1);
-				jsonFix += jstr.substring(i, j + 1).replace("\\t", "");
+				jsonFix.append(jstr.substring(i, j + 1).replace("\\t", ""));
 				i = j;
 				continue;
 			}
 			
 			// opener
 			if(ch == '{' || ch == '[') {
-				jsonFix += ch;
-				jsonFix += '\n';
+				jsonFix.append(ch);
+				jsonFix.append('\n');
 				level++;
-				for(int t = 0; t < level; t++) jsonFix += '\t';
+				for(int t = 0; t < level; t++) jsonFix.append('\t');
 			}
 			// closer
 			else if(ch == '}' || ch == ']') {
-				jsonFix += '\n';
+				jsonFix.append('\n');
 				level--;
-				for(int t = 0; t < level; t++) jsonFix += '\t';
-				jsonFix += ch;
+				for(int t = 0; t < level; t++) jsonFix.append('\t');
+				jsonFix.append(ch);
 			}
 			// comma
 			else if(ch == ',') {
-				jsonFix += ch;
-				jsonFix += '\n';
-				for(int t = 0; t < level; t++) jsonFix += '\t';
+				jsonFix.append(ch);
+				jsonFix.append('\n');
+				for(int t = 0; t < level; t++) jsonFix.append('\t');
 			}
 			// vertical bar
 			else if(ch == '|') {
-				jsonFix += ',';
+				jsonFix.append(',');
 			}
 			// default
-			else jsonFix += ch;
+			else jsonFix.append(ch);
 		}
 		
-		return jsonFix;
+		return jsonFix.toString();
 	}
 	
 	public static void build(JSONObject obj, String jsonPath) {

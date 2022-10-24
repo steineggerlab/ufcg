@@ -10,10 +10,10 @@ import pipeline.ExceptionHandler;
 public class FastaHeaderClassifyProcess {
 	public static void classify(String ifa, String head, String ofa, boolean accept) {
 		try {
-			String buf = null;
+			String buf;
 			
 			// read headers and create hash map
-			Map<String, Boolean> headerMap = new HashMap<String, Boolean>();
+			Map<String, Boolean> headerMap = new HashMap<>();
 			FileStream hfs = new FileStream(head, 'r');
 			while((buf = hfs.readLine()) != null) headerMap.put(buf.split(" ")[0], true);
 			hfs.close();
