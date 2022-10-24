@@ -37,8 +37,11 @@ import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class UFCGMainPipeline {
-	public static final String VERSION = "1.0.1";
+	public static final String VERSION = "1.0.2";
 	public static final String RELEASE_DATE = "Oct 2022";
+	public static final String CITATION = " Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M.\n"
+										+ " UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi.\n"
+										+ " Nucleic Acids Research, doi:10.1093/nar/gkac894 (2022).\n";
 	
 	public static final int NO_MODULE			= 0x00;
 	public static final int MODULE_PROFILE		= 0x01;
@@ -151,6 +154,7 @@ public class UFCGMainPipeline {
 	private static void printManual() {
 		System.out.println(
 //				ANSIHandler.wrapper(" Manual - UFCG v" + VERSION + "\n\n", 'Y') + 
+				ANSIHandler.wrapper(" Please cite:\n", 'C') + CITATION + "\n" +
 				
 				ANSIHandler.wrapper(" USAGE : ", 'Y') + "java -jar UFCG.jar <module> [...]\n\n\n" +
 				
@@ -194,6 +198,9 @@ public class UFCGMainPipeline {
 				ANSIHandler.wrapper(" UFCG : Profiling Fungi with " + // String.valueOf(GenericConfig.FCG_REF.length) + 
 									"Universal Fungal Core Genes\n", 'Y') +
 				ANSIHandler.wrapper(" ver. " + VERSION + " (Released: " + RELEASE_DATE + ")\n\n", 'Y') + 
+				
+				ANSIHandler.wrapper("\n Please cite:\n", 'C') + CITATION + "\n" +
+				
 				" Developed by Daniel Dongwook Kim\n" +
 				" Steinegger Lab, Seoul National University\n\n" +
 				" Contact        : endix1029@snu.ac.kr\n" +

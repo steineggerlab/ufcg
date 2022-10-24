@@ -4,10 +4,13 @@
 UFCG pipeline provides methods for a genome-wide taxonomic profiling and annotation of your own biological sequences of Fungi.
  * [Homepage](https://ufcg.steineggerlab.com/)
  * [Preprint](https://www.biorxiv.org/content/10.1101/2022.08.16.504087v1)
+ * [Publication](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkac894/6769744)
 
 ### Notice
  * UFCG v1.0.1 now requires augustus v3.5.0. Please update your environment to run the pipeline.
- * [macOS] augustus v3.5.0 is currently unavailable to run in macOS due to unknown segmentation fault issue. Please use Linux or the docker container, or UFCG v1.0.
+ 
+### How to cite
+Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M. UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi. Nucleic Acids Research, gkac894 (2022).
 
 ## Quick start with conda
 ~~~bash
@@ -56,5 +59,3 @@ UFCG `align` conducts multiple sequence alignment of the genes from the set of m
 java -jar UFCG.jar align -i <INPUT> -o <OUTPUT> [OPTIONS]
 ~~~
 
-## How to cite
-[Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M. UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi. bioRxiv (2022).](https://www.biorxiv.org/content/10.1101/2022.08.16.504087v1)
