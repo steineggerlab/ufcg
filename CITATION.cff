@@ -1,4 +1,5 @@
 cff-version: 1.2.0
+type: article
 message: "If you use this software, please cite it as below."
 authors:
 - family-names: "Kim"
@@ -13,7 +14,10 @@ authors:
 - family-names: "Steinegger"
   given-names: "Martin"
   orcid: "https://orcid.org/0000-0001-8781-9753"
-title: "UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi"
-version: 1.0.2
 doi: 10.1093/nar/gkac894
-date-released: 2022-10-22
+journal: "Nucleic Acids Research"
+title: "UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi"
+issue: gkac894
+start: 1
+end: 8
+year: 2022
