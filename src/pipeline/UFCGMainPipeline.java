@@ -154,7 +154,7 @@ public class UFCGMainPipeline {
 	private static void printManual() {
 		System.out.println(
 //				ANSIHandler.wrapper(" Manual - UFCG v" + VERSION + "\n\n", 'Y') + 
-				ANSIHandler.wrapper(" Please cite:\n", 'C') + CITATION + "\n" +
+				ANSIHandler.wrapper(" Please cite:\n", 'C') + CITATION + "\n\n" +
 				
 				ANSIHandler.wrapper(" USAGE : ", 'Y') + "java -jar UFCG.jar <module> [...]\n\n\n" +
 				
@@ -199,7 +199,7 @@ public class UFCGMainPipeline {
 									"Universal Fungal Core Genes\n", 'Y') +
 				ANSIHandler.wrapper(" ver. " + VERSION + " (Released: " + RELEASE_DATE + ")\n\n", 'Y') + 
 				
-				ANSIHandler.wrapper("\n Please cite:\n", 'C') + CITATION + "\n" +
+				ANSIHandler.wrapper("\n Please cite:\n", 'C') + CITATION + "\n\n" +
 				
 				" Developed by Daniel Dongwook Kim\n" +
 				" Steinegger Lab, Seoul National University\n\n" +

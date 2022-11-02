@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import envs.config.GenericConfig;
 import envs.config.PathConfig;
@@ -66,13 +67,19 @@ public class QueryEntity {
 			ExceptionHandler.pass("filename");
 			ExceptionHandler.handle(ExceptionHandler.INSUFFICIENT_METADATA);
 		}
+
+		int line = headers.length;
+		boolean no_label = false;
 		if(EX_LABEL < 0) {
-			ExceptionHandler.pass("label");
-			ExceptionHandler.handle(ExceptionHandler.INSUFFICIENT_METADATA);
+			no_label = true;
+			EX_LABEL = line++;
+			Prompt.warn("No label column found. Using filename as label.");
 		}
+		boolean no_access = false;
 		if(EX_ACCESS < 0) {
-			ExceptionHandler.pass("accession");
-			ExceptionHandler.handle(ExceptionHandler.INSUFFICIENT_METADATA);
+			no_access = true;
+			EX_ACCESS = line;
+			Prompt.warn("No accession column found. Using filename as accession.");
 		}
 		
 		// parse elements
@@ -86,6 +93,8 @@ public class QueryEntity {
 				if(value.equals("null") || value.equals("NULL")) data.add(null);
 				else data.add(value);
 			}
+			if(no_label) data.add(data.get(EX_FILENAME).substring(0, data.get(EX_FILENAME).lastIndexOf('.')));
+			if(no_access) data.add(data.get(EX_FILENAME).substring(0, data.get(EX_FILENAME).lastIndexOf('.')));
 			METADATA.add(data);
 		}
 		
@@ -94,32 +103,34 @@ public class QueryEntity {
 	
 	public static int testIntegrity() throws java.io.IOException {
 		/* Input data and metadata integrity test
-		 * 		Rule 1. Input files must have identical extension.
-		 * 		Rule 2. The number of input files must be identical to the number of metadata entities.
-		 * 		Rule 3. All filenames must exist in the metadata.
+		 *      Rule 1. There is no rule.
+		 * 		[DEPRECATED] Rule 1. Input files must have identical extension.
+		 * 		[DEPRECATED] Rule 2. The number of input files must be identical to the number of metadata entities.
+		 * 		[DEPRECATED] Rule 3. All filenames must exist in the metadata.
 		 * 		[DEPRECATED] Rule 4. Input files must share same file type.
 		 */
 		Prompt.print("Reading input data...");
 		List<String> fnames = new ArrayList<>();
-		
-		// fetch filenames from input directory
-		if(PathConfig.InputIsFolder) {
-			String cmd = "ls -1 " + PathConfig.InputPath + " > " + PathConfig.TempPath + GenericConfig.TEMP_HEADER + "file.list";
-			Shell.exec(cmd);
-			FileStream tmpListStream = new FileStream(PathConfig.TempPath + GenericConfig.TEMP_HEADER + "file.list", 'r');
-			tmpListStream.isTemp();
-			String buf;
-			while((buf = tmpListStream.readLine()) != null) fnames.add(buf);
-			tmpListStream.close();
-			tmpListStream.wipe(true);
-			
-			// Rule 1
-			String ext = fnames.get(0).substring(fnames.get(0).lastIndexOf(".") + 1);
-			for(String fname : fnames) {
-				if(!fname.endsWith(ext)) return 1;
+
+		// fetch filenames
+		if(PathConfig.InputIsFolder){
+			File dir = new File(PathConfig.InputPath);
+			if(!dir.exists()) {
+				ExceptionHandler.pass(PathConfig.InputPath);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+			}
+			for(File file : Objects.requireNonNull(dir.listFiles())) {
+				if(file.isFile()) fnames.add(file.getName());
 			}
 		}
-		else fnames.add(PathConfig.InputPath.substring(PathConfig.InputPath.lastIndexOf("/") + 1));
+		else {
+			File file = new File(PathConfig.InputPath);
+			if(!file.exists()) {
+				ExceptionHandler.pass(PathConfig.InputPath);
+				ExceptionHandler.handle(ExceptionHandler.INVALID_FILE);
+			}
+			fnames.add(file.getName());
+		}
 		
 		// if metadata not given
 		if(!PathConfig.MetaExists) {
@@ -147,12 +158,12 @@ public class QueryEntity {
 				
 				List<String> metaList = java.util.Arrays.asList(metaContainer);
 				if(metaList.get(EX_LABEL) == null) {
-					ExceptionHandler.pass("label");
-					ExceptionHandler.handle(ExceptionHandler.INSUFFICIENT_METADATA);
+					metaList.set(EX_LABEL, metaList.get(EX_FILENAME));
+					Prompt.warn("No label column found. Using filename as label.");
 				}
 				if(metaList.get(EX_ACCESS) == null) {
-					ExceptionHandler.pass("accession");
-					ExceptionHandler.handle(ExceptionHandler.INSUFFICIENT_METADATA);
+					metaList.set(EX_ACCESS, metaList.get(EX_FILENAME));
+					Prompt.warn("No accession column found. Using filename as accession.");
 				}
 				
 				METADATA.add(metaList);
@@ -178,13 +189,34 @@ public class QueryEntity {
 			}
 		}
 
-		// Rule 2
-		if(fnames.size() < METADATA.size()) return 2;
-		
-		// String ftype = Shell.exec("file -b " + PathConfig.InputPath + (PathConfig.InputIsFolder ? fnames.get(0) : ""))[0];
+		// remove metadata entities that are not in the input files
+		List<List<String>> tmpMeta = new ArrayList<>();
 		for(List<String> data : METADATA) {
-			if(!fnames.contains(data.get(EX_FILENAME))) return 3; // Rule 3
-			// if(!Shell.exec("file -b " + PathConfig.InputPath + (PathConfig.InputIsFolder ? data.get(EX_FILENAME) : ""))[0].equals(ftype)) return 4; // Rule 4
+			if(fnames.contains(data.get(EX_FILENAME))) tmpMeta.add(data);
+			else Prompt.warn("Metadata entity " + ANSIHandler.wrapper(data.get(EX_FILENAME), 'B') + " is not in the input files.");
+		}
+		METADATA = tmpMeta;
+
+		// add metadata entities that are not in the metadata
+		for(String fname : fnames) {
+			boolean found = false;
+			for(List<String> data : METADATA) {
+				if(data.get(EX_FILENAME).equals(fname)) {
+					found = true;
+					break;
+				}
+			}
+			if(!found) {
+				Prompt.warn("Input file " + ANSIHandler.wrapper(fname, 'B') + " is not in the metadata.");
+				String acc = fname.substring(0, fname.lastIndexOf("."));
+
+				List<String> data = new ArrayList<>();
+				for(int i = 0; i < 7; i++) data.add("none");
+				data.set(EX_FILENAME, fname);
+				data.set(EX_LABEL, acc);
+				data.set(EX_ACCESS, acc);
+				METADATA.add(data);
+			}
 		}
 		
 		return 0;
