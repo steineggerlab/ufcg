@@ -1,6 +1,7 @@
 package envs.toolkit;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class FileStream {
 	public static void isTemp(FileStream stream) {
 		isTemp(stream.PATH);
 	}
-	
+
 	public static void wipe(String path) {
 		if(PathConfig.TempIsCustom) return;
 		try {
@@ -61,8 +62,10 @@ public class FileStream {
 			if(PATH_MAP.get(path) >= TMP_STATUS.size()) return;
 			TMP_STATUS.get(PATH_MAP.get(path)).decr();
 			if(TMP_STATUS.get(PATH_MAP.get(path)).cnt == 0) {
-				Shell.exec("rm " + path);
-				TMP_STATUS.get(PATH_MAP.get(path)).handle();
+				// Shell.exec("rm " + path);
+				File file = new File(path);
+				if(file.delete()) TMP_STATUS.get(PATH_MAP.get(path)).handle();
+				else Prompt.debug("Failed to delete file: " + path);
 			}
 		}
 		catch(NullPointerException | IndexOutOfBoundsException ignored) {}
@@ -72,8 +75,11 @@ public class FileStream {
 	}
 	public static void wipe(String path, boolean force) {
 		if(force) {
-			Shell.exec("rm " + path);
-			if(PathConfig.TempIsCustom) TMP_STATUS.get(PATH_MAP.get(path)).handle();
+			File file = new File(path);
+			if(file.delete()){
+				if(PathConfig.TempIsCustom) TMP_STATUS.get(PATH_MAP.get(path)).handle();
+			}
+			else Prompt.debug("Failed to delete file: " + path);
 		}
 		else wipe(path);
 	}
