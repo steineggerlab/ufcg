@@ -13,8 +13,9 @@ import java.util.ArrayList;
 public class ContigDragProcess {
 	static List<String> dragged = new ArrayList<>();
 
-	private static String contain(String line, List<String> ctgs) {
-		for(String ctg : ctgs) if(line.contains(ctg)) return ctg;
+	private static String match(String line, List<String> ctgs) {
+		String cmp = line.substring(1).split(" ")[0].split("\t")[0];
+		for(String ctg : ctgs) if(cmp.equals(ctg)) return ctg;
 		return null;
 	}
 	
@@ -28,7 +29,7 @@ public class ContigDragProcess {
 		
 		int ci = 0;
 		while(ci < ctgs.size()) {
-			String ctg = contain(line, ctgs);
+			String ctg = match(line, ctgs);
 			if(ctg != null) {
 				String ctgPath = String.format("%s%s%s_%s.fna",
 						PathConfig.TempPath, GenericConfig.TEMP_HEADER, GenericConfig.ACCESS, ctg);
