@@ -221,7 +221,8 @@ public class ProfileProModule {
 				else sbuf.append(buf);
 			}
 			inStream.close();
-			
+
+			if(!GenericConfig.VERB && !GenericConfig.QUIET) GenericConfig.DYNAMIC = true;
 			initProg();
 			printProg();
 			
@@ -241,6 +242,8 @@ public class ProfileProModule {
 			for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 			
 			if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE ", 'g') + "\n");
+			GenericConfig.DYNAMIC = false;
+
 			Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 					ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 			

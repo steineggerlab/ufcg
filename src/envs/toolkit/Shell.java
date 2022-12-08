@@ -124,7 +124,7 @@ public class Shell {
 		try{
 			line = reader.readLine();
 		} catch(IOException e) {
-			Prompt.warn("Timed out command: " + ANSIHandler.wrapper(processBuilder.command().get(2), 'B'));
+			Prompt.warn("Command timed out: " + ANSIHandler.wrapper(processBuilder.command().get(2), 'B'));
 			return null;
 		}
 		while(line != null){

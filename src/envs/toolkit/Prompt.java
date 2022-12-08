@@ -18,7 +18,10 @@ public class Prompt {
 	
 	// universal standard for prompt line print
 	public static void print_univ(String head, String message, char color) {
-		if(!GenericConfig.TEST) if(!SUPPRESS) System.out.println(buildMessage(head, message, color));
+		if(!GenericConfig.TEST) if(!SUPPRESS) {
+			if(GenericConfig.DYNAMIC) System.out.println();
+			System.out.println(buildMessage(head, message, color));
+		}
 	}
 	
 	public static void print(String head, String message){

@@ -29,7 +29,8 @@ public class GenericConfig {
 	public static int HLEN = 0;				// Prompt maximum header length
 	private static boolean custom_hlen = false;
 	public static int MODULE = 0; // module
-	
+	public static boolean DYNAMIC = false; // using dynamic output buffer?
+
 	public static void setHeader(String header) {
 		PHEAD = header;
 		if(!custom_hlen) HLEN  = header.length();

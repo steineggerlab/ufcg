@@ -886,6 +886,7 @@ public class ProfileModule {
 					GenericConfig.setQueryGenes(GenericConfig.FCG, GenericConfig.TARGET_PRO);
 					
 					/* Dynamic progress prompt setup */
+					if(!GenericConfig.VERB && !GenericConfig.QUIET) GenericConfig.DYNAMIC = true;
 					initProg();
 					printProg();
 					
@@ -909,6 +910,8 @@ public class ProfileModule {
 					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 					
 					if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE ", 'g') + "\n");
+					GenericConfig.DYNAMIC = false;
+
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 					
@@ -922,6 +925,7 @@ public class ProfileModule {
 					GenericConfig.setQueryGenes(GenericConfig.BUSCOS, GenericConfig.TARGET_BUSCO);
 					
 					/* Dynamic progress prompt setup */
+					if(!GenericConfig.VERB && !GenericConfig.QUIET) GenericConfig.DYNAMIC = true;
 					initProg();
 					printProg();
 					
@@ -945,6 +949,8 @@ public class ProfileModule {
 					for(Future<ProfilePredictionEntity> future : futures) pps.add(future.get());
 					
 					if(!GenericConfig.QUIET) Prompt.dynamic(ANSIHandler.wrapper(" DONE ", 'g') + "\n");
+					GenericConfig.DYNAMIC = false;
+
 					Prompt.print(String.format("RESULT : [Single: %s ; Duplicated: %s ; Missing: %s]",
 							ANSIHandler.wrapper(nSgl, 'g'), ANSIHandler.wrapper(nMul, 'G'), ANSIHandler.wrapper(nUid, 'r')));
 				}
