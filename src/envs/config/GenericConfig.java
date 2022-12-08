@@ -18,10 +18,10 @@ public class GenericConfig {
 	/* System info */
 	public static final String OS = System.getProperty("os.name");
 	public static long CPU_COUNT = OS.equals("Linux") ? 
-			Long.parseLong(Shell.exec("grep -c proc /proc/cpuinfo", true)[0]):
+			Long.parseLong(Shell.exec("grep -c proc /proc/cpuinfo", true, 0)[0]):
 			Long.parseLong(Shell.exec("sysctl -n hw.ncpu")[0]);
 	public static long MEM_SIZE = OS.equals("Linux") ?
-			Long.parseLong(Shell.exec("free -b | grep Mem | awk '{print $2}'", true)[0]):
+			Long.parseLong(Shell.exec("free -b | grep Mem | awk '{print $2}'", true, 0)[0]):
 			Long.parseLong(Shell.exec("sysctl -n hw.memsize")[0]);
 	
 	/* Running project status */

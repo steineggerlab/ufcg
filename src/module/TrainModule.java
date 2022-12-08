@@ -271,7 +271,7 @@ public class TrainModule {
 				// store initial counts
 				int[] scnts = new int[MARKERS.size()];
 				for(int i = 0; i < MARKERS.size(); i++) {
-					scnts[i] = Integer.parseInt(Shell.exec("grep '^>' " + seqs[i] + " | wc -l", true)[0]);
+					scnts[i] = Integer.parseInt(Shell.exec("grep '^>' " + seqs[i] + " | wc -l", true, 0)[0]);
 					Prompt.talk(String.format("[ITER %d/%s; TASK %s] : %d sequences defined", n, N > 0 ? String.valueOf(N) : "inf", MNAMES.get(i), scnts[i]));
 				}
 				
@@ -335,7 +335,7 @@ public class TrainModule {
 						Shell.exec(String.format("msa2prfl.pl < %s > %s 2> /dev/null", next + MNAME + ".pa.fa", nhmm));
 					
 					// compare sequence count
-					String grep = Shell.exec("grep '^>' " + nseq + " | wc -l", true)[0];
+					String grep = Shell.exec("grep '^>' " + nseq + " | wc -l", true, 0)[0];
 					int ecnt;
 					try{ 
 						ecnt = Integer.parseInt(grep);

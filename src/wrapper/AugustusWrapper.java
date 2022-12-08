@@ -37,7 +37,7 @@ public class AugustusWrapper extends ExecHandler {
 		return raw[0].contains("gff");
 	}
 	
-	public static void runAugustus(String ctgPath, int pst, int ped, String prfl, String outPath) {
+	public static int runAugustus(String ctgPath, int pst, int ped, String prfl, String outPath) {
 		AugustusWrapper aug = new AugustusWrapper();
 		aug.setCfg();
 		aug.setStart(pst);
@@ -45,13 +45,14 @@ public class AugustusWrapper extends ExecHandler {
 		aug.setPrfl(prfl);
 		aug.setCtgPath(ctgPath);
 		aug.setOutPath(outPath);
-		aug.exec();
+		if(aug.exec(false, 300) == null) return 1;
 		
 		// augustus failure
 		if(!aug.sanityCheck(outPath)) {
 			ExceptionHandler.pass(aug.buildCmd());
 			ExceptionHandler.handle(ExceptionHandler.FAILED_COMMAND);
 		}
+		return 0;
 	}
 	
 	// solve dependency

@@ -37,4 +37,8 @@ public abstract class ExecHandler {
 		String carr = buildCmd();
 		return Shell.exec(carr);
 	}
+	protected String[] exec(boolean quiet, long timeout) {
+		String carr = buildCmd();
+		return Shell.exec(carr, quiet, timeout);
+	}
 }

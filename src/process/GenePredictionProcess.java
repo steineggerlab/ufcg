@@ -20,9 +20,8 @@ public class GenePredictionProcess {
 		int pst = loc - GenericConfig.AugustusPredictionOffset;
 		if(pst < 0) pst = 0;
 		int ped = loc + GenericConfig.AugustusPredictionOffset;
-		
-		AugustusWrapper.runAugustus(ctgPath, pst, ped, famPath, gffPath);
-		
+
+		if(AugustusWrapper.runAugustus(ctgPath, pst, ped, famPath, gffPath) > 0) return null;
 		return gffPath;
 	}
 	
@@ -36,6 +35,10 @@ public class GenePredictionProcess {
 			Prompt.talk(String.format("AUGUSTUS is predicting genes... (contig %s, position %d-%d)",
 					bp.getCtg(i), bp.getSpos(i), bp.getEpos(i)));
 			String gffPath = predict(ctgPaths.get(i), bp.getCtg(i), bp.getMedian(i), bp.getFamPath(), bp.cg);
+			if(gffPath == null) {
+				Prompt.talk("AUGUSTUS failed to predict genes on contig " + bp.getCtg(i));
+				continue;
+			}
 			FileStream.isTemp(gffPath);
 			
 			try {
