@@ -29,12 +29,12 @@ public class AlignModule {
 	private static String name = GenericConfig.SESSION_UID;
 	private static Integer filter = 50;
 	private static List<String> leaves = null;
-	
+	private static boolean allowMultiple = false;
 	/* Argument parsing route */
 	private static void parseArgument(String[] args) throws ParseException {
 		/* option argument setup */
 		Options opts = new Options();
-		
+
 		opts.addOption("h", "help",		false,	"helper route");
 		opts.addOption("i", "input",	true,	"input directory");
 		opts.addOption("o", "output",	true,	"output directory");
@@ -43,12 +43,13 @@ public class AlignModule {
 		opts.addOption("a", "alignment",true,	"alignment type");
 		opts.addOption("t", "thread",	true,	"CPU thread");
 		opts.addOption("f", "filter",	true,	"gap-rich filter");
-		
+		opts.addOption("c", "copy",		true,	"allow multiple copies");
+
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
 		opts.addOption("v", "verbose", false, "verbosity");
 		opts.addOption(null, "developer", false, "developer tool");
-		
+
 		/* parse argument with CommandLineParser */
 		CommandLineParser clp = new DefaultParser();
 		CommandLine cmd = null;
@@ -74,7 +75,7 @@ public class AlignModule {
 			GenericConfig.VERB = true;
 			GenericConfig.TSTAMP = true;
 		}
-		
+
 		if(cmd.hasOption("h")) printAlignHelp();
 		if(cmd.hasOption("i"))
 			PathConfig.setInputPath(cmd.getOptionValue("i"));
@@ -84,10 +85,10 @@ public class AlignModule {
 		else ExceptionHandler.handle(ExceptionHandler.NO_OUTPUT);
 		if(cmd.hasOption("t"))
 			GenericConfig.setThreadPoolSize(cmd.getOptionValue("t"));
-		
+
 		/* parse configuration options */
 		leaves = new ArrayList<>();
-		
+
 		if(cmd.hasOption("l")) {
 			leaves = Arrays.asList(cmd.getOptionValue("l").split(","));
 			for(String leaf : leaves) {
@@ -98,7 +99,7 @@ public class AlignModule {
 			}
 		}
 		else leaves.add("label");
-		
+
 		if(cmd.hasOption("a")) {
 			String align = cmd.getOptionValue("a");
 			switch (align) {
@@ -129,18 +130,20 @@ public class AlignModule {
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			}
 		}
-		
+		if(cmd.hasOption("-c"))
+			allowMultiple = Integer.parseInt(cmd.getOptionValue("c")) != 0;
+
 		/* successfully parsed */
 		Prompt.talk(ANSIHandler.wrapper("SUCCESS", 'g') + " : Option parsing");
 	}
-	
+
 	private static String getMafftPath() {
 		String mafftPath = null;
 		try {
 			BufferedReader pathBR = new BufferedReader(
 					new FileReader(PathConfig.EnvironmentPath + "config/tree.cfg"));
 			String line;
-			while ((line = pathBR.readLine()) != null) {	
+			while ((line = pathBR.readLine()) != null) {
 				if (line.startsWith("mafft")) {
 					mafftPath = line.substring(line.indexOf("=") + 1);
 				}
@@ -156,7 +159,7 @@ public class AlignModule {
 		}
 		return mafftPath;
 	}
-	
+
 	public static void run(String[] args) {
 		try {
 			parseArgument(args);
@@ -164,29 +167,29 @@ public class AlignModule {
 			ExceptionHandler.handle(e);
 		}
 
-		TreeBuilder module = new TreeBuilder(PathConfig.InputPath, PathConfig.OutputPath, name, getMafftPath(), null, null, null, alignMode, filter, null, 0, leaves, 0);
-		
+		TreeBuilder module = new TreeBuilder(PathConfig.InputPath, PathConfig.OutputPath, name, getMafftPath(), null, null, null, alignMode, filter, null, 0, leaves, 0, allowMultiple);
+
 		try {
 			module.jsonsToMsa(GenericConfig.ThreadPoolSize);
 		} catch(IOException e) {
 			ExceptionHandler.handle(e);
 		}
 	}
-	
+
 	private static void printAlignHelp() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - align", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Align genes and provide multiple sequence alignments from UFCG profiles", 'g'));
 		System.out.println();
-	
+
 		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar align -i <INPUT> -o <OUTPUT> [...]");
 		System.out.println();
-	
+
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -i STR         Input directory containing UFCG profiles", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -o STR         Output directory for alignments", 'x'));
 		System.out.println();
-		
+
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -l STR         Label format, comma-separated string containing one or more of the following keywords:", 'x'));
@@ -195,6 +198,7 @@ public class AlignModule {
 		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [nucleotide]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -c BOOL        Align multiple copied genes [0]", 'x'));
 		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();

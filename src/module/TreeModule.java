@@ -35,24 +35,22 @@ public class TreeModule {
 	List<String> paramList = null;
 	HashMap<String, String> programPath = null;
 	List<String> outputLabels = null;
-	
-	
 
 	public static void run(String[] args) {
 		TreeModule proc = new TreeModule();
 		proc.parameters = args;
 		proc.paramList = Arrays.asList(args);
-		
+
 		String method = proc.paramList.get(0); // Define module
-		
+
 		// Help route
 		if (proc.paramList.contains("-h") || proc.paramList.contains("--help")) {
 			if(method.equals("align")) proc.printTreeHelp();
 			if(method.equals("replace")) proc.printPruneHelp();
 		}
-		
+
 		proc.getProgramPath();
-		
+
 		switch (method) {
 		case "align":
 			proc.align();
@@ -69,14 +67,14 @@ public class TreeModule {
 	private void align() {
 		String ucgDirectory;
 		String outDirectory = "." + File.separator;
-		
+
 		String mafftPath = programPath.get("mafft");
 		String raxmlPath = programPath.get("raxml");
 		String fasttreePath = programPath.get("fasttree");
 		String iqtreePath = programPath.get("iqtree");
-		
+
 		PhylogenyTool phylogenyTool = PhylogenyTool.iqtree;
-		
+
 		String runOutDirName = "";
 		int nThreads = 1;
 		AlignMode alignMode = AlignMode.nucleotide;
@@ -84,18 +82,19 @@ public class TreeModule {
 		String model = null;
 		int gsi_threshold = 95;
 		int executorLimit = 20;
-		
+		boolean allowMultiple = false;
+
 		Arguments arg = new Arguments(parameters);
-		
+
 		ucgDirectory = arg.get("-ucg_dir");
-		
+
 		if(arg.get("-out_dir")!=null && !arg.get("-out_dir").equals("")) {
 			outDirectory = arg.get("-out_dir");
 		}
 		if(arg.get("-run_id")!=null && !arg.get("-run_id").equals("")) {
 			runOutDirName = arg.get("-run_id");
 		}
-		
+
 		String align = arg.get("-a");
 		if(align!=null && !align.equals("")) {
 			switch (align) {
@@ -116,10 +115,10 @@ public class TreeModule {
 					break;
 			}
 		}
-		
+
 		try {
 			if (arg.get("-t")!=null) {
-				
+
 				nThreads = Integer.parseInt(arg.get("-t"));
 
 				if (nThreads < 1) {
@@ -135,21 +134,21 @@ public class TreeModule {
 					ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 				}
 			}
-			
+
 		}catch(NumberFormatException e) {
 			ExceptionHandler.handle(e);
-		}	
-		
+		}
+
 		if (arg.get("-raxml") != null) phylogenyTool = PhylogenyTool.raxml;
 		if (arg.get("-fasttree") != null) phylogenyTool = PhylogenyTool.fasttree;
 		if (arg.get("-iqtree") != null) phylogenyTool = PhylogenyTool.iqtree;
-		
+
 		validateParametersAlign(phylogenyTool, alignMode);
-		
+
 		if(arg.get("-m")!=null && !arg.get("-m").equals("")) {
 			model = arg.get("-m");
 		}
-		
+
 		if (arg.get("-gsi_threshold") != null) {
 			try {
 				gsi_threshold = Integer.parseInt(arg.get("-gsi_threshold"));
@@ -166,10 +165,10 @@ public class TreeModule {
 		}
 		// labels
 		outputLabels = new ArrayList<>();
-		
+
 		String[] leafOpt = arg.get("-leaf").split(",");
 		List<String> leafOptList = Arrays.asList(leafOpt);
-		
+
 		if(leafOptList.contains("uid")) {
 			outputLabels.add("uid");
 		}
@@ -191,12 +190,12 @@ public class TreeModule {
 		if(leafOptList.contains("taxonomy")) {
 			outputLabels.add("taxonomy");
 		}
-		
+
 		if(outputLabels.size()==0) {
 			ExceptionHandler.pass(outputLabels);
 			ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
 		}
-		
+
 		if(arg.get("-x") != null) {
 			try {
 				executorLimit = Integer.parseInt(arg.get("-x"));
@@ -207,8 +206,12 @@ public class TreeModule {
 			executorLimit = nThreads;
 		}
 
+		if(arg.get("-c") != null) {
+			allowMultiple = Integer.parseInt(arg.get("-c")) != 0;
+		}
+
 		assert ucgDirectory != null;
-		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runOutDirName, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit);
+		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runOutDirName, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit, allowMultiple);
 
 		try {
 			proc.jsonsToTree(nThreads, phylogenyTool);
@@ -219,13 +222,13 @@ public class TreeModule {
 
 
 	private void replace() {
-		
+
 		Arguments arg = new Arguments(parameters);
 
 		if (parameters.length < 4) {
 			ExceptionHandler.handle(ExceptionHandler.UNEXPECTED_ERROR);
 		}
-		
+
 		validateParametersReplace();
 
 		String trmFileName = parameters[1];
@@ -244,9 +247,9 @@ public class TreeModule {
 		}
 
 		try {
-			
+
 			String content = new String (Files.readAllBytes(Paths.get(trmFileName)));
-			
+
 			JSONObject jsonObject = new JSONObject(content);
 
 			if(!jsonObject.keySet().contains(gene)) {
@@ -257,7 +260,7 @@ public class TreeModule {
 				ExceptionHandler.pass("No " + gene + " tree in the .trm file.");
 				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 			}
-			
+
 			String nwk = (String) jsonObject.get(gene);
 
 			if (nwk == null) {
@@ -340,7 +343,7 @@ public class TreeModule {
 			ExceptionHandler.handle(e);
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	@Deprecated
 	private void printHelpMessage() {
@@ -442,21 +445,21 @@ public class TreeModule {
 	}
 
 	private void validateParametersAlign(PhylogenyTool phylogenyTool, AlignMode alignMode) {
-		
-		final String[] validatedOptions = {"-ucg_dir", "-out_dir", "-run_id", "-a", "-t", "-f", "-fasttree", "-iqtree", "-raxml", "-m", "-gsi_threshold", "-leaf", "-x"};
+
+		final String[] validatedOptions = {"-ucg_dir", "-out_dir", "-run_id", "-a", "-t", "-f", "-fasttree", "-iqtree", "-raxml", "-m", "-gsi_threshold", "-leaf", "-x", "-c"};
 		final String[] validatedLeaf = {"uid", "acc", "label", "taxon", "strain", "type", "taxonomy"};
 		List<String> validatedOptionList = Arrays.asList(validatedOptions);
 		List<String> validatedLeafOptionList = Arrays.asList(validatedLeaf);
-		
+
 		Arguments arg = new Arguments(parameters);
-		
+
 		for(String param : paramList) {
 			if(param.startsWith("-")&& !validatedOptionList.contains(param)) {
 				ExceptionHandler.pass(param);
 				ExceptionHandler.handle(ExceptionHandler.UNKNOWN_OPTION);
 			}
 		}
-		
+
 		// mandatory options
 		if(arg.get("-ucg_dir")==null || arg.get("-ucg_dir").equals("")) {
 			ExceptionHandler.handle(ExceptionHandler.NO_INPUT);
@@ -464,21 +467,21 @@ public class TreeModule {
 		if(arg.get("-leaf")==null || arg.get("-leaf").equals("")) {
 			ExceptionHandler.handle(ExceptionHandler.NO_LEAF_OPTION);
 		}
-		
+
 		if(!new File(arg.get("-ucg_dir")).exists()) {
 			ExceptionHandler.pass(arg.get("-ucg_dir"));
 			ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
 		}
-		
+
 		String[] leafOptions = arg.get("-leaf").split(",");
-		
+
 		for(String opt : leafOptions) {
 			if(!validatedLeafOptionList.contains(opt)) {
 				ExceptionHandler.pass(opt);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
 			}
 		}
-		
+
 		String model = null;
 		if(arg.get("-m")!=null && !arg.get("-m").equals("")) {
 			model = arg.get("-m");
@@ -486,20 +489,20 @@ public class TreeModule {
 		if(model==null) {
 			return;
 		}
-		
+
 		// check models
 		String[] options = null;
 		if(alignMode.equals(AlignMode.protein)) {
 			if(phylogenyTool.equals(PhylogenyTool.raxml)) options = GenericConfig.PROTEIN_RAXML_MODELS;
-			if(phylogenyTool.equals(PhylogenyTool.fasttree)) options = GenericConfig.PROTEIN_FASTTREE_MODELS; 
-			if(phylogenyTool.equals(PhylogenyTool.iqtree)) options = GenericConfig.PROTEIN_IQTREE_MODELS; 
+			if(phylogenyTool.equals(PhylogenyTool.fasttree)) options = GenericConfig.PROTEIN_FASTTREE_MODELS;
+			if(phylogenyTool.equals(PhylogenyTool.iqtree)) options = GenericConfig.PROTEIN_IQTREE_MODELS;
 		}
 		else { // nucleotide
 			if(phylogenyTool.equals(PhylogenyTool.raxml)) options = GenericConfig.NUCLEOTIDE_RAXML_MODELS;
 			if(phylogenyTool.equals(PhylogenyTool.fasttree)) options = GenericConfig.NUCLEOTIDE_FASTTREE_MODELS;
-			if(phylogenyTool.equals(PhylogenyTool.iqtree)) options = GenericConfig.NUCLEOTIDE_IQTREE_MODELS; 
+			if(phylogenyTool.equals(PhylogenyTool.iqtree)) options = GenericConfig.NUCLEOTIDE_IQTREE_MODELS;
 		}
-		
+
 		if(!phylogenyTool.equals(PhylogenyTool.iqtree)) {
 			if(!Arrays.asList(options).contains(model)) {
 				ExceptionHandler.pass(model);
@@ -507,14 +510,14 @@ public class TreeModule {
 			}
 		}
 	}
-	
+
 	private void validateParametersReplace() {
-		
+
 		final String[] validatedLeaf = {"-uid", "-acc", "-label", "-taxon", "-strain", "-type", "-taxonomy"};
 		List<String> validatedLeafOptionList = Arrays.asList(validatedLeaf);
-		
+
 //		Arguments arg = new Arguments(parameters);
-		
+
 		for(String param : paramList) {
 			if(param.startsWith("-")&& !validatedLeafOptionList.contains(param)) {
 				ExceptionHandler.pass(param);
@@ -533,7 +536,7 @@ public class TreeModule {
 		String fasttreePath = null;
 		String raxmlPath = null;
 		String iqtreePath = null;
-		
+
 		programPath = new HashMap<>();
 		try {
 //			File jar = new File(TreeModule.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
@@ -550,7 +553,7 @@ public class TreeModule {
 				} else if (line.startsWith("hmmsearch=")) {
 					hmmsearchPath = line.substring(line.indexOf("=") + 1);
 					programPath.put("hmmsearch", hmmsearchPath);
-*/				
+*/
 				if (line.startsWith("mafft")) {
 					mafftPath = line.substring(line.indexOf("=") + 1);
 					programPath.put("mafft", mafftPath);
@@ -579,22 +582,22 @@ public class TreeModule {
 			ExceptionHandler.handle(e);
 		}
 	}
-	
+
 	private void printTreeHelp() {
 		System.out.println(ANSIHandler.wrapper(" UFCG - tree", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Reconstruct the phylogenetic relationship with UFCG profiles", 'g'));
 		System.out.println();
-	
+
 		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar tree -i <INPUT> -l <LABEL> [...]");
 		System.out.println();
-	
+
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -i STR         Input directory containing UFCG profiles ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -l STR         Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
 		System.out.println(ANSIHandler.wrapper("                {uid, acc, label, taxon, strain, type, taxonomy}", 'x'));
 		System.out.println();
-		
+
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -o STR         Define output directory [.]", 'x'));
@@ -606,6 +609,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" -m STR         ML tree inference model [JTT+ (proteins); GTR+ (nucleotides)] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -g INT         GSI value threshold {1 - 100} [95] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -x INT         Maximum number of gene tree executors; lower this if the RAM usage is excessive {1 - threads} [equal to -t]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -c BOOL        Align multiple copied genes [0]", 'x'));
 		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();

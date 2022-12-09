@@ -71,12 +71,13 @@ public class ModuleHandler {
 		opts.addOption("m", "model",	true,	"tree model");
 		opts.addOption("g", "gsi",		true,	"gsi-threshold");
 		opts.addOption("x", "executor", true,   "executor limit");
-		
+		opts.addOption("c", "copy",		true,	"copy number");
+
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
 		opts.addOption("v", "verbose", false, "verbosity");
 		opts.addOption(null, "developer", false, "developer tool");
-		
+
 		/* parse argument with CommandLineParser */
 		CommandLineParser clp = new DefaultParser();
 		CommandLine cmd = null;
@@ -94,7 +95,7 @@ public class ModuleHandler {
 		catch(ParseException pe) {
 			ExceptionHandler.handle(pe);
 		}
-		
+
 		/* apply general options */
 		assert cmd != null;
 		if(cmd.hasOption("v"))		 GenericConfig.VERB = true;
@@ -105,11 +106,11 @@ public class ModuleHandler {
 			GenericConfig.VERB = true;
 			GenericConfig.TSTAMP = true;
 		}
-		
+
 		/* prepare arguments compatible to tree module */
 		List<String> argList = new ArrayList<>();
 		argList.add("align");
-		
+
 		if(cmd.hasOption("h")) argList.add("-h");
 		else {
 			if(cmd.hasOption("i")) {
@@ -161,6 +162,10 @@ public class ModuleHandler {
 			if(cmd.hasOption("x")) {
 				argList.add("-x");
 				argList.add(cmd.getOptionValue("x"));
+			}
+			if(cmd.hasOption("c")) {
+				argList.add("-c");
+				argList.add(cmd.getOptionValue("c"));
 			}
 		}
 		

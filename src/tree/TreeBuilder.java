@@ -88,13 +88,13 @@ private String treeLabelGsiFileName = null;
  *     7 : Label replaced
  */
 private int checkpoint = 0;
-
+private final boolean allowMultiple;
 private final static int MODULE_ALIGN = 1, MODULE_TREE = 0;
 private int module = -1;
 
 public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirName, String mafftPath, 
         String raxmlPath, String fasttreePath, String iqtreePath,
-        AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit) {
+        AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit, boolean allowMultiple) {
 	
 	if (!ucgDirectory.endsWith(File.separator)) {
 		ucgDirectory = ucgDirectory + File.separator;
@@ -138,6 +138,7 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 	this.gsi_threshold = gsi_threshold;
 	this.outputLabels = outputLabels;
 	this.executorLimit = executorLimit;
+	this.allowMultiple = allowMultiple;
 }
 
 public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
@@ -1671,6 +1672,10 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 			HashMap<String, ArrayList<DetectedGeneDomain>> dataMap = geneSetsDomain.getDataMap();
 			if (dataMap.containsKey(gene)) {
 				if(dataMap.get(gene).size()!=0) {
+					if(!allowMultiple && dataMap.get(gene).size()>1) {
+						Prompt.talk(String.format("Multiple copied gene rejected from %s : %s", geneSetsDomain.getAccession(), ANSIHandler.wrapper(gene, 'y')));
+						continue;
+					}
 					DetectedGeneDomain geneDomain = dataMap.get(gene).get(0);
 					String nucSeq = geneDomain.getDna();
 					String proSeq = geneDomain.getProtein();
@@ -1739,6 +1744,10 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 			HashMap<String, ArrayList<DetectedGeneDomain>> dataMap = geneSetsDomain.getDataMap();
 			if (dataMap.containsKey(gene)) {
 				if(dataMap.get(gene).size()!=0) {
+					if(!allowMultiple && dataMap.get(gene).size()>1) {
+						Prompt.talk(String.format("Multiple copied gene rejected from %s : %s", geneSetsDomain.getAccession(), ANSIHandler.wrapper(gene, 'y')));
+						continue;
+					}
 					DetectedGeneDomain geneDomain = dataMap.get(gene).get(0);
 					
 					String seq = null;
