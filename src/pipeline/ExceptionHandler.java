@@ -20,6 +20,7 @@ public class ExceptionHandler {
 	public static final int INVALID_DIRECTORY		= 0x06;
 	public static final int INVALID_BINARY			= 0x07;
 	public static final int INVALID_VALUE			= 0x08;
+	public static final int FILE_EXISTS				= 0x09;
 	
 	// profile
 	public static final int WRONG_CORE_FORMAT		= 0x10;
@@ -45,7 +46,10 @@ public class ExceptionHandler {
 	public static final int INVALID_MODEL			= 0x23;
 	public static final int INVALID_PROGRAM_PATH	= 0x24;
 	public static final int INVALID_ALIGN_MODE		= 0x25;
-	
+
+	// convert
+	public static final int NO_TYPE_OPTION			= 0x30;
+	public static final int INVALID_TYPE			= 0x31;
 	
 	private static Object OBJ;
 	public static void pass(Object obj) {OBJ = obj;}
@@ -87,6 +91,8 @@ public class ExceptionHandler {
 			System.out.println("Invalid binary executable file given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		case INVALID_VALUE:
 			System.out.println("Invalid value given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
+		case FILE_EXISTS:
+			System.out.println("Output file already exists : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		case WRONG_CORE_FORMAT:
 			System.out.println("Custom core gene list is improperly given."); break;
 		case INVALID_GENE_NAME:
@@ -129,6 +135,10 @@ public class ExceptionHandler {
 			System.out.println("Invalid align mode given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		case BUSCO_UNSOLVED:
 			System.out.println("Failed to import BUSCOs. Please check BUSCO sequence/model directories."); break;
+		case NO_TYPE_OPTION:
+			System.out.println("No type option given."); break;
+		case INVALID_TYPE:
+			System.out.println("Invalid type given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		}
 		
 		if(!GenericConfig.INTERACT || exception == EXCEPTION) {

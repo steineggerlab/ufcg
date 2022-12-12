@@ -51,6 +51,7 @@ public class GenericConfig {
 		case UFCGMainPipeline.MODULE_PRUNE: return "prune";
 		case UFCGMainPipeline.MODULE_ALIGN: return "align";
 		case UFCGMainPipeline.MODULE_TRAIN: return "train";
+		case UFCGMainPipeline.MODULE_CONVERT: return "convert";
 		default: return "";
 		}
 	}

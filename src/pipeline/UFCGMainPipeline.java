@@ -36,8 +36,8 @@ import sun.misc.Signal;
 
 @SuppressWarnings("restriction")
 public class UFCGMainPipeline {
-	public static final String VERSION = "1.0.2";
-	public static final String RELEASE_DATE = "Nov. 2022";
+	public static final String VERSION = "1.0.3";
+	public static final String RELEASE_DATE = "Dec. 2022";
 	public static final String CITATION = " Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M.\n"
 										+ " UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi.\n"
 										+ " Nucleic Acids Research, doi:10.1093/nar/gkac894 (2022).\n";
@@ -50,6 +50,7 @@ public class UFCGMainPipeline {
 	public static final int MODULE_ALIGN		= 0x05;
 	public static final int MODULE_TRAIN		= 0x06;
 	public static final int MODULE_PROFILE_PRO	= 0x07;
+	public static final int MODULE_CONVERT		= 0x08;
 	
 	/* Print the UFCG logo with version number */
 	private static void printLogo() {
@@ -84,6 +85,7 @@ public class UFCGMainPipeline {
 		if(module.equals("prune"))			return MODULE_PRUNE;
 		if(module.equals("align"))			return MODULE_ALIGN;
 		if(module.equals("train"))			return MODULE_TRAIN;
+		if(module.equals("convert"))		return MODULE_CONVERT;
 		
 		if(!module.startsWith("-")) {
 			ExceptionHandler.pass(module);
@@ -156,17 +158,20 @@ public class UFCGMainPipeline {
 //				ANSIHandler.wrapper(" Manual - UFCG v" + VERSION + "\n\n", 'Y') + 
 				ANSIHandler.wrapper(" Please cite:\n", 'C') + CITATION + "\n\n" +
 				
-				ANSIHandler.wrapper(" USAGE : ", 'Y') + "java -jar UFCG.jar <module> [...]\n\n\n" +
+				ANSIHandler.wrapper(" USAGE : ", 'Y') + "ufcg <module> [...]\n\n\n" +
 				
-				ANSIHandler.wrapper(" Available Modules\n", 'Y') +
+				ANSIHandler.wrapper(" Core gene extraction\n", 'Y') +
 				ANSIHandler.wrapper(" Module         Description\n", 'c') +
-									" profile        Extract UFCG profile from genome\n"+
-									" profile-rna    Extract UFCG profile from RNA-seq transcriptome\n"+
-									" profile-pro    Extract UFCG profile from proteome\n"+
-									" train          Train and generate sequence model\n"+
-								//	"\n" +
-									" align          Produce sequence alignments from UFCG profiles\n"+
-									" tree           Build maximum likelihood tree with UFCG profiles\n"+
+									" profile        Extract core gene profile from genome(s)\n"+
+									" profile-rna    Extract core gene profile from an RNA-seq transcriptome\n"+
+									" profile-pro    Extract core gene profile from a proteome\n"+
+									" convert        Convert core gene profile into a FASTA file\n"+
+									" train          Train and generate a sequence model\n"+
+									"\n"+
+				ANSIHandler.wrapper(" Phylogenetic analysis\n", 'Y') +
+				ANSIHandler.wrapper(" Module         Description\n", 'c') +
+									" align          Produce sequence alignments from core gene profiles\n"+
+									" tree           Build maximum likelihood tree with core gene profiles\n"+
 									" prune          Rebuild UFCG tree or single gene trees\n\n\n"+
 				
 				ANSIHandler.wrapper(" Miscellaneous\n", 'y') +

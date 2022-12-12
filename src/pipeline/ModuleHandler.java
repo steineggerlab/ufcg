@@ -15,6 +15,7 @@ import envs.config.GenericConfig;
 //import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
 import module.AlignModule;
+import module.ConvertModule;
 import module.ProfileModule;
 import module.ProfileProModule;
 import module.ProfileRnaModule;
@@ -52,6 +53,10 @@ public class ModuleHandler {
 	private void handle_train() {
 		Prompt.talk("UFCG train v" + UFCGMainPipeline.VERSION);
 		TrainModule.run(args);
+	}
+	private void handle_convert() {
+		Prompt.talk("UFCG convert v" + UFCGMainPipeline.VERSION);
+		ConvertModule.run(args);
 	}
 	private void handle_tree() {
 		Prompt.talk("UFCG tree v" + UFCGMainPipeline.VERSION);
@@ -249,6 +254,7 @@ public class ModuleHandler {
 		case UFCGMainPipeline.MODULE_PRUNE: 		handle_prune(); break;
 		case UFCGMainPipeline.MODULE_ALIGN:			handle_align(); break;
 		case UFCGMainPipeline.MODULE_TRAIN:			handle_train(); break;
+		case UFCGMainPipeline.MODULE_CONVERT:		handle_convert(); break;
 		default: break;
 		}
 	}
