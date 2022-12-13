@@ -43,7 +43,7 @@ public class AlignModule {
 		opts.addOption("a", "alignment",true,	"alignment type");
 		opts.addOption("t", "thread",	true,	"CPU thread");
 		opts.addOption("f", "filter",	true,	"gap-rich filter");
-		opts.addOption("c", "copy",		true,	"allow multiple copies");
+		opts.addOption("c", "copy",		false,	"allow multiple copies");
 
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");

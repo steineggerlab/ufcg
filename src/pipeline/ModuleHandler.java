@@ -76,7 +76,7 @@ public class ModuleHandler {
 		opts.addOption("m", "model",	true,	"tree model");
 		opts.addOption("g", "gsi",		true,	"gsi-threshold");
 		opts.addOption("x", "executor", true,   "executor limit");
-		opts.addOption("c", "copy",		true,	"copy number");
+		opts.addOption("c", "copy",		false,	"copy number");
 
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
@@ -170,7 +170,6 @@ public class ModuleHandler {
 			}
 			if(cmd.hasOption("c")) {
 				argList.add("-c");
-				argList.add(cmd.getOptionValue("c"));
 			}
 		}
 		
