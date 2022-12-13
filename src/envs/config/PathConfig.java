@@ -174,10 +174,12 @@ public class PathConfig {
 				if(!output.canWrite()) {
 					ExceptionHandler.pass(path);
 					ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+					return 1;
 				}
 			} else if(!output.mkdir()) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+				return 1;
 			}
 		}
 		catch(Exception e) {
@@ -274,15 +276,17 @@ public class PathConfig {
 			if(!output.exists()) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+				return 1;
 			} else if(!output.canRead()) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+				return 1;
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
-			return 2;
+			return 1;
 		}
 		
 		ModelPath = path;
@@ -319,25 +323,29 @@ public class PathConfig {
 	
 	public static String SeqPath = EnvironmentPath + "config/seq/";
 	private static void renewSeqPath() {SeqPath = EnvironmentPath + "config/seq/";}
-	public static void setSeqPath(String path) {
+	public static int setSeqPath(String path) {
 		try {
 			Prompt.talk("Gene sequence directory check : " + ANSIHandler.wrapper(path, 'B'));
 			File output = new File(path);
 			if(!output.exists()) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+				return 1;
 			} else if(!output.canRead()) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+				return 1;
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+			return 1;
 		}
 		
 		SeqPath = path;
 		if(!SeqPath.endsWith("/")) SeqPath += "/";
+		return 0;
 	}
 	public static boolean checkSeqPath() {
 		int[] cnt = new int[GenericConfig.FCG.length];

@@ -120,6 +120,7 @@ public class GenericConfig {
 			if(size < 1) {
 				ExceptionHandler.pass(size);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+				return 1;
 			}
 			
 			if(size > CPU_COUNT) {
@@ -148,6 +149,7 @@ public class GenericConfig {
 			if(cutoff <= .0) {
 				ExceptionHandler.pass(cutoff);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+				return 1;
 			}
 			
 			setFastBlockSearchCutoff(cutoff);
@@ -164,7 +166,7 @@ public class GenericConfig {
 	public static void setFastBlockSearchHits(int hits) {
 		FastBlockSearchHits = hits;
 	}
-	public static void setFastBlockSearchHits(String val) {
+	public static int setFastBlockSearchHits(String val) {
 		try {
 			Prompt.talk("Custom fastBlockSearch hits check : " + ANSIHandler.wrapper(val, 'B'));
 			int hits = Integer.parseInt(val);
@@ -172,13 +174,16 @@ public class GenericConfig {
 			if(hits <= 0) {
 				ExceptionHandler.pass(hits);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+				return 1;
 			}
 			
 			setFastBlockSearchHits(hits);
+			return 0;
 		}
 		catch(NumberFormatException nfe) {
 			ExceptionHandler.pass(val + " (Integer value expected)");
 			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+			return 1;
 		}
 	}
 	
@@ -207,7 +212,7 @@ public class GenericConfig {
 	}
 	
 	public static double HmmsearchScoreCutoff = 100.0;
-	public static void setHmmsearchScoreCutoff(double cutoff) {
+/*	public static void setHmmsearchScoreCutoff(double cutoff) {
 		HmmsearchScoreCutoff = cutoff;
 	}
 	public static int setHmmsearchScoreCutoff(String val) {
@@ -218,6 +223,7 @@ public class GenericConfig {
 			if(cutoff <= .0) {
 				ExceptionHandler.pass(cutoff);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+				return 1;
 			}
 			
 			setHmmsearchScoreCutoff(cutoff);
@@ -228,13 +234,13 @@ public class GenericConfig {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			return 1;
 		}
-	}
+	} */
 	
 	public static double EvalueCutoff = 1e-3;
 	public static void setEvalueCutoff(double cutoff) {
 		EvalueCutoff = cutoff;
 	}
-	public static void setEvalueCutoff(String val) {
+	public static int setEvalueCutoff(String val) {
 		try {
 			Prompt.talk("Custom e-value cutoff check : " + ANSIHandler.wrapper(val, 'B'));
 			double cutoff = Double.parseDouble(val);
@@ -242,13 +248,16 @@ public class GenericConfig {
 			if(cutoff <= .0) {
 				ExceptionHandler.pass(cutoff);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+				return 1;
 			}
 			
 			setEvalueCutoff(cutoff);
+			return 0;
 		}
 		catch(NumberFormatException nfe) {
 			ExceptionHandler.pass(val + " (Floating point value expected)");
 			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+			return 1;
 		}
 	}
 	
@@ -532,6 +541,7 @@ public class GenericConfig {
 		}
 		
 		if(!(NUC | PRO | BUSCO)) return 1; // invalid if nothing is detected
+		for(String pro : pros) if(!Character.isLetterOrDigit(pro.charAt(0))) return 1; // invalid if non-alphanumeric characters are detected
 		if(pros.size() > 0) FCG = Arrays.copyOf(pros.toArray(), pros.toArray().length, String[].class); // use custom proteins if detected
 		return 0;
 	}
@@ -561,6 +571,7 @@ public class GenericConfig {
 		catch(java.io.IOException e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+			return 1;
 		}
 		
 		// validate list using model directory
@@ -587,6 +598,7 @@ public class GenericConfig {
 		catch(java.io.IOException e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+			return 1;
 		}
 		
 		Prompt.talk("Number of BUSCOs to extract : " + ANSIHandler.wrapper(String.valueOf(BUSCOS.length), 'B'));

@@ -75,7 +75,7 @@ public class ProfileModule {
 		
 		opts.addOption("m", "metadata", true, "metadata path");
 		opts.addOption(null, "info", true, "single file metadata information");
-		opts.addOption("n", "intron", false, "include intron sequences");
+		opts.addOption("n", "exon", false, "exclude intron sequences");
 		opts.addOption(null, "modelpath", true, "gene profile path");
 		opts.addOption(null, "seqpath", true, "gene sequence path");
 		opts.addOption(null, "ppxcfg", true, "AUGUSTUS-PPX config path");
@@ -493,7 +493,7 @@ public class ProfileModule {
 			if(buf.length() == 0) continue;
 			if(GenericConfig.setThreadPoolSize(buf) == 0) {
 				proceed = true;
-				command.append(" --thread ").append(buf);
+				command.append(" --thread ").append(GenericConfig.ThreadPoolSize);
 			}
 		}
 		proceed = false;
@@ -521,13 +521,30 @@ public class ProfileModule {
 		proceed = false;
 		
 		/* locate config/model directory; request custom folder if failed */
-		// --modelpath
-		String ptype = Shell.exec("file -b " + jarPath + "config/model/")[0];
+		// --seqpath
+		String ptype = Shell.exec("file -b " + jarPath + "config/seq/")[0];
 		boolean flag = ptype.contains("directory") && !ptype.contains("cannot");
 		if(!flag) {
-			Prompt.print("Default core gene profile directory not found.");
+			Prompt.print("Default core gene sequence database not found.");
 			while(!proceed) {
-				Prompt.print_nnc("Enter your custom core gene profile directory (--modelpath) : ");
+				Prompt.print_nnc("Enter your custom directory with core gene sequences (--seqpath) : ");
+				buf = stream.readLine();
+				if(buf.length() == 0) continue;
+				if(PathConfig.setSeqPath(buf) == 0) {
+					proceed = true;
+					command.append(" --seqpath ").append(buf);
+				}
+			}
+			proceed = false;
+		}
+
+		// --modelpath
+		ptype = Shell.exec("file -b " + jarPath + "config/model/")[0];
+		flag = ptype.contains("directory") && !ptype.contains("cannot");
+		if(!flag) {
+			Prompt.print("Default core gene model database not found.");
+			while(!proceed) {
+				Prompt.print_nnc("Enter your custom directory with core gene models (--modelpath) : ");
 				buf = stream.readLine();
 				if(buf.length() == 0) continue;
 				if(PathConfig.setModelPath(buf) == 0) {
@@ -539,9 +556,14 @@ public class ProfileModule {
 		}
 		
 		/* profile directory validation */
+		if(PathConfig.checkSeqPath()) {
+			ExceptionHandler.handle(ExceptionHandler.INVALID_SEQ_PATH);
+			Prompt.print("Please check the path and content of your core gene sequence directory and relaunch the program.\n");
+			System.exit(0);
+		}
 		if(PathConfig.checkModelPath()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_MODEL_PATH);
-			Prompt.print("Please check the path and content of your core gene profile directory and relaunch the program.\n");
+			Prompt.print("Please check the path and content of your core gene model directory and relaunch the program.\n");
 			System.exit(0);
 		}
 		
@@ -602,7 +624,7 @@ public class ProfileModule {
 			// --verbose
 			while(!proceed) {
 				if(GenericConfig.VERB) break; 
-				Prompt.print_nnc("Make the program chitty-chatty (--verbose)? (y/n) : ");
+				Prompt.print_nnc("Make the program chatty (--verbose)? (y/n) : ");
 				buf = stream.readLine();
 				if(buf.length() == 0) continue;
 				if(buf.startsWith("n") || buf.startsWith("N")) proceed = true;
@@ -629,15 +651,15 @@ public class ProfileModule {
 			}
 			proceed = false;
 */			
-			// --intron
+			// --exon
 			while(!proceed) {
-				Prompt.print_nnc("Include introns from predicted ORFs? (y/n) : ");
+				Prompt.print_nnc("Exclude introns from predicted ORFs (--exon)? (y/n) : ");
 				buf = stream.readLine();
 				if(buf.length() == 0) continue;
 				if(buf.startsWith("n") || buf.startsWith("N")) proceed = true;
 				if(buf.startsWith("y") || buf.startsWith("Y")) {
-					GenericConfig.INTRON = true;
-					command.append(" --intron ");
+					GenericConfig.INTRON = false;
+					command.append(" --exon ");
 					proceed = true;
 				}
 			}
@@ -649,6 +671,18 @@ public class ProfileModule {
 				buf = stream.readLine();
 				if(buf.length() == 0) continue;
 				if(GenericConfig.setFastBlockSearchCutoff(buf) == 0) {
+					proceed = true;
+					command.append(" --fbscutoff ").append(buf);
+				}
+			}
+			proceed = false;
+
+			// --fbshits
+			while(!proceed) {
+				Prompt.print_nnc("Enter the maximum number of hits to include from fastBlockSearch results (--fbshits, default = 5) : ");
+				buf = stream.readLine();
+				if(buf.length() == 0) continue;
+				if(GenericConfig.setFastBlockSearchHits(buf) == 0) {
 					proceed = true;
 					command.append(" --fbscutoff ").append(buf);
 				}
@@ -667,14 +701,14 @@ public class ProfileModule {
 			}
 			proceed = false;
 			
-			// --hmmscore
+			// --evalue
 			while(!proceed) {
-				Prompt.print_nnc("Enter the score cutoff for hmmsearch validation (--hmmscore, default = 100.0) : ");
+				Prompt.print_nnc("Enter the E-value cutoff for validation (--evalue, default = 1e-3) : ");
 				buf = stream.readLine();
 				if(buf.length() == 0) continue;
-				if(GenericConfig.setHmmsearchScoreCutoff(buf) == 0) {
+				if(GenericConfig.setEvalueCutoff(buf) == 0) {
 					proceed = true;
-					command.append(" --hmmscore ").append(buf);
+					command.append(" --evalue ").append(buf);
 				}
 			}
 			proceed = false;
