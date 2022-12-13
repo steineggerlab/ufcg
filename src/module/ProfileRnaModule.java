@@ -234,8 +234,8 @@ public class ProfileRnaModule {
 		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal RNA-seq reads", 'g'));
 		System.out.println();
 		
-		System.out.println(ANSIHandler.wrapper("\n USAGE :", 'Y') + " java -jar UFCG.jar profile-rna -p <PAIRED> -i <INPUT> -o <OUTPUT> [...]");
-		System.out.println(ANSIHandler.wrapper(  "        ", 'Y') + " java -jar UFCG.jar profile-rna -p 1 -l <LEFT> -r <RIGHT> -o <OUTPUT> [...]");
+		System.out.println(ANSIHandler.wrapper("\n USAGE :", 'Y') + " ufcg profile-rna -p <PAIRED> -i <INPUT> -o <OUTPUT> [...]");
+		System.out.println(ANSIHandler.wrapper(  "        ", 'Y') + " ufcg profile-rna -p 1 -l <LEFT> -r <RIGHT> -o <OUTPUT> [...]");
 		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));

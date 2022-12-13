@@ -181,7 +181,7 @@ public class AlignModule {
 		System.out.println(ANSIHandler.wrapper(" Align genes and provide multiple sequence alignments from UFCG profiles", 'g'));
 		System.out.println();
 
-		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar align -i <INPUT> -o <OUTPUT> [...]");
+		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " ufcg align -i <INPUT> -o <OUTPUT> [...]");
 		System.out.println();
 
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));

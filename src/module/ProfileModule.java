@@ -330,8 +330,8 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal whole genome sequences", 'g'));
 		System.out.println();
 	
-		System.out.println(ANSIHandler.wrapper("\n INTERACTIVE MODE :", 'Y') + " java -jar UFCG.jar profile -u");
-		System.out.println(ANSIHandler.wrapper(" ONE-LINER MODE   :", 'Y') + " java -jar UFCG.jar profile -i <INPUT> -o <OUTPUT> [...]");
+		System.out.println(ANSIHandler.wrapper("\n INTERACTIVE MODE :", 'Y') + " ufcg profile -u");
+		System.out.println(ANSIHandler.wrapper(" ONE-LINER MODE   :", 'Y') + " ufcg profile -i <INPUT> -o <OUTPUT> [...]");
 		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));

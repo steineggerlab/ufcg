@@ -160,7 +160,7 @@ public class ProfileProModule {
 		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal proteome", 'g'));
 		System.out.println();
 		
-		System.out.println(ANSIHandler.wrapper("\n USAGE :", 'Y') + " java -jar UFCG.jar profile-pro -i <INPUT> -o <OUTPUT> [...]");
+		System.out.println(ANSIHandler.wrapper("\n USAGE :", 'Y') + " ufcg profile-pro -i <INPUT> -o <OUTPUT> [...]");
 		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));

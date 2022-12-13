@@ -588,7 +588,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" Reconstruct the phylogenetic relationship with UFCG profiles", 'g'));
 		System.out.println();
 
-		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar tree -i <INPUT> -l <LABEL> [...]");
+		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " ufcg tree -i <INPUT> -l <LABEL> [...]");
 		System.out.println();
 
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
@@ -621,7 +621,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" Fix UFCG tree labels or get a single gene tree", 'g'));
 		System.out.println();
 	
-		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " java -jar UFCG.jar prune -i <INPUT> -g <GENE> -l <LABEL>");
+		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " ufcg prune -i <INPUT> -g <GENE> -l <LABEL>");
 		System.out.println();
 	
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));

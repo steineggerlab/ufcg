@@ -189,7 +189,7 @@ public class TrainModule {
 		System.out.println(ANSIHandler.wrapper(" Train and generate sequence model of fungal markers", 'g'));
 		System.out.println();
 		
-		System.out.println(ANSIHandler.wrapper("\n USAGE :", 'Y') + " java -jar UFCG.jar train -i <MARKER> -g <GENOME> -o <OUTPUT> -s <TYPE> [...]");
+		System.out.println(ANSIHandler.wrapper("\n USAGE :", 'Y') + " ufcg train -i <MARKER> -g <GENOME> -o <OUTPUT> -s <TYPE> [...]");
 		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
