@@ -166,10 +166,10 @@ public class ConvertModule {
 
         System.out.println(ANSIHandler.wrapper("\n Configurations", 'y'));
         System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
-        System.out.println(ANSIHandler.wrapper(" -f             Force to overwrite the existing files [0]", 'x'));
-        System.out.println(ANSIHandler.wrapper(" -c             Include multiple copied genes (tag with numerical suffix) [0]", 'x'));
         System.out.println(ANSIHandler.wrapper(" -l STR         FASTA header format, comma-separated string containing one or more of the following keywords: [acc]", 'x'));
         System.out.println(ANSIHandler.wrapper("                [uid, acc, label, taxon, strain, type, taxonomy] ", 'x'));
+        System.out.println(ANSIHandler.wrapper(" -f             Force to overwrite the existing files [0]", 'x'));
+        System.out.println(ANSIHandler.wrapper(" -c             Include multiple copied genes (tag with numerical suffix) [0]", 'x'));
         System.out.println();
 
         UFCGMainPipeline.printGeneral();

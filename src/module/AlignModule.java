@@ -25,7 +25,7 @@ import tree.TreeBuilder;
 import tree.tools.AlignMode;
 
 public class AlignModule {
-	private static AlignMode alignMode = AlignMode.nucleotide;
+	private static AlignMode alignMode = AlignMode.protein;
 	private static String name = GenericConfig.SESSION_UID;
 	private static Integer filter = 50;
 	private static List<String> leaves = null;
@@ -130,8 +130,7 @@ public class AlignModule {
 				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 			}
 		}
-		if(cmd.hasOption("-c"))
-			allowMultiple = Integer.parseInt(cmd.getOptionValue("c")) != 0;
+		allowMultiple = cmd.hasOption("-c");
 
 		/* successfully parsed */
 		Prompt.talk(ANSIHandler.wrapper("SUCCESS", 'g') + " : Option parsing");
@@ -195,10 +194,10 @@ public class AlignModule {
 		System.out.println(ANSIHandler.wrapper(" -l STR         Label format, comma-separated string containing one or more of the following keywords:", 'x'));
 		System.out.println(ANSIHandler.wrapper("                {uid, acc, label, taxon, strain, type, taxonomy} [label]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -n STR         Name of this run [random hex string]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [nucleotide]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [protein]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -c BOOL        Align multiple copied genes [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -c             Align multiple copied genes [0]", 'x'));
 		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();

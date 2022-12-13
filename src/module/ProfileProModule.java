@@ -42,18 +42,16 @@ public class ProfileProModule {
 		
 		opts.addOption("i", "input", true, "input path");
 		opts.addOption("o", "output", true, "output path");
-		
-//		opts.addOption("s", "set", true, "set of genes to extract");
+		opts.addOption("s", "set", true, "set of genes to extract");
 		opts.addOption("w", "write", true, "intermediate path");
-		opts.addOption("k", "keep", true, "keep temp files");
-		opts.addOption("f", "force", true, "force delete");
+		opts.addOption("k", "keep", false, "keep temp files");
+		opts.addOption("f", "force", false, "force delete");
 		opts.addOption("t", "thread",  true, "number of cpu threads");
+		opts.addOption("q", "quiet", false, "be quiet");
 
 		opts.addOption(null, "mmseqs", true, "MMseqs2 binary");
-		
 		opts.addOption(null, "info", true, "single file metadata information");
 		opts.addOption(null, "seqpath", true, "gene sequence path");
-
 		opts.addOption(null, "evalue", true, "e-value cutoff");
 		
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
@@ -87,7 +85,7 @@ public class ProfileProModule {
 		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
 		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
 		if(cmd.hasOption("h"))       return -1;
-		if(cmd.hasOption("f")) if(!cmd.getOptionValue("f").equals("0")) GenericConfig.FORCE = true;
+		GenericConfig.FORCE = cmd.hasOption("f");
 
 		Prompt.debug(ANSIHandler.wrapper("Developer mode activated.", 'Y'));
 		Prompt.talk("Verbose option check.");
@@ -101,22 +99,20 @@ public class ProfileProModule {
 		if(cmd.hasOption("o"))
 			PathConfig.setOutputPath(cmd.getOptionValue("o"));
 		else ExceptionHandler.handle(ExceptionHandler.NO_OUTPUT);
-		
-/*		if(cmd.hasOption("s"))
+
+		if(cmd.hasOption("s"))
 			GenericConfig.setGeneset(cmd.getOptionValue("s"));
 		if(GenericConfig.solveGeneset() != 0) {
 			ExceptionHandler.pass(GenericConfig.GENESET);
 			ExceptionHandler.handle(ExceptionHandler.INVALID_GENE_SET);
 		}
-		if(GenericConfig.BUSCO)
-			if(GenericConfig.getBuscos() != 0)
-				ExceptionHandler.handle(ExceptionHandler.BUSCO_UNSOLVED);
-		*/
+		if(GenericConfig.NUC | GenericConfig.BUSCO){
+			ExceptionHandler.pass("Currently, profile-pro module is only capable of extracting protein markers. (-s PRO)");
+			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+		}
 		if(cmd.hasOption("w"))
 			PathConfig.setTempPath(cmd.getOptionValue("w"));
-		if(cmd.hasOption("k"))
-			if(!cmd.getOptionValue("k").equals("0"))
-				PathConfig.TempIsCustom = true;
+		PathConfig.TempIsCustom = cmd.hasOption("k");
 		if(cmd.hasOption("t"))
 			GenericConfig.setThreadPoolSize(cmd.getOptionValue("t"));
 		
@@ -172,9 +168,9 @@ public class ProfileProModule {
 		System.out.println(ANSIHandler.wrapper("\n Runtime configurations", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -w STR         Directory to write the temporary files [/tmp]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -k BOOL        Keep the temporary products [0]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -f BOOL        Force to overwrite the existing files [0]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -k             Keep the temporary products [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -f             Force to overwrite the existing files [0]", 'x'));
 		System.out.println();
 		
 		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));

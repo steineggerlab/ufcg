@@ -63,10 +63,10 @@ public class ProfileModule {
 		opts.addOption("o", "output", true, "output path");
 		opts.addOption("s", "set", true, "set of genes to extract");
 		opts.addOption("w", "write", true, "intermediate path");
-		opts.addOption("k", "keep", true, "keep temp files");
-		opts.addOption("f", "force", true, "force delete");
+		opts.addOption("k", "keep", false, "keep temp files");
+		opts.addOption("f", "force", false, "force delete");
 		opts.addOption("t", "thread",  true, "number of cpu threads");
-		opts.addOption("q", "quiet", true, "be quiet");
+		opts.addOption("q", "quiet", false, "be quiet");
 		
 		opts.addOption(null, "fastblocksearch", true, "fastBlockSearch binary");
 		opts.addOption(null, "augustus", true, "AUGUSTUS binary");
@@ -75,7 +75,7 @@ public class ProfileModule {
 		
 		opts.addOption("m", "metadata", true, "metadata path");
 		opts.addOption(null, "info", true, "single file metadata information");
-		opts.addOption("n", "intron", true, "include intron sequences");
+		opts.addOption("n", "intron", false, "include intron sequences");
 		opts.addOption(null, "modelpath", true, "gene profile path");
 		opts.addOption(null, "seqpath", true, "gene sequence path");
 		opts.addOption(null, "ppxcfg", true, "AUGUSTUS-PPX config path");
@@ -119,7 +119,7 @@ public class ProfileModule {
 		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
 		if(cmd.hasOption("h"))       return -1;
 		if(cmd.hasOption("hh"))	     return -2;
-		if(cmd.hasOption("f")) if(!cmd.getOptionValue("f").equals("0")) GenericConfig.FORCE = true;
+		GenericConfig.FORCE = cmd.hasOption("f");
 		
 		if(GenericConfig.INTERACT) return 1; 
 		else {
@@ -148,9 +148,7 @@ public class ProfileModule {
 		
 		if(cmd.hasOption("w"))
 			PathConfig.setTempPath(cmd.getOptionValue("w"));
-		if(cmd.hasOption("k"))
-			if(!cmd.getOptionValue("k").equals("0"))
-				PathConfig.TempIsCustom = true;
+		PathConfig.TempIsCustom = cmd.hasOption("k");
 		if(cmd.hasOption("t"))
 			GenericConfig.setThreadPoolSize(cmd.getOptionValue("t"));
 		
@@ -168,14 +166,10 @@ public class ProfileModule {
 		if(cmd.hasOption("m"))
 			PathConfig.setMetaPath(cmd.getOptionValue("m"));
 		if(cmd.hasOption("n")) {
-			if(cmd.getOptionValue("n").equals("0")) {
-				Prompt.talk("Excluding intron to the result DNA sequences.");
-				GenericConfig.INTRON = false;
-			}
-		}	
-		if(cmd.hasOption("q"))
-			if(!cmd.getOptionValue("q").equals("0"))
-				GenericConfig.QUIET = true;
+			Prompt.talk("Excluding intron for the result DNA sequences.");
+			GenericConfig.INTRON = false;
+		}
+		GenericConfig.QUIET = cmd.hasOption("q");
 		if(cmd.hasOption("info")) {
 			// check confilct
 			if(cmd.hasOption("m") || PathConfig.InputIsFolder) ExceptionHandler.handle(ExceptionHandler.METAINFO_CONFLICT);
@@ -229,10 +223,6 @@ public class ProfileModule {
 		if(AugustusWrapper.checkConfigFile()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_PPX_CONFIG);
 		}
-//		if(!HmmsearchWrapper.solve()) {
-//			ExceptionHandler.pass(PathConfig.HmmsearchPath);
-//			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
-//		}
 		if(MMseqsWrapper.solve()) {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
@@ -249,83 +239,6 @@ public class ProfileModule {
 	
 	/* Manual route; exit with status 0 */
 	private static void printManual() {
-		/*
-		System.out.println(
-				ANSIHandler.wrapper("Manual - UFCG profile module\n", 'Y') + 
-				
-				ANSIHandler.wrapper("[General usage]\n\n", 'y') +
-				"    Interactive mode : java -jar /path/to/UFCG.jar profile -u\n"+
-				"    One-liner mode   : java -jar /path/to/UFCG.jar profile -i <PATH> -o <PATH> [options]\n\n"+
-				
-				ANSIHandler.wrapper("[Dependencies]\n\n", 'y') +
-				ANSIHandler.wrapper("* AUGUSTUS (fastBlockSearch, AUGUSTUS-PPX)\n", 'c') +
-				"    UFCG profile module extracts genes using AUGUSTUS gene prediction tool.\n" +
-				"    AUGUSTUS is avaliable at: https://github.com/Gaius-Augustus/Augustus\n\n" + 
-				
-				ANSIHandler.wrapper("* HMMER (hmmsearch)\n", 'c') +
-				"    hmmsearch is required to select proper genes among predicted sequences.\n" +
-				"    HMMER is avaliable at: http://hmmer.org/\n\n" +
-				
-				ANSIHandler.wrapper("Note. Binaries should be located in your environmental PATH.\n", 'B') +
-				ANSIHandler.wrapper("Otherwise, provide the locations using dependency related options.\n\n", 'B') +
-
-				ANSIHandler.wrapper("[Avaliable options]\n\n", 'y') +
-				ANSIHandler.wrapper("* User friendly options\n", 'c') +
-				"    -h, --help    : Print this manual\n" + 
-//				"    --info        : Print program information\n" + 
-//				"    --core        : Print core gene list\n" +
-				"    -u, --inter   : User interactive mode\n" +
-//				"    -v, --verbose : Make program verbose\n" + 
-//				"    --nocolor     : Remove ANSI escapes from the output\n\n" +
-				
-				ANSIHandler.wrapper("* General I/O\n", 'c') + 
-				"    -i, --input  <PATH>  : Single file or directory containing fungal genome assemblies\n" + 
-				ANSIHandler.wrapper(
-						"        Note. For an input directory, included files must share the extension and the file type.\n"
-				, 'B') + 
-				"    -o, --output <PATH>  : Directory to store result files\n" + 
-				"    -k, --keep   <PATH>  : Directory to keep intermediate files\n" + 
-				ANSIHandler.wrapper(
-						"        Note. If not given, program will use '/tmp' directory and wipe out all the temporary files as the process finishes.\n"
-				, 'B') + 
-				"    -f, --force          : Force to overwrite result files in output directory (default = false)\n" + 
-				"\n" + 
-				ANSIHandler.wrapper("* Dependencies\n", 'c') + 
-				"    --fastblocksearch <PATH> : Path to fastBlockSearch binary file\n" + 
-				"    --augustus <PATH>        : Path to AUGUSTUS binary file\n" + 
-				"    --hmmsearch <PATH>       : Path to hmmsearch binary file\n\n" + 
-				
-				ANSIHandler.wrapper("* Configuration\n", 'c') + 
-				"    -t, --thread <NUMBER> : Number of CPU thread(s) for multithread processing (default = 1)\n" +
-				"    -m, --metadata <PATH> : List containing metadata of the assembly file(s)\n" + 
-				ANSIHandler.wrapper(
-						"        Note. List should be formatted and respectively ordered with proper header. Refer to the sample list in 'sample' directory.\n"
-				, 'B') + 
-				"    -n, --intron          : Include introns from the predicted ORFs to the result sequences\n" +
-				ANSIHandler.wrapper(
-						"        Note. Including introns may improve the resolution of intra-genus or intra-species taxonomy.\n"
-				, 'B') + 
-				"    --metainfo <INFO>     : Metadata information for a single file input\n" +
-				ANSIHandler.wrapper(
-						"        Note. Information should include the seven entries from 'sample/meta_full.tsv' in respective order, seperated by comma.\n" +
-						"              Put 'null' or leave a blank to indicate unavailable entries.\n"
-				, 'B') + 
-				"    --profile  <PATH>     : Path to core genome profiles (default : 'config/prfl')\n" +
-				"    --ppxcfg   <PATH>     : Path to AUGUSTUS-PPX config file (default : 'config/ppx.cfg')\n" +
-//				"    --timestamp           : Print timestamp in front of the prompt string\n\n" +
-								
-				ANSIHandler.wrapper("* Advanced options\n", 'c') + 
-				"    --fbscutoff <VALUE>   : Customize cutoff value for fastBlockSearch process (default = 0.5)\n" + 
-				"    --augoffset <VALUE>   : Customize prediction offset window size for AUGUSTUS process (default = 10000)\n" + 
-				"    --hmmscore  <VALUE>   : Customize bitscore cutoff for hmmsearch validation (default = 100)\n" +
-				"    --corelist  <LIST>    : Use custom set of fungal core genes\n" + 
-				ANSIHandler.wrapper(
-						"        Note. List should contain valid fungal core gene names separated by comma.\n"
-				, 'B')
-//				+ "    --developer           : Activate developer mode (For beta-testing or debugging)\n"
-				);
-		*/
-		
 		System.out.println(ANSIHandler.wrapper(" UFCG - profile", 'G'));
 		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal whole genome sequences", 'g'));
 		System.out.println();
@@ -344,12 +257,12 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -s STR         Set of markers to extract - see advanced options for details [PRO]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -w STR         Directory to write the temporary files [/tmp]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -k BOOL        Keep the temporary products [0]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -f BOOL        Force to overwrite the existing files [0]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -m STR         File to the list containing metadata", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -n BOOL        Include introns from the predicted ORFs to the result sequences [1]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -q BOOL        Quiet mode - report results only [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -k             Keep the temporary products [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -f             Force to overwrite the existing files [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n             Exclude introns and store cDNA sequences [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -q             Quiet mode - report results only [0]", 'x'));
 		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
@@ -367,7 +280,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper("\n Defining set of markers", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Name      Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" NUC       Extract nucleotide marker sequences (Partial SSU/ITS1/5.8S/ITS2/Partial LSU)", 'x'));
-		System.out.println(ANSIHandler.wrapper(" PRO       Extract protein marker sequences (Run " + ANSIHandler.wrapper("java -jar UFCG.jar --core", 'B') + " to see the full list)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" PRO       Extract protein marker sequences (Run " + ANSIHandler.wrapper("ufcg --core", 'B') + " to see the full list)", 'x'));
 		System.out.println(ANSIHandler.wrapper(" BUSCO     Extract BUSCO sequences (758 orthologs from fungi_odb10)", 'x'));
 		System.out.println();
 		System.out.println(ANSIHandler.wrapper(" * Provide a comma-separated string consists of following sets (ex: NUC,PRO / PRO,BUSCO etc.)", 'x'));

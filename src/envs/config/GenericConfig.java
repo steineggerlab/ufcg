@@ -47,6 +47,7 @@ public class GenericConfig {
 		switch(MODULE) {
 		case UFCGMainPipeline.MODULE_PROFILE: return "profile";
 		case UFCGMainPipeline.MODULE_PROFILE_RNA: return "profile-rna";
+		case UFCGMainPipeline.MODULE_PROFILE_PRO: return "profile-pro";
 		case UFCGMainPipeline.MODULE_TREE: return "tree";
 		case UFCGMainPipeline.MODULE_PRUNE: return "prune";
 		case UFCGMainPipeline.MODULE_ALIGN: return "align";

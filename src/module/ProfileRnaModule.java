@@ -32,6 +32,7 @@ public class ProfileRnaModule {
 		/* option argument setup */
 		Options opts = new Options();
 		opts.addOption("h", "help", false, "helper route");
+		opts.addOption(null, "hh", false, "advanced helper route");
 		
 		opts.addOption("p", "paired", true, "paired or unpaired");
 		opts.addOption("i", "input", true, "input path");
@@ -39,19 +40,20 @@ public class ProfileRnaModule {
 		opts.addOption("r", "right", true, "right path");
 		opts.addOption("o", "output", true, "output path");
 		
-//		opts.addOption("s", "set", true, "set of genes to extract");
+		opts.addOption("s", "set", true, "set of genes to extract");
 		opts.addOption("w", "write", true, "intermediate path");
-		opts.addOption("k", "keep", true, "keep temp files");
-		opts.addOption("f", "force", true, "force delete");
+		opts.addOption("k", "keep", false, "keep temp files");
+		opts.addOption("f", "force", false, "force delete");
 		opts.addOption("t", "thread",  true, "number of cpu threads");
-		
+		opts.addOption("q", "quiet", false, "be quiet");
+		opts.addOption("n",  "intron", false, "include intron sequences");
+
 		opts.addOption(null, "trinity", true, "Trinity binary");
 		opts.addOption(null, "fastblocksearch", true, "fastBlockSearch binary");
 		opts.addOption(null, "augustus", true, "AUGUSTUS binary");
 		opts.addOption(null, "mmseqs", true, "MMseqs2 binary");
 		
 		opts.addOption(null, "info", true, "single file metadata information");
-		opts.addOption("n", "intron", true, "include intron sequences");
 		opts.addOption(null, "prflpath", true, "gene profile path");
 		opts.addOption(null, "seqpath", true, "gene sequence path");
 		opts.addOption(null, "ppxcfg", true, "AUGUSTUS-PPX config path");
@@ -92,7 +94,8 @@ public class ProfileRnaModule {
 		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
 		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
 		if(cmd.hasOption("h"))       return -1;
-		if(cmd.hasOption("f")) if(!cmd.getOptionValue("f").equals("0")) GenericConfig.FORCE = true;
+		if(cmd.hasOption("hh"))      return -2;
+		GenericConfig.FORCE = cmd.hasOption("f");
 
 		Prompt.debug(ANSIHandler.wrapper("Developer mode activated.", 'Y'));
 		Prompt.talk("Verbose option check.");
@@ -131,21 +134,19 @@ public class ProfileRnaModule {
 			PATHO = cmd.getOptionValue("o");
 		else ExceptionHandler.handle(ExceptionHandler.NO_OUTPUT);
 		
-/*		if(cmd.hasOption("s"))
+		if(cmd.hasOption("s"))
 			GenericConfig.setGeneset(cmd.getOptionValue("s"));
 		if(GenericConfig.solveGeneset() != 0) {
 			ExceptionHandler.pass(GenericConfig.GENESET);
 			ExceptionHandler.handle(ExceptionHandler.INVALID_GENE_SET);
 		}
-		if(GenericConfig.BUSCO)
-			if(GenericConfig.getBuscos() != 0)
-				ExceptionHandler.handle(ExceptionHandler.BUSCO_UNSOLVED);
-		*/
+		if(GenericConfig.NUC | GenericConfig.BUSCO){
+			ExceptionHandler.pass("Currently, profile-rna module is only capable of extracting protein markers. (-s PRO)");
+			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+		}
 		if(cmd.hasOption("w"))
 			PathConfig.setTempPath(cmd.getOptionValue("w"));
-		if(cmd.hasOption("k"))
-			if(!cmd.getOptionValue("k").equals("0"))
-				PathConfig.TempIsCustom = true;
+		PathConfig.TempIsCustom = cmd.hasOption("k");
 		if(cmd.hasOption("t"))
 			GenericConfig.setThreadPoolSize(cmd.getOptionValue("t"));
 		
@@ -161,11 +162,10 @@ public class ProfileRnaModule {
 		
 		/* parse configuration options */
 		if(cmd.hasOption("n")) {
-			if(cmd.getOptionValue("n").equals("0")) {
-				Prompt.talk("Excluding intron to the result DNA sequences.");
-				GenericConfig.INTRON = false;
-			}
+			Prompt.talk("Excluding intron for the result DNA sequences.");
+			GenericConfig.INTRON = false;
 		}
+		GenericConfig.QUIET = cmd.hasOption("q");
 		if(cmd.hasOption("info")) 
 			PathConfig.MetaString = cmd.getOptionValue("info");
 		
@@ -249,22 +249,67 @@ public class ProfileRnaModule {
 		
 		System.out.println(ANSIHandler.wrapper("\n Configurations", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" --info STR     Comma-separated metadata string (Filename*, Label*, Accession*, Taxon, NCBI, Strain, Taxonomy)", 'x'));
-		System.out.println(ANSIHandler.wrapper(" --trinity STR  Path to Trinity binary [Trinity]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -s STR         Set of markers to extract - see advanced options for details [PRO]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -w STR         Directory to write the temporary files [/tmp]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -k             Keep the temporary products [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -f             Force to overwrite the existing files [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n             Exclude introns and store cDNA sequences [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -q             Quiet mode - report results only [0]", 'x'));
 		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
 		
 		System.out.println(ANSIHandler.wrapper("\n Notes", 'y'));
 		System.out.println(" * Currently, profile-rna module is only capable of extracting protein markers. (-s PRO)");
-		System.out.println(" * Other options except -s, -m are shared with the profile module. To check them, run with \"profile -h\".\n");
+		System.out.println(" * To see the advanced options, run with \"profile-rna -hh\".\n");
 		
 		System.exit(0);
 	}
-	
+
+	public static void printManualAdvanced() {
+		System.out.println(ANSIHandler.wrapper(" UFCG - profile-rna", 'G'));
+		System.out.println(ANSIHandler.wrapper(" Extract UFCG profile from Fungal RNA-seq reads", 'g'));
+		System.out.println();
+
+		System.out.println(ANSIHandler.wrapper("\n Defining set of markers", 'y'));
+		System.out.println(ANSIHandler.wrapper(" Name      Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" NUC       Extract nucleotide marker sequences (Partial SSU/ITS1/5.8S/ITS2/Partial LSU)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" PRO       Extract protein marker sequences (Run " + ANSIHandler.wrapper("ufcg --core", 'B') + " to see the full list)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" BUSCO     Extract BUSCO sequences (758 orthologs from fungi_odb10)", 'x'));
+		System.out.println();
+		System.out.println(ANSIHandler.wrapper(" * Currently, profile-rna module is only capable of extracting protein markers. (-s PRO)", 'y'));
+		System.out.println(ANSIHandler.wrapper(" * Provide a comma-separated string consists of following sets (ex: NUC,PRO / PRO,BUSCO etc.)", 'x'));
+		System.out.println(ANSIHandler.wrapper(" * Use specific gene names to extract custom set of markers (ex: ACT1,TEF1,TUB1 / NUC,CMD1,RPB2)", 'x'));
+		System.out.println();
+
+		System.out.println(ANSIHandler.wrapper("\n Dependencies", 'y'));
+		System.out.println(ANSIHandler.wrapper(" Argument                 Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" --trinity STR            Path to Trinity binary [Trinity]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --fastblocksearch STR    Path to fastBlockSearch binary [fastBlockSearch]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --augustus STR           Path to AUGUSTUS binary [augustus]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --mmseqs STR             Path to MMseqs2 binary [mmseqs]", 'x'));
+		System.out.println();
+
+		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
+		System.out.println(ANSIHandler.wrapper(" Argument                 Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" --info STR               Comma-separated metadata string for a single file input", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --modelpath STR          Path to the directory containing gene block profile models [./config/model]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --seqpath STR            Path to the directory containing gene sequences [./config/seq]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --ppxcfg STR             Path to the AUGUSTUS-PPX config file [./config/ppx.cfg]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --fbscutoff FLOAT        Cutoff value for fastBlockSearch process [0.5]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --fbshits INT            Use this amount of top hits from fastBlockSearch results [5]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --augoffset INT          Prediction offset window size for AUGUSTUS process [10000]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --evalue FLOAT           E-value cutoff for validation [1e-3]", 'x'));
+		System.out.println();
+
+		System.exit(0);
+	}
+
 	public static void run(String[] args) {
 		try {
 			switch(parseArgument(args)) {
+			case -2: printManualAdvanced();
 			case -1: printManual();
 			case  0: solveDependency(); break;
 			default: System.exit(1);
