@@ -258,7 +258,11 @@ public class UFCGMainPipeline {
 			GenericConfig.setHeader("UFCG");
 			GenericConfig.setHeaderLength(5);
 			String jarPath = UFCGMainPipeline.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-			PathConfig.setEnvironmentPath(jarPath.substring(0, jarPath.lastIndexOf("/") + 1));
+			String envPath = jarPath.substring(0, jarPath.lastIndexOf("/"));
+			while(PathConfig.setEnvironmentPath(envPath) > 0){
+				envPath = envPath.substring(0, envPath.lastIndexOf("/"));
+				if(!envPath.contains("/")) break;
+			}
 			System.out.println();
 			FileStream.init();
 			

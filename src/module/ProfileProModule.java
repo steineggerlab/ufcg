@@ -192,6 +192,7 @@ public class ProfileProModule {
 	
 	public static void run(String[] args) {
 		try {
+			if(!PathConfig.EnvironmentPathSet) Prompt.warn("Failed to detect environment path. --ppxcfg, --seqpath, and --modelpath options should be specified.");
 			switch(parseArgument(args)) {
 			case -1: printManual();
 			case  0: solveDependency(); break;

@@ -749,6 +749,7 @@ public class ProfileModule {
 			FileStream.init(); */
 			
 			/* Argument parsing and route selection */
+			if(!PathConfig.EnvironmentPathSet) Prompt.warn("Failed to detect environment path. --ppxcfg, --seqpath, and --modelpath options should be specified.");
 			switch(parseArgument(args)) {
 			case -1: printManual();
 			case -2: printManualAdvanced();

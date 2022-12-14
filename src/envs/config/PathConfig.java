@@ -12,11 +12,15 @@ import pipeline.ExceptionHandler;
 public class PathConfig {
 	/* Environment */
 	public static String EnvironmentPath = "";
-	public static void setEnvironmentPath(String path) {
+	public static boolean EnvironmentPathSet = false;
+	public static int setEnvironmentPath(String path) {
+		if(path.charAt(path.length() - 1) != File.separatorChar) path += File.separatorChar;
 		EnvironmentPath = path;
-		renewModelPath();
-		renewSeqPath();
-		renewAugustusConfig();
+		if(renewModelPath() > 0) return 1;
+		if(renewSeqPath() > 0) return 1;
+		if(renewAugustusConfig() > 0) return 1;
+		EnvironmentPathSet = true;
+		return 0;
 	}
 	
 	/* Dependent binaries */
@@ -268,7 +272,11 @@ public class PathConfig {
 	}
 	
 	public static String ModelPath = EnvironmentPath + "config/model/";
-	private static void renewModelPath() {ModelPath = EnvironmentPath + "config/model/";}
+	private static int renewModelPath() {
+		ModelPath = EnvironmentPath + "config/model/";
+		if(!new File(ModelPath + "pro/" + GenericConfig.FCG_REF[0] + ".hmm").exists()) return 1;
+		return 0;
+	}
 	public static int setModelPath(String path) {		
 		try {
 			Prompt.talk("Gene profile directory check : " + ANSIHandler.wrapper(path, 'B'));
@@ -322,7 +330,11 @@ public class PathConfig {
 	}
 	
 	public static String SeqPath = EnvironmentPath + "config/seq/";
-	private static void renewSeqPath() {SeqPath = EnvironmentPath + "config/seq/";}
+	private static int renewSeqPath() {
+		SeqPath = EnvironmentPath + "config/seq/";
+		if(!new File(SeqPath + "pro/" + GenericConfig.FCG_REF[0] + ".fa").exists()) return 1;
+		return 0;
+	}
 	public static int setSeqPath(String path) {
 		try {
 			Prompt.talk("Gene sequence directory check : " + ANSIHandler.wrapper(path, 'B'));
@@ -376,7 +388,11 @@ public class PathConfig {
 	}
 	
 	public static String AugustusConfig = EnvironmentPath + "config/ppx.cfg";
-	private static void renewAugustusConfig() {AugustusConfig = EnvironmentPath + "config/ppx.cfg";}
+	private static int renewAugustusConfig() {
+		AugustusConfig = EnvironmentPath + "config/ppx.cfg";
+		if(!new File(AugustusConfig).exists()) return 1;
+		return 0;
+	}
 	public static int setAugustusConfig(String path) {	
 		try {
 			Prompt.talk("AUGUSTUS-PPX config file check : " + ANSIHandler.wrapper(path, 'B'));

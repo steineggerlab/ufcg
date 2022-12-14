@@ -308,6 +308,7 @@ public class ProfileRnaModule {
 
 	public static void run(String[] args) {
 		try {
+			if(!PathConfig.EnvironmentPathSet) Prompt.warn("Failed to detect environment path. --ppxcfg, --seqpath, and --modelpath options should be specified.");
 			switch(parseArgument(args)) {
 			case -2: printManualAdvanced();
 			case -1: printManual();
