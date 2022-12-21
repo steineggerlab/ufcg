@@ -317,18 +317,22 @@ public class ProfileModule {
 		boolean proceed = false;
 		
 		/* obtain runtime environment */
+		String envPath = PathConfig.EnvironmentPath;
+		/*
 		String jarPath = ProfileModule.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 		String exePath = new File(".").getAbsolutePath();
 		String[] jarSplit = jarPath.split("/");
 		String[] exeSplit = exePath.split("/");
 		int common = 0; while(jarSplit[common].equals(exeSplit[common])) common++;
-		
+
 		StringBuilder runPath = new StringBuilder();
 		for(int i = common; i < exeSplit.length - 1; i++) runPath.append("../");
 		for(int i = common; i < jarSplit.length; i++) runPath.append(jarSplit[i]).append("/");
 		StringBuilder command = new StringBuilder("java -jar " + runPath.substring(0, runPath.length() - 1) + " profile");
 		jarPath = jarPath.substring(0, jarPath.lastIndexOf('/') + 1);
-		
+		*/
+		StringBuilder command = new StringBuilder("ufcg profile");
+
 		/* initiate and get mandatory option */
 		Prompt.debug(ANSIHandler.wrapper("Developer mode activated.", 'Y'));
 		Prompt.talk("Verbose option check.");
@@ -522,7 +526,7 @@ public class ProfileModule {
 		
 		/* locate config/model directory; request custom folder if failed */
 		// --seqpath
-		String ptype = Shell.exec("file -b " + jarPath + "config/seq/")[0];
+		String ptype = Shell.exec("file -b " + envPath + "config/seq/")[0];
 		boolean flag = ptype.contains("directory") && !ptype.contains("cannot");
 		if(!flag) {
 			Prompt.print("Default core gene sequence database not found.");
@@ -539,7 +543,7 @@ public class ProfileModule {
 		}
 
 		// --modelpath
-		ptype = Shell.exec("file -b " + jarPath + "config/model/")[0];
+		ptype = Shell.exec("file -b " + envPath + "config/model/")[0];
 		flag = ptype.contains("directory") && !ptype.contains("cannot");
 		if(!flag) {
 			Prompt.print("Default core gene model database not found.");
@@ -569,7 +573,7 @@ public class ProfileModule {
 		
 		/* locate ppx.cfg file; request custom file if failed */
 		// --ppxcfg
-		String[] ppx = Shell.exec("head -1" + jarPath + "config/ppx.cfg 2>&1");
+		String[] ppx = Shell.exec("head -1" + envPath + "config/ppx.cfg 2>&1");
 		flag = !ppx[0].contains("No");
 		/* directly use default file if exists, without asking user (for convenience) */
 /*		if(flag) {
