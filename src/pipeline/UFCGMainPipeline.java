@@ -36,8 +36,8 @@ import sun.misc.Signal;
 
 @SuppressWarnings("restriction")
 public class UFCGMainPipeline {
-	public static final String VERSION = "1.0.3";
-	public static final String RELEASE_DATE = "Dec. 2022";
+	public static final String VERSION = "1.1";
+	public static final String RELEASE_DATE = "Jan. 2023";
 	public static final String CITATION = " Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M.\n"
 										+ " UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi.\n"
 										+ " Nucleic Acids Research, doi:10.1093/nar/gkac894 (2022).\n";
