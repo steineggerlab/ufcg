@@ -8,9 +8,11 @@ import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
 import envs.toolkit.Shell;
 import pipeline.ExceptionHandler;
+import pipeline.UFCGMainPipeline;
 
 public class PathConfig {
 	/* Environment */
+	public static final String JarPath = new File(UFCGMainPipeline.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent() + File.separator;
 	public static String EnvironmentPath = "";
 	public static boolean EnvironmentPathSet = false;
 	public static int setEnvironmentPath(String path) {

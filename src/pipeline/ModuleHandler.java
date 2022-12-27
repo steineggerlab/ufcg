@@ -21,6 +21,7 @@ import module.ProfileProModule;
 import module.ProfileRnaModule;
 import module.TrainModule;
 import module.TreeModule;
+import module.DownloadModule;
 
 public class ModuleHandler {
 	private final int module;
@@ -242,7 +243,11 @@ public class ModuleHandler {
 	//	Prompt.debug("Running : " + ANSIHandler.wrapper("tree.jar " + String.join(" ", argList), 'B'));
 		TreeModule.run(argList.toArray(new String[0]));
 	}
-	
+	private void handle_download(){
+		Prompt.talk("UFCG profile v" + UFCGMainPipeline.VERSION);
+		DownloadModule.run(args);
+	}
+
 	public void handle() {
 		switch(module) {
 		case UFCGMainPipeline.NO_MODULE:			handle_no_module(); break;
@@ -254,6 +259,7 @@ public class ModuleHandler {
 		case UFCGMainPipeline.MODULE_ALIGN:			handle_align(); break;
 		case UFCGMainPipeline.MODULE_TRAIN:			handle_train(); break;
 		case UFCGMainPipeline.MODULE_CONVERT:		handle_convert(); break;
+		case UFCGMainPipeline.MODULE_DOWNLOAD:		handle_download(); break;
 		default: break;
 		}
 	}

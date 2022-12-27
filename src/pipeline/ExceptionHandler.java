@@ -50,7 +50,14 @@ public class ExceptionHandler {
 	// convert
 	public static final int NO_TYPE_OPTION			= 0x30;
 	public static final int INVALID_TYPE			= 0x31;
-	
+
+	// download
+	public static final int NO_TARGET				= 0x40;
+	public static final int INVALID_TARGET			= 0x41;
+	public static final int NO_INTERNET				= 0x42;
+	public static final int DOWNLOAD_FAILED			= 0x43;
+	public static final int EXTRACTION_FAILED		= 0x44;
+
 	private static Object OBJ;
 	public static void pass(Object obj) {OBJ = obj;}
 	
@@ -139,6 +146,16 @@ public class ExceptionHandler {
 			System.out.println("No type option given."); break;
 		case INVALID_TYPE:
 			System.out.println("Invalid type given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
+		case NO_TARGET:
+			System.out.println("No target given."); break;
+		case INVALID_TARGET:
+			System.out.println("Invalid target given : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
+		case NO_INTERNET:
+			System.out.println("No internet connection."); break;
+		case DOWNLOAD_FAILED:
+			System.out.println("Failed to download : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
+		case EXTRACTION_FAILED:
+			System.out.println("Failed to extract : " + ANSIHandler.wrapper(OBJ.toString(), 'B')); break;
 		}
 		
 		if(!GenericConfig.INTERACT || exception == EXCEPTION) {

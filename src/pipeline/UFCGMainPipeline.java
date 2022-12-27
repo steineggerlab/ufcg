@@ -51,6 +51,7 @@ public class UFCGMainPipeline {
 	public static final int MODULE_TRAIN		= 0x06;
 	public static final int MODULE_PROFILE_PRO	= 0x07;
 	public static final int MODULE_CONVERT		= 0x08;
+	public static final int MODULE_DOWNLOAD		= 0x09;
 	
 	/* Print the UFCG logo with version number */
 	private static void printLogo() {
@@ -86,6 +87,7 @@ public class UFCGMainPipeline {
 		if(module.equals("align"))			return MODULE_ALIGN;
 		if(module.equals("train"))			return MODULE_TRAIN;
 		if(module.equals("convert"))		return MODULE_CONVERT;
+		if(module.equals("download"))		return MODULE_DOWNLOAD;
 		
 		if(!module.startsWith("-")) {
 			ExceptionHandler.pass(module);
@@ -172,7 +174,11 @@ public class UFCGMainPipeline {
 				ANSIHandler.wrapper(" Module         Description\n", 'c') +
 									" align          Produce sequence alignments from core gene profiles\n"+
 									" tree           Build maximum likelihood tree with core gene profiles\n"+
-									" prune          Rebuild UFCG tree or single gene trees\n\n\n"+
+									" prune          Rebuild UFCG tree or single gene trees\n"+
+									"\n"+
+				ANSIHandler.wrapper(" Configuration\n", 'Y') +
+				ANSIHandler.wrapper(" Module         Description\n", 'c') +
+									" download       List or download resources\n\n\n"+
 				
 				ANSIHandler.wrapper(" Miscellaneous\n", 'y') +
 				ANSIHandler.wrapper(" Argument       Description\n", 'c') +
