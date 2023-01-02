@@ -7,6 +7,9 @@ on: push
 
 jobs:
   build:
+    strategy:
+	  matrix:
+	    java: [8, 11, 16, 17]
 
     runs-on: ubuntu-latest
     permissions:
@@ -15,10 +18,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up JDK 8
+    - name: Set up JDK
       uses: actions/setup-java@v3
       with:
-        java-version: '8'
+        java-version: ${{matrix.java}}
         distribution: 'temurin'
 
     - name: Build with Maven
