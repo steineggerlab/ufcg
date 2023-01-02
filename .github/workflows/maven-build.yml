@@ -8,8 +8,8 @@ on: push
 jobs:
   build:
     strategy:
-	  matrix:
-	    java: [8, 11, 16, 17]
+      matrix:
+        java: [8, 11, 16, 17]
 
     runs-on: ubuntu-latest
     permissions:
