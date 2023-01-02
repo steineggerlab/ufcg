@@ -18,7 +18,10 @@ public class PathConfig {
 	public static int setEnvironmentPath(String path) {
 		if(path.charAt(path.length() - 1) != File.separatorChar) path += File.separatorChar;
 		EnvironmentPath = path;
-		if(renewModelPath() > 0 && renewSeqPath() > 0 && renewAugustusConfig() > 0) return 1;
+		boolean renew = renewModelPath() > 0;
+		renew &= renewSeqPath() > 0;
+		renew &= renewAugustusConfig() > 0;
+		if(renew) return 1;
 		EnvironmentPathSet = true;
 		return 0;
 	}
