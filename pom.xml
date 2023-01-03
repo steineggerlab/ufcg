@@ -2,7 +2,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>steineggerlab</groupId>
 	<artifactId>ufcg</artifactId>
-	<version>1.0</version>
+	<version>1.0.3</version>
+	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>

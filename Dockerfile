@@ -5,7 +5,7 @@ ENV PATH /opt/conda/bin:$PATH
 
 # Install dependencies
 RUN apt-get update --fix-missing && \
-	apt-get install -y wget zip bzip2 curl git file vim && \
+	apt-get install -y wget zip bzip2 curl git file vim iputils-ping && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
@@ -13,7 +13,7 @@ RUN apt-get update --fix-missing && \
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
 	/bin/bash ~/miniconda.sh -b -p /opt/conda && \
     rm ~/miniconda.sh && \
-    /opt/conda/bin/conda clean -tipsy && \
+    /opt/conda/bin/conda clean --all -y && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
     echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
 	echo "conda activate && cd" >> ~/.bashrc
@@ -23,12 +23,16 @@ RUN /bin/bash -c "source activate && \
 	conda config --add channels defaults && \
 	conda config --add channels conda-forge && \
 	conda config --add channels bioconda && \
-	conda install -y openjdk=8 augustus mmseqs2 mafft iqtree"
+	conda install -n base -y conda-libmamba-solver && \
+	conda install -n base -y --solver=libmamba ufcg"
 
-# Download and unzip UFCG pipeline
-RUN wget --quiet https://ufcg.steineggerlab.workers.dev/pipeline/UFCG.zip -O ~/ufcg.zip && \
-	cd && \
-	unzip ~/ufcg.zip && \
-	rm ~/ufcg.zip
+# Download minimum payloads
+RUN wget --quiet https://ufcg.steineggerlab.workers.dev/payload/config.tar.gz && \
+	wget --quiet https://ufcg.steineggerlab.workers.dev/payload/core.tar.gz && \
+	wget --quiet https://ufcg.steineggerlab.workers.dev/payload/sample.tar.gz && \
+	tar -xzf config.tar.gz -C /opt/conda/share/ufcg-1.0.3c-0/ && \
+	tar -xzf core.tar.gz -C /opt/conda/share/ufcg-1.0.3c-0/ && \
+	tar -xzf sample.tar.gz -C ~ && \
+	rm *.tar.gz
 
 CMD [ "/bin/bash" ]
