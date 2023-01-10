@@ -11,9 +11,7 @@ Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M. UFCG: database of universa
 
 ## Quick start with conda
 ~~~bash
-conda install -n base -y conda-libmamba-solver
-conda create -n ufcg -c bioconda --solver=libmamba -y ufcg
-conda activate ufcg
+mamba install -y ufcg # conda install also works (slow)
 ufcg download -t minimum
 ufcg -h
 ~~~
