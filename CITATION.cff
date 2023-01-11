@@ -34,6 +34,8 @@ preferred-citation:
   doi: 10.1093/nar/gkac894
   journal: "Nucleic Acids Research"
   title: "UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi"
-  start: 1
-  end: 8
-  year: 2022
+  issue: 51
+  volume: D1
+  start: D777
+  end: D784
+  year: 2023
