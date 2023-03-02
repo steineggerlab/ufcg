@@ -92,21 +92,24 @@ public class PathConfig {
 	}
 	
 	public static String MMseqsPath = "mmseqs";
-	public static void setMMseqsPath(String path) {
+	public static int setMMseqsPath(String path) {
 		try {
 			Prompt.talk("MMseqs binary check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
 			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
+				return 1;
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 			ExceptionHandler.handle(ExceptionHandler.EXCEPTION);
+			return 2;
 		}
 		
 		MMseqsPath = path;
+		return 0;
 	}
 	
 	public static String TrinityPath = "Trinity";

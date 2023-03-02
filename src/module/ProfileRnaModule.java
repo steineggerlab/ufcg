@@ -211,7 +211,7 @@ public class ProfileRnaModule {
 		if(AugustusWrapper.checkConfigFile()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_PPX_CONFIG);
 		}
-		if(MMseqsWrapper.solve()) {
+		if(!MMseqsWrapper.solve()) {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}

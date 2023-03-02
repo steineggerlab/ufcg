@@ -223,7 +223,7 @@ public class ProfileModule {
 		if(AugustusWrapper.checkConfigFile()) {
 			ExceptionHandler.handle(ExceptionHandler.INVALID_PPX_CONFIG);
 		}
-		if(MMseqsWrapper.solve()) {
+		if(!MMseqsWrapper.solve()) {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}
@@ -467,18 +467,18 @@ public class ProfileModule {
 		}
 		proceed = false;
 		if(solvedPath != null) command.append(" --augustus ").append(solvedPath);
-/*		
-		// --hmmsearch
+
+		// --mmseqs
 		solvedPath = null;
 		while(!proceed) {
-			if(HmmsearchWrapper.solve()) proceed = true;
+			if(MMseqsWrapper.solve()) proceed = true;
 			else {
-				Prompt.print("Failed to solve : " + PathConfig.HmmsearchPath);
+				Prompt.print("Failed to solve : " + PathConfig.MMseqsPath);
 				while(!proceed) {
-					Prompt.print_nnc("Enter the location of hmmsearch binary (--hmmsearch) : ");
+					Prompt.print_nnc("Enter the location of MMseqs2 binary (--mmseqs) : ");
 					buf = stream.readLine();
 					if(buf.length() == 0) continue;
-					if(PathConfig.setHmmsearchPath(buf) == 0) {
+					if(PathConfig.setMMseqsPath(buf) == 0) {
 						solvedPath = buf;
 						proceed = true;
 					}
@@ -487,8 +487,8 @@ public class ProfileModule {
 			}
 		}
 		proceed = false;
-		if(solvedPath != null) command += " --hmmsearch " + solvedPath;
-*/		
+		if(solvedPath != null) command.append(" --mmseqs ").append(solvedPath);
+
 		/* set runtime configurations */
 		// --cpu
 		while(!proceed) {

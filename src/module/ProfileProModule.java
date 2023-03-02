@@ -140,7 +140,7 @@ public class ProfileProModule {
 	private static void solveDependency() {
 		Prompt.talk("Solving dependencies...");
 		
-		if(MMseqsWrapper.solve()) {
+		if(!MMseqsWrapper.solve()) {
 			ExceptionHandler.pass(PathConfig.MMseqsPath);
 			ExceptionHandler.handle(ExceptionHandler.DEPENDENCY_UNSOLVED);
 		}
