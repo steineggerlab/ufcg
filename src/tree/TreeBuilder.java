@@ -163,7 +163,9 @@ public void jsonsToMsa(int nThreads) throws IOException {
 	readJsonsToFastaFiles();
 	if(checkpoint < 2) alignGenes(nThreads);
 	if(checkpoint < 2) removeGaps();
+	if(checkpoint < 3) concatenateAlignedGenes();
 	replaceLabelforAlign(nThreads);
+	cleanFiles();
 }
 
 void checkThirdPartyPrograms(PhylogenyTool phylogenyTool) {
@@ -1125,6 +1127,10 @@ void replaceLabelforAlign(int nThreads) {
 		dst.add(fastaLabelFile);
 		dst.add(alignedLabelGene);
 	}
+
+	// concatenated alignment files
+	src.add(concatenatedSeqFileName);
+	dst.add(concatenatedSeqLabelFileName);
 	
 	if(alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
 		for(String gene : usedGenes) {
