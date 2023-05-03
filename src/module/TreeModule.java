@@ -593,12 +593,12 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -i STR         Input directory containing UFCG profiles ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -l STR         Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
-		System.out.println(ANSIHandler.wrapper("                {uid, acc, label, taxon, strain, type, taxonomy}", 'x'));
 		System.out.println();
 
 		System.out.println(ANSIHandler.wrapper("\n Additional options", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -l STR         Tree leaf format, comma-separated string containing one or more of the following keywords: [label]", 'x'));
+		System.out.println(ANSIHandler.wrapper("                {uid, acc, label, taxon, strain, type, taxonomy}", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -o STR         Define output directory [.]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -n STR         Name of this run [random hex string] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [protein]", 'x'));

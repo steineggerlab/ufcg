@@ -126,7 +126,10 @@ public class ModuleHandler {
 			if(cmd.hasOption("l")) {
 				argList.add("-leaf");
 				argList.add(cmd.getOptionValue("l"));
-			} else ExceptionHandler.handle(ExceptionHandler.NO_LEAF_OPTION);
+			} else {
+				argList.add("-leaf");
+				argList.add("label");
+			}
 			if(cmd.hasOption("o")) {
 				argList.add("-out_dir");
 				argList.add(cmd.getOptionValue("o"));
