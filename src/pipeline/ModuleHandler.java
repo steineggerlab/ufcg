@@ -69,7 +69,7 @@ public class ModuleHandler {
 		opts.addOption("i", "input",	true,	"input directory");
 		opts.addOption("l", "leaf",		true,	"leaf format");
 		opts.addOption("o", "output",	true,	"output directory");
-		opts.addOption("n", "name",		true,	"runtime name");
+		// opts.addOption("n", "name",		true,	"runtime name");
 		opts.addOption("a", "alignment",true,	"alignment type");
 		opts.addOption("t", "thread",	true,	"CPU thread");
 		opts.addOption("f", "filter",	true,	"gap-rich filter");
@@ -134,10 +134,10 @@ public class ModuleHandler {
 				argList.add("-out_dir");
 				argList.add(cmd.getOptionValue("o"));
 			}
-			if(cmd.hasOption("n")) {
+			/* if(cmd.hasOption("n")) {
 				argList.add("-run_id");
 				argList.add(cmd.getOptionValue("n"));
-			}
+			} */
 			if(cmd.hasOption("a")) {
 				argList.add("-a");
 				argList.add(cmd.getOptionValue("a"));

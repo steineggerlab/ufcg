@@ -39,7 +39,7 @@ public class AlignModule {
 		opts.addOption("i", "input",	true,	"input directory");
 		opts.addOption("o", "output",	true,	"output directory");
 		opts.addOption("l", "label",	true,	"output label");
-		opts.addOption("n", "name",		true,	"name of the run");
+		// opts.addOption("n", "name",		true,	"name of the run");
 		opts.addOption("a", "alignment",true,	"alignment type");
 		opts.addOption("t", "thread",	true,	"CPU thread");
 		opts.addOption("f", "filter",	true,	"gap-rich filter");
@@ -166,7 +166,7 @@ public class AlignModule {
 			ExceptionHandler.handle(e);
 		}
 
-		TreeBuilder module = new TreeBuilder(PathConfig.InputPath, PathConfig.OutputPath, name, getMafftPath(), null, null, null, alignMode, filter, null, 0, leaves, 0, allowMultiple);
+		TreeBuilder module = new TreeBuilder(PathConfig.InputPath, PathConfig.OutputPath, getMafftPath(), null, null, null, alignMode, filter, null, 0, leaves, 0, allowMultiple);
 
 		try {
 			module.jsonsToMsa(GenericConfig.ThreadPoolSize);

@@ -60,7 +60,7 @@ import tree.tools.LabelReplacer;
 public class TreeBuilder{
 
 private final String ucgDirectory, outDirectory, mafftPath, raxmlPath, fasttreePath, iqtreePath, model;
-private String runOutDirName;
+private final String runOutDirName = ""; // deprecated
 private final AlignMode alignMode;
 private final int filtering, gsi_threshold, executorLimit;
 private final List<String> outputLabels;
@@ -92,7 +92,7 @@ private final boolean allowMultiple;
 private final static int MODULE_ALIGN = 1, MODULE_TREE = 0;
 private int module = -1;
 
-public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirName, String mafftPath, 
+public TreeBuilder(String ucgDirectory, String outDirectory, String mafftPath,
         String raxmlPath, String fasttreePath, String iqtreePath,
         AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit, boolean allowMultiple) {
 	
@@ -105,14 +105,6 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 		outDirectory = outDirectory + File.separator;
 	}
 	this.outDirectory = outDirectory;
-	
-	this.runOutDirName = GenericConfig.SESSION_UID + File.separator;
-	if(runOutDirName!=null && !runOutDirName.equals("")) {
-		if (!runOutDirName.endsWith(File.separator)) {
-			runOutDirName = runOutDirName + File.separator;
-		}
-		this.runOutDirName = runOutDirName;
-	}
 	
 	this.mafftPath = mafftPath;
 	this.raxmlPath = raxmlPath;
@@ -128,7 +120,6 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runOutDirNam
 	this.treeZzFileName = this.outDirectory + this.runOutDirName + "concatenated." + alignMode + ".zZ.nwk";
 	this.treeLabelFileName = this.outDirectory + this.runOutDirName + "concatenated" + ".nwk";
 	this.allGeneTreesFile = this.outDirectory + this.runOutDirName + "all_genetrees.txt";
-	assert runOutDirName != null;
 	this.logFileName = this.outDirectory + this.runOutDirName + runOutDirName.replace(File.separator, "") + ".log";
 	this.trmFile = this.outDirectory + this.runOutDirName + runOutDirName.replace(File.separator, "") + ".trm";
 	this.alignMode = alignMode;
@@ -472,7 +463,7 @@ private void checkPathDirectory() {
 	
 	File runPath = new File(outDirectory + runOutDirName);
 	if(runPath.exists()) {
-		Prompt.warn("Run id '" + runOutDirName.replace(File.separator, "") + "' already exists.");
+		Prompt.warn("Path '" + runPath + "' already exists.");
 		Prompt.debug("Looking for a checkpoint...");
 		
 		// define checkpoint step

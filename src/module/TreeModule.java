@@ -75,7 +75,6 @@ public class TreeModule {
 
 		PhylogenyTool phylogenyTool = PhylogenyTool.iqtree;
 
-		String runOutDirName = "";
 		int nThreads = 1;
 		AlignMode alignMode = AlignMode.protein;
 		int filtering = 50;
@@ -91,9 +90,9 @@ public class TreeModule {
 		if(arg.get("-out_dir")!=null && !arg.get("-out_dir").equals("")) {
 			outDirectory = arg.get("-out_dir");
 		}
-		if(arg.get("-run_id")!=null && !arg.get("-run_id").equals("")) {
+		/* if(arg.get("-run_id")!=null && !arg.get("-run_id").equals("")) {
 			runOutDirName = arg.get("-run_id");
-		}
+		} */
 
 		String align = arg.get("-a");
 		if(align!=null && !align.equals("")) {
@@ -210,7 +209,7 @@ public class TreeModule {
 		allowMultiple = arg.get("-c") != null;
 
 		assert ucgDirectory != null;
-		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runOutDirName, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit, allowMultiple);
+		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit, allowMultiple);
 
 		try {
 			proc.jsonsToTree(nThreads, phylogenyTool);
@@ -603,12 +602,16 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" -n STR         Name of this run [random hex string] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [protein]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -p STR         Tree building program {raxml, iqtree, fasttree} [iqtree] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -c             Align multiple copied genes [0]", 'x'));
+		System.out.println();
+
+		System.out.println(ANSIHandler.wrapper("\n Advanced options", 'y'));
+		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
+		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -m STR         ML tree inference model [JTT+ (proteins); GTR+ (nucleotides)] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -g INT         GSI value threshold {1 - 100} [95] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -x INT         Maximum number of gene tree executors; lower this if the RAM usage is excessive {1 - threads} [equal to -t]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -c             Align multiple copied genes [0]", 'x'));
 		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
