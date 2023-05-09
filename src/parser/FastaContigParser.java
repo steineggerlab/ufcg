@@ -7,14 +7,17 @@ import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
 
 public class FastaContigParser {
+	private final static char[] rc = {
+			'T', 'V', 'G', 'H', 'N', 'N', 'C', 'D', 'N', 'N',
+			'M', 'N', 'K', 'N', 'N', 'N', 'N', 'Y', 'S', 'A',
+			'A', 'B', 'W', 'N', 'R', 'N',
+			'N', 'N', 'N', 'N', 'N', 'N',
+			't', 'v', 'g', 'h', 'n', 'n', 'c', 'd', 'n', 'n',
+			'm', 'n', 'k', 'n', 'n', 'n', 'n', 'y', 's', 'a',
+			'a', 'b', 'w', 'n', 'r', 'n',
+	};
 	private static char reverse(char base){
-		switch(base){
-			case 'A' : return 'T';
-			case 'T' : return 'A';
-			case 'C' : return 'G';
-			case 'G' : return 'C';
-			default : return 'X';
-		}	
+		return rc[base - 'A'];
 	}
 
 	public static String revcomp(String seq){
