@@ -19,6 +19,7 @@ import tree.tools.PhylogenyTool;
 public class TreeModule {
 	String ucgDirectory = null;
 	String outDirectory = null;
+	String runId = "tree";
 	String mafftPath = "mafft-linsi";
 	String raxmlPath = "raxmlHPC-PTHREADS";
 	String fasttreePath = "FastTree";
@@ -39,7 +40,7 @@ public class TreeModule {
 		opts.addOption("h", "help",		false,	"helper route");
 		opts.addOption("i", "input",	true,	"input directory");
 		opts.addOption("o", "output",	true,	"output directory");
-		// opts.addOption("n", "name",		true,	"runtime name");
+		opts.addOption("n", "name",		true,	"runtime name");
 		opts.addOption("l", "leaf",		true,	"leaf format");
 		opts.addOption("a", "alignment",true,	"alignment type");
 		opts.addOption("t", "thread",	true,	"CPU thread");
@@ -101,6 +102,8 @@ public class TreeModule {
 				if (!outDirectory.endsWith(File.separator)) outDirectory += File.separator;
 			}
 			else ExceptionHandler.handle(ExceptionHandler.NO_OUTPUT);
+
+			if(cmd.hasOption("n")) runId = cmd.getOptionValue("n");
 
 			outputLabels = new ArrayList<>();
 			final String[] validLeaves = {"uid", "acc", "label", "taxon", "strain", "type", "taxonomy"};
@@ -184,7 +187,7 @@ public class TreeModule {
 					ExceptionHandler.pass(executorLimit);
 					ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
 				}
-			}
+			} else executorLimit = GenericConfig.ThreadPoolSize;
 			allowMultiple = cmd.hasOption("c");
 
 			if(cmd.hasOption("mafft")) mafftPath = cmd.getOptionValue("mafft");
@@ -201,7 +204,7 @@ public class TreeModule {
 	}
 
 	private void align() {
-		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit, allowMultiple);
+		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runId, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit, allowMultiple);
 		try {
 			proc.jsonsToTree(GenericConfig.ThreadPoolSize, phylogenyTool);
 		}catch (IOException e) {
@@ -227,7 +230,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" Argument        Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -l STR          Tree leaf format, comma-separated string containing one or more of the following keywords: [label]", 'x'));
 		System.out.println(ANSIHandler.wrapper("                 {uid, acc, label, taxon, strain, type, taxonomy}", 'x'));
-		// System.out.println(ANSIHandler.wrapper(" -n STR         Name of this run [random hex string] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n STR          Name of this run [tree] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -a STR          Alignment method {nucleotide, codon, codon12, protein} [protein]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT          Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -p STR          Tree building program {raxml, iqtree, fasttree} [iqtree] ", 'x'));

@@ -26,7 +26,7 @@ import tree.tools.AlignMode;
 
 public class AlignModule {
 	private static AlignMode alignMode = AlignMode.protein;
-	// private static String name = GenericConfig.SESSION_UID;
+	private static String name = "align";
 	private static Integer filter = 50;
 	private static List<String> leaves = null;
 	private static boolean allowMultiple = false;
@@ -39,7 +39,7 @@ public class AlignModule {
 		opts.addOption("i", "input",	true,	"input directory");
 		opts.addOption("o", "output",	true,	"output directory");
 		opts.addOption("l", "label",	true,	"output label");
-		// opts.addOption("n", "name",		true,	"name of the run");
+		opts.addOption("n", "name",		true,	"name of the run");
 		opts.addOption("a", "alignment",true,	"alignment type");
 		opts.addOption("t", "thread",	true,	"CPU thread");
 		opts.addOption("f", "filter",	true,	"gap-rich filter");
@@ -121,8 +121,7 @@ public class AlignModule {
 					break;
 			}
 		}
-		// if(cmd.hasOption("-n"))
-		//	name = cmd.getOptionValue("n");
+		if(cmd.hasOption("-n")) name = cmd.getOptionValue("n");
 		if(cmd.hasOption("-f")) {
 			filter = Integer.parseInt(cmd.getOptionValue("f"));
 			if (filter > 100 || filter < 0) {
@@ -166,7 +165,7 @@ public class AlignModule {
 			ExceptionHandler.handle(e);
 		}
 
-		TreeBuilder module = new TreeBuilder(PathConfig.InputPath, PathConfig.OutputPath, getMafftPath(), null, null, null, alignMode, filter, null, 0, leaves, 0, allowMultiple);
+		TreeBuilder module = new TreeBuilder(PathConfig.InputPath, PathConfig.OutputPath, name, getMafftPath(), null, null, null, alignMode, filter, null, 0, leaves, 0, allowMultiple);
 
 		try {
 			module.jsonsToMsa(GenericConfig.ThreadPoolSize);
@@ -193,7 +192,7 @@ public class AlignModule {
 		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
 		System.out.println(ANSIHandler.wrapper(" -l STR         Label format, comma-separated string containing one or more of the following keywords:", 'x'));
 		System.out.println(ANSIHandler.wrapper("                {uid, acc, label, taxon, strain, type, taxonomy} [label]", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -n STR         Name of this run [random hex string]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -n STR         Name of this run [align]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -a STR         Alignment method {nucleotide, codon, codon12, protein} [protein]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50]", 'x'));

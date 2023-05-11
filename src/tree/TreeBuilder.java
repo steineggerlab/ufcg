@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import envs.config.GenericConfig;
 import envs.config.PathConfig;
 import envs.toolkit.ANSIHandler;
 import envs.toolkit.Prompt;
@@ -57,10 +56,10 @@ import tree.tools.LabelReplacer;
  *  2. align & filtering
  *  3. tree inference
  */
-public class TreeBuilder{
+public class TreeBuilder {
 
 private final String ucgDirectory, outDirectory, mafftPath, raxmlPath, fasttreePath, iqtreePath, model;
-private final String runOutDirName = ""; // deprecated
+private final String runId;
 private final AlignMode alignMode;
 private final int filtering, gsi_threshold, executorLimit;
 private final List<String> outputLabels;
@@ -92,9 +91,9 @@ private final boolean allowMultiple;
 private final static int MODULE_ALIGN = 1, MODULE_TREE = 0;
 private int module = -1;
 
-public TreeBuilder(String ucgDirectory, String outDirectory, String mafftPath,
-        String raxmlPath, String fasttreePath, String iqtreePath,
-        AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit, boolean allowMultiple) {
+public TreeBuilder(String ucgDirectory, String outDirectory, String runId,
+				   String mafftPath, String raxmlPath, String fasttreePath, String iqtreePath,
+				   AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit, boolean allowMultiple) {
 	
 	if (!ucgDirectory.endsWith(File.separator)) {
 		ucgDirectory = ucgDirectory + File.separator;
@@ -105,6 +104,7 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String mafftPath,
 		outDirectory = outDirectory + File.separator;
 	}
 	this.outDirectory = outDirectory;
+	this.runId = runId;
 	
 	this.mafftPath = mafftPath;
 	this.raxmlPath = raxmlPath;
@@ -115,13 +115,13 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String mafftPath,
 	this.targetGenes = new ArrayList<>();
 	this.usedGenes = new HashSet<>();
 
-	this.concatenatedSeqFileName = this.outDirectory + this.runOutDirName + "aligned_concatenated.zZ.fasta";
-	this.concatenatedSeqLabelFileName = this.outDirectory + this.runOutDirName + "aligned_concatenated.fasta";
-	this.treeZzFileName = this.outDirectory + this.runOutDirName + "concatenated." + alignMode + ".zZ.nwk";
-	this.treeLabelFileName = this.outDirectory + this.runOutDirName + "concatenated" + ".nwk";
-	this.allGeneTreesFile = this.outDirectory + this.runOutDirName + "all_genetrees.txt";
-	this.logFileName = this.outDirectory + "tree.log";
-	this.trmFile = this.outDirectory + "tree.trm";
+	this.concatenatedSeqFileName = this.outDirectory + "aligned_concatenated.zZ.fasta";
+	this.concatenatedSeqLabelFileName = this.outDirectory + "aligned_concatenated.fasta";
+	this.treeZzFileName = this.outDirectory + "concatenated." + alignMode + ".zZ.nwk";
+	this.treeLabelFileName = this.outDirectory + "concatenated" + ".nwk";
+	this.allGeneTreesFile = this.outDirectory + "all_genetrees.txt";
+	this.logFileName = this.outDirectory + runId + ".log";
+	this.trmFile = this.outDirectory + runId + ".trm";
 	this.alignMode = alignMode;
 	this.filtering = filtering;
 	
@@ -446,8 +446,8 @@ void readJsonsToFastaFiles() throws IOException{
 		retrieveFastaFiles(geneSetsDomainList);
 	}
 	
-	treeZzGsiFileName = outDirectory + runOutDirName + "concatenated_gsi_" + usedGenes.size() + ".zZ.nwk";
-	treeLabelGsiFileName = outDirectory + runOutDirName + "concatenated_gsi_" + usedGenes.size() + ".nwk";
+	treeZzGsiFileName = outDirectory + "concatenated_gsi_" + usedGenes.size() + ".zZ.nwk";
+	treeLabelGsiFileName = outDirectory + "concatenated_gsi_" + usedGenes.size() + ".nwk";
 }
 
 private void checkPathDirectory() {
@@ -461,7 +461,7 @@ private void checkPathDirectory() {
 		}
 	}
 	
-	File runPath = new File(outDirectory + runOutDirName);
+	File runPath = new File(outDirectory);
 	if(runPath.exists()) {
 		Prompt.warn("Path '" + runPath + "' already exists.");
 		Prompt.debug("Looking for a checkpoint...");
@@ -508,7 +508,7 @@ private void checkPathDirectory() {
 		ExceptionHandler.pass("Cannot write files to " + outDirectory + ". Please check the permission.");
 		ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
 	}else {
-		new File(outDirectory + runOutDirName).mkdir();
+		new File(outDirectory).mkdir();
 	}
 	
 	
@@ -740,13 +740,13 @@ void inferGeneTreesSequentially(PhylogenyTool phylogenyTool, int nThreads) {
 	int counter = 0;
 	for(String ucg : usedGenes) {
 		if(phylogenyTool.equals(PhylogenyTool.raxml)) {
-			runGeneRaxml(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), raxmlPath, nThreads, ucg, alignMode, outDirectory, model);
+			runGeneRaxml(alignedFinalGeneFastaFile(ucg), runId, raxmlPath, nThreads, ucg, alignMode, outDirectory, model);
 		}
 		else if(phylogenyTool.equals(PhylogenyTool.fasttree)) {
-			runGeneFasttree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), fasttreePath, ucg, alignMode, outDirectory, model);
+			runGeneFasttree(alignedFinalGeneFastaFile(ucg), runId, fasttreePath, ucg, alignMode, outDirectory, model);
 		}
 		else if(phylogenyTool.equals(PhylogenyTool.iqtree)) {
-			runGeneIqtree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), iqtreePath, nThreads, ucg, alignMode, outDirectory, model);
+			runGeneIqtree(alignedFinalGeneFastaFile(ucg), runId, iqtreePath, nThreads, ucg, alignMode, outDirectory, model);
 		}
 		
 		String msg = "'" + ucg + "' tree was reconstructed. (" + (++counter) + " / " + usedGenes.size() + ")";
@@ -759,7 +759,7 @@ void inferGeneTreesSequentially(PhylogenyTool phylogenyTool, int nThreads) {
 	StringBuffer mergedTrees = new StringBuffer();
 
 	for (String ucg : usedGenes) {
-		String geneTree = outDirectory + runOutDirName + ucg + ".zZ.nwk";
+		String geneTree = outDirectory + ucg + ".zZ.nwk";
 
 		try {
 			File treeFile = new File(geneTree);
@@ -850,19 +850,19 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	// infer gene trees
 	if (phylogenyTool.equals(PhylogenyTool.fasttree)){
 		for (String ucg : usedGenes) {
-			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleFastTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), fasttreePath, counterTree, ucg, alignMode,
+			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleFastTree(alignedFinalGeneFastaFile(ucg), runId, fasttreePath, counterTree, ucg, alignMode,
 					numOfGenes, outDirectory, model));
 			futures.add(f);
 		}
 	} else if (phylogenyTool.equals(PhylogenyTool.raxml)){
 		for (String ucg : usedGenes) {
-			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleRaxml(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), raxmlPath, counterTree, ucg, alignMode,
+			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleRaxml(alignedFinalGeneFastaFile(ucg), runId, raxmlPath, counterTree, ucg, alignMode,
 					numOfGenes, outDirectory, model, nCores));
 			futures.add(f);
 		}
 	} else if (phylogenyTool.equals(PhylogenyTool.iqtree)){
 		for (String ucg : usedGenes) {
-			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleIqTree(alignedFinalGeneFastaFile(ucg), runOutDirName.replace(File.separator, ""), iqtreePath, counterTree, ucg, alignMode,
+			Future<ProcessGobbler> f = exeServiceTree.submit(new multipleIqTree(alignedFinalGeneFastaFile(ucg), runId, iqtreePath, counterTree, ucg, alignMode,
 					numOfGenes, outDirectory, model, nCores));
 			futures.add(f);
 		}
@@ -880,8 +880,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 			}
 		}
 	
-		while (!exeServiceTree.awaitTermination(1, TimeUnit.SECONDS)) {
-		}
+		while(!exeServiceTree.awaitTermination(1, TimeUnit.SECONDS));
 	} catch(InterruptedException | ExecutionException e) {
 		ExceptionHandler.handle(e);
 	}
@@ -892,11 +891,11 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	StringBuffer mergedTrees = new StringBuffer();
 
 	for (String ucg : usedGenes) {
-		String geneTree = outDirectory + runOutDirName + ucg + ".zZ.nwk";
+		String geneTree = outDirectory + ucg + ".zZ.nwk";
 		File treeFile = new File(geneTree);
 		if(!treeFile.exists()) {
 			String treeOrigin = geneTree;
-			if(phylogenyTool.equals(PhylogenyTool.raxml)) treeOrigin = "RAxML_bipartitions." + runOutDirName.replace(File.separator, "") + "_" + ucg;
+			if(phylogenyTool.equals(PhylogenyTool.raxml)) treeOrigin = "RAxML_bipartitions." + runId + "_" + ucg;
 			if(phylogenyTool.equals(PhylogenyTool.iqtree)) treeOrigin = alignedFinalGeneFastaFile(ucg) + ".treefile";
 			if(new File(treeOrigin).exists()) {
 				new File(treeOrigin).renameTo(treeFile);
@@ -983,7 +982,7 @@ void calculateGsi() {
 		trmJson.put("UFCG", ucgNwk);
 
 		for (String ucg : usedGenes) {
-			FileReader geneFR = new FileReader(outDirectory + runOutDirName + ucg + ".zZ.nwk");
+			FileReader geneFR = new FileReader(outDirectory + ucg + ".zZ.nwk");
 			BufferedReader geneBR = new BufferedReader(geneFR);
 
 			String geneNwk = geneBR.readLine();
@@ -1070,14 +1069,14 @@ void replaceLabel(int nThreads) {
 		dst.add(alignedFinalGeneFastaLabelFile(ucg));
 		
 		// gene tree files
-		src.add(outDirectory + runOutDirName + ucg + ".zZ.nwk");
-		dst.add(outDirectory + runOutDirName + ucg + ".nwk");
+		src.add(outDirectory + ucg + ".zZ.nwk");
+		dst.add(outDirectory + ucg + ".nwk");
 	}
 	
 	if(alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
 		for(String gene : usedGenes) {
 			src.add(fastaFileName(gene, AlignMode.nucleotide));
-			dst.add(outDirectory + runOutDirName + gene + "_nuc.fasta");
+			dst.add(outDirectory + gene + "_nuc.fasta");
 		}
 	}
 	
@@ -1129,7 +1128,7 @@ void replaceLabelforAlign(int nThreads) {
 	
 	if(alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
 		for(String gene : usedGenes) {
-			String nucLabelFasta = outDirectory + runOutDirName + gene + "_nuc.fasta";
+			String nucLabelFasta = outDirectory + gene + "_nuc.fasta";
 			src.add(fastaFileName(gene, AlignMode.nucleotide));
 			dst.add(nucLabelFasta);
 		}
@@ -1166,7 +1165,7 @@ void cleanFiles() {
 		}
 	}
 	
-	String[] cmd = {"/bin/bash", PathConfig.EnvironmentPath + "config/clean.sh", outDirectory + runOutDirName};
+	String[] cmd = {"/bin/bash", PathConfig.EnvironmentPath + "config/clean.sh", outDirectory};
 	Shell.exec(cmd);
 }
 
@@ -1174,7 +1173,7 @@ private void runRaxml(int nThreads) {
 	
 	List<String> argTree = new ArrayList<>();
 	
-	String prefix = runOutDirName.substring(0, runOutDirName.length()-1);
+	String prefix = runId;
 	
 	argTree.add(raxmlPath);
 	argTree.add("-s");
@@ -1526,8 +1525,7 @@ private void align(int nThreads) {
 			}
 		}
 		
-		while(!exeService.awaitTermination(1, TimeUnit.SECONDS)){
-		}
+		while(!exeService.awaitTermination(1, TimeUnit.SECONDS));
 		
 	}catch(InterruptedException | ExecutionException e){
 		ExceptionHandler.handle(e);
@@ -1855,9 +1853,9 @@ private String fastaFileName(String gene) {
 	String fasta = null;
 	
 	if(alignMode.equals(AlignMode.nucleotide)) {
-		fasta = outDirectory + runOutDirName + gene + "_nuc.zZ.fasta";
+		fasta = outDirectory + gene + "_nuc.zZ.fasta";
 	}else if(alignMode.equals(AlignMode.protein)||alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
-		fasta = outDirectory + runOutDirName + gene + "_pro.zZ.fasta";
+		fasta = outDirectory + gene + "_pro.zZ.fasta";
 	}
 	
 	return fasta;
@@ -1868,9 +1866,9 @@ private String fastaLabelFileName(String gene) {
 	String fasta = null;
 	
 	if(alignMode.equals(AlignMode.nucleotide)) {
-		fasta = outDirectory + runOutDirName + gene + "_nuc.fasta";
+		fasta = outDirectory + gene + "_nuc.fasta";
 	}else if(alignMode.equals(AlignMode.protein)||alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
-		fasta = outDirectory + runOutDirName + gene + "_pro.fasta";
+		fasta = outDirectory + gene + "_pro.fasta";
 	}
 	
 	return fasta;
@@ -1881,9 +1879,9 @@ private String fastaFileName(String gene, AlignMode alignMode) {
 	String fasta = null;
 	
 	if(alignMode.equals(AlignMode.nucleotide)) {
-		fasta = outDirectory + runOutDirName + gene + "_nuc.zZ.fasta";
+		fasta = outDirectory + gene + "_nuc.zZ.fasta";
 	}else if(alignMode.equals(AlignMode.protein)||alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
-		fasta = outDirectory + runOutDirName + gene + "_pro.zZ.fasta";
+		fasta = outDirectory + gene + "_pro.zZ.fasta";
 	}
 	
 	return fasta;
@@ -1895,9 +1893,9 @@ private String alignedFastaFileName(String gene) {
 	String fasta = null;
 	
 	if(alignMode.equals(AlignMode.nucleotide)) {
-		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_nuc.zZ.fasta";
+		fasta = outDirectory + "aligned_" + gene + "_nuc.zZ.fasta";
 	}else if(alignMode.equals(AlignMode.protein)||alignMode.equals(AlignMode.codon12)||alignMode.equals(AlignMode.codon)) {
-		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_pro.zZ.fasta";
+		fasta = outDirectory + "aligned_" + gene + "_pro.zZ.fasta";
 	}
 	
 	return fasta;
@@ -1905,18 +1903,18 @@ private String alignedFastaFileName(String gene) {
 }
 
 private String alignedCodonFile(String gene) {
-	return outDirectory + runOutDirName + "aligned_" + gene + "_codon.zZ.fasta";
+	return outDirectory + "aligned_" + gene + "_codon.zZ.fasta";
 }
 private String alignedCodon12File(String gene) {
-	return outDirectory + runOutDirName + "aligned_" + gene + "_codon12.zZ.fasta";
+	return outDirectory + "aligned_" + gene + "_codon12.zZ.fasta";
 }
 private String alignedFinalGeneFastaFile(String gene) {
 	String fasta = null;
 	
 	if(alignMode.equals(AlignMode.nucleotide)) {
-		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_nuc.zZ.fasta";
+		fasta = outDirectory + "aligned_" + gene + "_nuc.zZ.fasta";
 	}else if(alignMode.equals(AlignMode.protein)) {
-		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_pro.zZ.fasta";
+		fasta = outDirectory + "aligned_" + gene + "_pro.zZ.fasta";
 	}else if(alignMode.equals(AlignMode.codon)) {
 		fasta = alignedCodonFile(gene);
 	}else if(alignMode.equals(AlignMode.codon12)) {
@@ -1926,28 +1924,15 @@ private String alignedFinalGeneFastaFile(String gene) {
 	return fasta;
 }
 private String alignedFinalGeneFastaLabelFile(String gene) {
-
-	//	if(alignMode.equals(AlignMode.nucleotide)) {
-//		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_nuc.fasta";
-//	}else if(alignMode.equals(AlignMode.protein)) {
-//		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_pro.fasta";
-//	}else if(alignMode.equals(AlignMode.codon)) {
-//		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_codon.fasta";
-//	}else if(alignMode.equals(AlignMode.codon12)) {
-//		fasta = outDirectory + runOutDirName + "aligned_" + gene + "_codon12.label.fasta";
-//	}
-		
-	return outDirectory + runOutDirName + "aligned_" + gene + ".fasta";
+	return outDirectory + "aligned_" + gene + ".fasta";
 }
-
-
 
 private void writeGenomeInfoToLogFile(List<GeneSetByGenomeDomain> geneSetByGenomeDomains) {
 	
 	StringBuffer logSB = new StringBuffer();
 	
 	// info of the run
-	logSB.append("Run ID: ").append(runOutDirName.replace(File.separator, "")).append("\n");
+	logSB.append("Run ID: ").append(runId).append("\n");
 	logSB.append("Genomes produced: ").append(geneSetByGenomeDomains.size()).append("\n");
 	logSB.append("Alignment mode: ").append(alignMode).append("\n");
 	logSB.append("Filtered by: ").append(filtering).append("%\n\n");
@@ -2070,49 +2055,37 @@ public ProcessGobbler call() throws IOException{
 
 	if (model == null) {
 		if (alignMode.equals(AlignMode.protein)) {
-			argTree.add(programPath + " " + alignedFastaFile + " > " + outputDir
-					+ run_id + File.separator + ucg + ".zZ.nwk");
+			argTree.add(programPath + " " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 
 		} else {
-			argTree.add(programPath + " -nt -gtr < " + alignedFastaFile + " > "
-					+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+			argTree.add(programPath + " -nt -gtr < " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 
 		}
 	} else {
 		if (alignMode.equals(AlignMode.protein)) {
 			if (model.equalsIgnoreCase("JTTcat")) {
-				argTree.add(programPath + " " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			} else if (model.equalsIgnoreCase("LGcat")) {
-				argTree.add(programPath + " -lg " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " -lg " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			} else if (model.equalsIgnoreCase("WAGcat")) {
-				argTree.add(programPath + " -wag " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " -wag " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			} else if (model.equalsIgnoreCase("JTTgamma")) {
-				argTree.add(programPath + " -gamma " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " -gamma " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			} else if (model.equalsIgnoreCase("LGgamma")) {
-				argTree.add(programPath + " -lg -gamma " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " -lg -gamma " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			} else if (model.equalsIgnoreCase("WAGgamma")) {
-				argTree.add(programPath + " -wag -gamma " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " -wag -gamma " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			}
 
 		} else {
 			if (model.equalsIgnoreCase("JCcat")) {
-				argTree.add(programPath + " -nt " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " -nt " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			} else if (model.equalsIgnoreCase("GTRcat")) {
-				argTree.add(programPath + " -nt -gtr < " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " -nt -gtr < " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			} else if (model.equalsIgnoreCase("JCgamma")) {
-				argTree.add(programPath + " -nt -gamma < " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " -nt -gamma < " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			} else if (model.equalsIgnoreCase("GTRgamma")) {
-				argTree.add(programPath + " -nt -gtr -gamma < " + alignedFastaFile + " > "
-						+ outputDir + run_id + File.separator + ucg + ".zZ.nwk");
+				argTree.add(programPath + " -nt -gtr -gamma < " + alignedFastaFile + " > " + outputDir + ucg + ".zZ.nwk");
 			}
 
 		}
@@ -2247,7 +2220,7 @@ public ProcessGobbler call() throws IOException{
 
 	ProcessGobbler processGobbler = new ProcessGobbler(exitValue, errorLog);
 
-	new File("RAxML_bipartitions." + run_id + "_" + ucg).renameTo(new File(outputDir + run_id + File.separator+ ucg + ".zZ.nwk"));
+	new File("RAxML_bipartitions." + run_id + "_" + ucg).renameTo(new File(outputDir + ucg + ".zZ.nwk"));
 	new File("RAxML_bestTree." + run_id + "_" + ucg).delete();
 	new File("RAxML_bipartitionsBranchLabels." + run_id + "_" + ucg).delete();
 	new File("RAxML_bootstrap." + run_id + "_" + ucg).delete();
@@ -2351,7 +2324,7 @@ public ProcessGobbler call() throws IOException{
 
 	ProcessGobbler processGobbler = new ProcessGobbler(exitValue, errorLog);
 	
-	new File(alignedFastaFile + ".treefile").renameTo(new File(outputDir + run_id + File.separator+ ucg + ".zZ.nwk"));
+	new File(alignedFastaFile + ".treefile").renameTo(new File(outputDir + ucg + ".zZ.nwk"));
 	new File(alignedFastaFile + ".iqtree").delete();
 	new File(alignedFastaFile + ".bionj").delete();
 	new File(alignedFastaFile + ".log").delete();
