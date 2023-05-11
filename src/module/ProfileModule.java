@@ -855,7 +855,7 @@ public class ProfileModule {
 					for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) {
 						CreateProfile creator = new CreateProfile(g);
 						futures.add(executorService.submit(creator));
-						Thread.sleep(500);
+						// Thread.sleep(500);
 					}
 	
 					executorService.shutdown();
@@ -894,7 +894,7 @@ public class ProfileModule {
 					for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) {
 						CreateProfile creator = new CreateProfile(g);
 						futures.add(executorService.submit(creator));
-						Thread.sleep(500);
+						// Thread.sleep(500);
 					}
 	
 					executorService.shutdown();
@@ -957,7 +957,7 @@ public class ProfileModule {
 		progress.get(g).updateStat(ch, proc);
 	}
 	
-	static void printProg() {
+	static synchronized void printProg() {
 		if(GenericConfig.QUERY_GENES.length > 100) {
 			printProgSimple();
 			return;
@@ -982,7 +982,7 @@ public class ProfileModule {
 		if(!GenericConfig.QUIET) Prompt.dynamicHeader(build.toString());
 	}
 	
-	static void printProgSimple() {
+	static synchronized void printProgSimple() {
 		String build = "PROGRESS : [";
 		int pend = 0, proc = 0, fin = 0;
 		try{
