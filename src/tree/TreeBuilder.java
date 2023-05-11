@@ -120,8 +120,8 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String mafftPath,
 	this.treeZzFileName = this.outDirectory + this.runOutDirName + "concatenated." + alignMode + ".zZ.nwk";
 	this.treeLabelFileName = this.outDirectory + this.runOutDirName + "concatenated" + ".nwk";
 	this.allGeneTreesFile = this.outDirectory + this.runOutDirName + "all_genetrees.txt";
-	this.logFileName = this.outDirectory + this.runOutDirName + runOutDirName.replace(File.separator, "") + ".log";
-	this.trmFile = this.outDirectory + this.runOutDirName + runOutDirName.replace(File.separator, "") + ".trm";
+	this.logFileName = this.outDirectory + "tree.log";
+	this.trmFile = this.outDirectory + "tree.trm";
 	this.alignMode = alignMode;
 	this.filtering = filtering;
 	
@@ -1004,6 +1004,10 @@ void calculateGsi() {
 				break;
 			} else if (list) {
 				String[] metadata = line.split("\t");
+				if (metadata.length != 8) {
+					Prompt.warn("Possibly corrupted .trm file.");
+					break;
+				}
 
 				JSONArray ar = new JSONArray();
 

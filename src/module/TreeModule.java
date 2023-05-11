@@ -28,9 +28,6 @@ import tree.tools.Arguments;
 import tree.tools.LabelReplacer;
 
 public class TreeModule {
-
-//	final String version = "1.0";
-//	final String[] method = { "align", "replace" };
 	String[] parameters = null;
 	List<String> paramList = null;
 	HashMap<String, String> programPath = null;
@@ -45,20 +42,14 @@ public class TreeModule {
 
 		// Help route
 		if (proc.paramList.contains("-h") || proc.paramList.contains("--help")) {
-			if(method.equals("align")) proc.printTreeHelp();
-			if(method.equals("replace")) proc.printPruneHelp();
+			proc.printTreeHelp();
 		}
 
 		proc.getProgramPath();
 
-		switch (method) {
-		case "align":
+		if (method.equals("align")) {
 			proc.align();
-			break;
-		case "replace":
-			proc.replace();
-			break;
-		default:
+		} else {
 			ExceptionHandler.pass(method);
 			ExceptionHandler.handle(ExceptionHandler.UNKNOWN_MODULE);
 		}
@@ -90,9 +81,6 @@ public class TreeModule {
 		if(arg.get("-out_dir")!=null && !arg.get("-out_dir").equals("")) {
 			outDirectory = arg.get("-out_dir");
 		}
-		/* if(arg.get("-run_id")!=null && !arg.get("-run_id").equals("")) {
-			runOutDirName = arg.get("-run_id");
-		} */
 
 		String align = arg.get("-a");
 		if(align!=null && !align.equals("")) {
@@ -214,130 +202,6 @@ public class TreeModule {
 		try {
 			proc.jsonsToTree(nThreads, phylogenyTool);
 		}catch (IOException e) {
-			ExceptionHandler.handle(e);
-		}
-	}
-
-
-	private void replace() {
-
-		Arguments arg = new Arguments(parameters);
-
-		if (parameters.length < 4) {
-			ExceptionHandler.handle(ExceptionHandler.UNEXPECTED_ERROR);
-		}
-
-		validateParametersReplace();
-
-		String trmFileName = parameters[1];
-		String gene = parameters[2];
-
-		File trmFile = new File(trmFileName);
-
-		if (!trmFile.exists()) {
-			ExceptionHandler.pass(trmFile);
-			ExceptionHandler.handle(ExceptionHandler.INVALID_FILE);
-		}
-
-		if (!new File(System.getProperty("user.dir")).canWrite()) {
-			ExceptionHandler.pass("Cannot write a file in the current working directory.");
-			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
-		}
-
-		try {
-
-			String content = new String (Files.readAllBytes(Paths.get(trmFileName)));
-
-			JSONObject jsonObject = new JSONObject(content);
-
-			if(!jsonObject.keySet().contains(gene)) {
-				ExceptionHandler.pass("No " + gene + " tree in the .trm file.");
-				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
-			}
-			if(jsonObject.get(gene)==null||jsonObject.get(gene).equals("")) {
-				ExceptionHandler.pass("No " + gene + " tree in the .trm file.");
-				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
-			}
-
-			String nwk = (String) jsonObject.get(gene);
-
-			if (nwk == null) {
-				ExceptionHandler.pass("The " + gene + " tree doesn't exist.");
-				ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
-			}
-
-			HashMap<String, String> replaceMap = new HashMap<>();
-			HashMap<String, Integer> checkLabelName = new HashMap<>();
-
-			JSONArray labelLists = (JSONArray) jsonObject.get("list");
-
-			for (int i = 0; i < labelLists.length(); i++) {
-				JSONArray labelList = (JSONArray) labelLists.get(i);
-
-				String uid = (String) labelList.get(0);
-				String label = (String) labelList.get(1);
-				String acc = (String) labelList.get(2);
-				String taxon_name = (String) labelList.get(3);
-				String strain_name = (String) labelList.get(4);
-				String type = (String) labelList.get(5);
-				String taxonomy = (String) labelList.get(6);
-
-				String replacedLabel = "";
-
-				if (arg.get("-uid") != null) {
-					replacedLabel = replacedLabel + "|" + uid;
-				}
-				if (arg.get("-acc") != null) {
-					replacedLabel = replacedLabel + "|" + acc;
-				}
-				if (arg.get("-label") != null) {
-					replacedLabel = replacedLabel + "|" + label;
-				}
-				if (arg.get("-taxon") != null) {
-					replacedLabel = replacedLabel + "|" + taxon_name;
-				}
-				if (arg.get("-taxonomy") != null) {
-					replacedLabel = replacedLabel + "|" + taxonomy;
-				}
-				if (arg.get("-strain") != null) {
-					replacedLabel = replacedLabel + "|" + strain_name;
-				}
-				if (arg.get("-type") != null) {
-					if (type.equals("true")) {
-						replacedLabel = replacedLabel + "|type" ;
-					}
-				}
-
-				if (replacedLabel.startsWith("|")) {
-					replacedLabel = replacedLabel.substring(1);
-				}
-
-				if (checkLabelName.containsKey(replacedLabel)) {
-					checkLabelName.put(replacedLabel, checkLabelName.get(replacedLabel) + 1);
-				} else {
-					checkLabelName.put(replacedLabel, 1);
-				}
-
-				if (checkLabelName.get(replacedLabel) != 1) {
-					replacedLabel = replacedLabel + "_" + checkLabelName.get(replacedLabel);
-				}
-
-				replaceMap.put(uid, replacedLabel);
-
-			}
-
-			String treeFileName = "replaced." + gene + ".nwk";
-
-			FileWriter treeFW = new FileWriter(treeFileName);
-			treeFW.append(nwk);
-			treeFW.flush();
-			treeFW.close();
-
-			LabelReplacer.replace_name(treeFileName, treeFileName, replaceMap);
-
-			Prompt.print("The tree file '" + treeFileName + "' with replaced labels was written.");
-
-		} catch (IOException e) {
 			ExceptionHandler.handle(e);
 		}
 	}
@@ -509,27 +373,7 @@ public class TreeModule {
 		}
 	}
 
-	private void validateParametersReplace() {
-
-		final String[] validatedLeaf = {"-uid", "-acc", "-label", "-taxon", "-strain", "-type", "-taxonomy"};
-		List<String> validatedLeafOptionList = Arrays.asList(validatedLeaf);
-
-//		Arguments arg = new Arguments(parameters);
-
-		for(String param : paramList) {
-			if(param.startsWith("-")&& !validatedLeafOptionList.contains(param)) {
-				ExceptionHandler.pass(param);
-				ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
-			}
-		}
-	}
-
-
-
 	private void getProgramPath() {
-
-//		String prodigalPath = null;
-//		String hmmsearchPath = null;
 		String mafftPath = null;
 		String fasttreePath = null;
 		String raxmlPath = null;
@@ -537,21 +381,11 @@ public class TreeModule {
 
 		programPath = new HashMap<>();
 		try {
-//			File jar = new File(TreeModule.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-//			String jarDir = jar.getParent() + File.separator;
 			BufferedReader pathBR = new BufferedReader(
 					new FileReader(PathConfig.EnvironmentPath + "config/tree.cfg"));
 
 			String line;
 			while ((line = pathBR.readLine()) != null) {
-/*
-				if (line.startsWith("prodigal=")) {
-					prodigalPath = line.substring(line.indexOf("=") + 1);
-					programPath.put("prodigal", prodigalPath);
-				} else if (line.startsWith("hmmsearch=")) {
-					hmmsearchPath = line.substring(line.indexOf("=") + 1);
-					programPath.put("hmmsearch", hmmsearchPath);
-*/
 				if (line.startsWith("mafft")) {
 					mafftPath = line.substring(line.indexOf("=") + 1);
 					programPath.put("mafft", mafftPath);
@@ -616,26 +450,6 @@ public class TreeModule {
 		
 		UFCGMainPipeline.printGeneral();
 		
-		System.exit(0);
-	}
-	private void printPruneHelp() {
-		System.out.println(ANSIHandler.wrapper(" UFCG - prune", 'G'));
-		System.out.println(ANSIHandler.wrapper(" Fix UFCG tree labels or get a single gene tree", 'g'));
-		System.out.println();
-	
-		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " ufcg prune -i <INPUT> -g <GENE> -l <LABEL>");
-		System.out.println();
-	
-		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
-		System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
-		System.out.println(ANSIHandler.wrapper(" -i STR         Input .trm file provided by tree module ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -g STR         Gene name - \"UFCG\" for a UFCG tree, proper gene name for a single gene tree ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -l STR         Tree label format, comma-separated string containing one or more of the following keywords: ", 'x'));
-		System.out.println(ANSIHandler.wrapper("                [uid, acc, label, taxon, strain, type, taxonomy] ", 'x'));
-		System.out.println();
-		
-		UFCGMainPipeline.printGeneral();
-
 		System.exit(0);
 	}
 }

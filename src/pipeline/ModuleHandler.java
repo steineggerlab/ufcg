@@ -19,6 +19,7 @@ import module.ConvertModule;
 import module.ProfileModule;
 import module.ProfileProModule;
 import module.ProfileRnaModule;
+import module.PruneModule;
 import module.TrainModule;
 import module.TreeModule;
 import module.DownloadModule;
@@ -182,69 +183,7 @@ public class ModuleHandler {
 	}
 	private void handle_prune() {
 		Prompt.talk("UFCG prune v" + UFCGMainPipeline.VERSION);
-		
-		/* option argument setup */
-		Options opts = new Options();
-		
-		opts.addOption("h", "help",		false,	"helper route");
-		opts.addOption("i", "input",	true,	"input file");
-		opts.addOption("g", "gene",		true,	"gene to replace");
-		opts.addOption("l", "leaf",		true,	"leaf format");
-		
-		opts.addOption(null, "notime", false, "no timestamp with prompt");
-		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
-		opts.addOption("v", "verbose", false, "verbosity");
-		opts.addOption(null, "developer", false, "developer tool");
-		
-		/* parse argument with CommandLineParser */
-		CommandLineParser clp = new DefaultParser();
-		CommandLine cmd = null;
-		try{ cmd = clp.parse(opts, args); }
-		catch(UnrecognizedOptionException uoe) {
-			ExceptionHandler.pass(uoe.getOption());
-			ExceptionHandler.handle(ExceptionHandler.UNKNOWN_OPTION);
-		}
-		catch(MissingArgumentException mae) {
-			ExceptionHandler.pass(mae.getOption().getOpt() != null ?
-					mae.getOption().getOpt() :
-					mae.getOption().getLongOpt());
-			ExceptionHandler.handle(ExceptionHandler.MISSING_ARGUMENT);
-		}
-		catch(ParseException pe) {
-			ExceptionHandler.handle(pe);
-		}
-		
-		/* apply general options */
-		assert cmd != null;
-		if(cmd.hasOption("v"))		 GenericConfig.VERB = true;
-		if(cmd.hasOption("notime"))  GenericConfig.TSTAMP = false;
-		if(cmd.hasOption("nocolor")) GenericConfig.NOCOLOR = true;
-		if(cmd.hasOption("developer")) {
-			GenericConfig.DEV = true;
-			GenericConfig.VERB = true;
-			GenericConfig.TSTAMP = true;
-		}
-		
-		/* prepare arguments compatible to tree module */
-		List<String> argList = new ArrayList<>();
-		argList.add("replace");
-		
-		if(cmd.hasOption("h")) argList.add("-h");
-		else {
-			if(cmd.hasOption("i")) {
-				argList.add(cmd.getOptionValue("i"));
-			} else ExceptionHandler.handle(ExceptionHandler.NO_INPUT);
-			if(cmd.hasOption("g")) {
-				argList.add(cmd.getOptionValue("g"));
-			} else ExceptionHandler.handle(ExceptionHandler.NO_GENE_NAME);
-			if(cmd.hasOption("l")) {
-				String buf = cmd.getOptionValue("l");
-				for(String ele : buf.split(",")) argList.add("-" + ele);
-			}
-		}
-		
-	//	Prompt.debug("Running : " + ANSIHandler.wrapper("tree.jar " + String.join(" ", argList), 'B'));
-		TreeModule.run(argList.toArray(new String[0]));
+		PruneModule.run(args);
 	}
 	private void handle_download(){
 		Prompt.talk("UFCG profile v" + UFCGMainPipeline.VERSION);

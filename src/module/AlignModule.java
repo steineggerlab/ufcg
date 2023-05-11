@@ -26,7 +26,7 @@ import tree.tools.AlignMode;
 
 public class AlignModule {
 	private static AlignMode alignMode = AlignMode.protein;
-	private static String name = GenericConfig.SESSION_UID;
+	// private static String name = GenericConfig.SESSION_UID;
 	private static Integer filter = 50;
 	private static List<String> leaves = null;
 	private static boolean allowMultiple = false;
@@ -121,8 +121,8 @@ public class AlignModule {
 					break;
 			}
 		}
-		if(cmd.hasOption("-n"))
-			name = cmd.getOptionValue("n");
+		// if(cmd.hasOption("-n"))
+		//	name = cmd.getOptionValue("n");
 		if(cmd.hasOption("-f")) {
 			filter = Integer.parseInt(cmd.getOptionValue("f"));
 			if (filter > 100 || filter < 0) {
