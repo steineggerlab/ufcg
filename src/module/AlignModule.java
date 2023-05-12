@@ -30,6 +30,8 @@ public class AlignModule {
 	private static Integer filter = 50;
 	private static List<String> leaves = null;
 	private static boolean allowMultiple = false;
+	private static boolean useCheckpoint = false;
+
 	/* Argument parsing route */
 	private static void parseArgument(String[] args) throws ParseException {
 		/* option argument setup */
@@ -44,6 +46,7 @@ public class AlignModule {
 		opts.addOption("t", "thread",	true,	"CPU thread");
 		opts.addOption("f", "filter",	true,	"gap-rich filter");
 		opts.addOption("c", "copy",		false,	"allow multiple copies");
+		opts.addOption("k", "ckp",		false,	"checkpoint");
 
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
@@ -130,6 +133,7 @@ public class AlignModule {
 			}
 		}
 		allowMultiple = cmd.hasOption("-c");
+		useCheckpoint = cmd.hasOption("-k");
 
 		/* successfully parsed */
 		Prompt.talk(ANSIHandler.wrapper("SUCCESS", 'g') + " : Option parsing");
@@ -165,7 +169,11 @@ public class AlignModule {
 			ExceptionHandler.handle(e);
 		}
 
-		TreeBuilder module = new TreeBuilder(PathConfig.InputPath, PathConfig.OutputPath, name, getMafftPath(), null, null, null, alignMode, filter, null, 0, leaves, 0, allowMultiple);
+		TreeBuilder module = new TreeBuilder(
+				PathConfig.InputPath, PathConfig.OutputPath, name,
+				getMafftPath(), null, null, null,
+				alignMode, filter, null, 0, leaves, 0,
+				allowMultiple, useCheckpoint);
 
 		try {
 			module.jsonsToMsa(GenericConfig.ThreadPoolSize);
@@ -197,6 +205,7 @@ public class AlignModule {
 		System.out.println(ANSIHandler.wrapper(" -t INT         Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -c             Align multiple copied genes [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -k             Continue from the checkpoint [0]", 'x'));
 		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();

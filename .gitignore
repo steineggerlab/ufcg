@@ -6,6 +6,7 @@
 test/
 fix/
 target/
+META-INF/
 
 *DS_Store
 

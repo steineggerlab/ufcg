@@ -32,6 +32,7 @@ public class TreeModule {
 	List<String> outputLabels = null;
 	Integer executorLimit = 1;
 	Boolean allowMultiple = false;
+	Boolean useCheckpoint = false;
 
 	private void parseArguments(String[] args) {
 		/* option argument setup */
@@ -50,6 +51,7 @@ public class TreeModule {
 		opts.addOption("g", "gsi",		true,	"gsi-threshold");
 		opts.addOption("x", "executor", true,   "executor limit");
 		opts.addOption("c", "copy",		false,	"copy number");
+		opts.addOption("k", "ckp",		false,	"checkpoint");
 
 		opts.addOption(null, "mafft",   true,	"mafft binary path");
 		opts.addOption(null, "raxml",   true,	"raxml binary path");
@@ -189,6 +191,7 @@ public class TreeModule {
 				}
 			} else executorLimit = GenericConfig.ThreadPoolSize;
 			allowMultiple = cmd.hasOption("c");
+			useCheckpoint = cmd.hasOption("k");
 
 			if(cmd.hasOption("mafft")) mafftPath = cmd.getOptionValue("mafft");
 			if(cmd.hasOption("raxml")) raxmlPath = cmd.getOptionValue("raxml");
@@ -204,7 +207,11 @@ public class TreeModule {
 	}
 
 	private void align() {
-		TreeBuilder proc = new TreeBuilder(ucgDirectory, outDirectory, runId, mafftPath, raxmlPath, fasttreePath, iqtreePath, alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit, allowMultiple);
+		TreeBuilder proc = new TreeBuilder(
+				ucgDirectory, outDirectory, runId,
+				mafftPath, raxmlPath, fasttreePath, iqtreePath,
+				alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit,
+				allowMultiple, useCheckpoint);
 		try {
 			proc.jsonsToTree(GenericConfig.ThreadPoolSize, phylogenyTool);
 		}catch (IOException e) {
@@ -217,7 +224,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" Reconstruct the phylogenetic relationship with UFCG profiles", 'g'));
 		System.out.println();
 
-		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " ufcg tree -i <INPUT> -l <LABEL> [...]");
+		System.out.println(ANSIHandler.wrapper("\n USAGE:", 'Y') + " ufcg tree -i <INPUT> -o <OUTPUT> [...]");
 		System.out.println();
 
 		System.out.println(ANSIHandler.wrapper("\n Required options", 'Y'));
@@ -235,6 +242,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" -t INT          Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -p STR          Tree building program {raxml, iqtree, fasttree} [iqtree] ", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -c              Align multiple copied genes [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -k              Continue from the checkpoint [0]", 'x'));
 		System.out.println();
 
 		System.out.println(ANSIHandler.wrapper("\n Dependencies", 'y'));

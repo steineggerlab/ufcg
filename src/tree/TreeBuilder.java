@@ -87,13 +87,14 @@ private String treeLabelGsiFileName = null;
  *     7 : Label replaced
  */
 private int checkpoint = 0;
-private final boolean allowMultiple;
+private final boolean allowMultiple, useCheckpoint;
 private final static int MODULE_ALIGN = 1, MODULE_TREE = 0;
 private int module = -1;
 
 public TreeBuilder(String ucgDirectory, String outDirectory, String runId,
 				   String mafftPath, String raxmlPath, String fasttreePath, String iqtreePath,
-				   AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit, boolean allowMultiple) {
+				   AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit,
+				   boolean allowMultiple, boolean useCheckpoint) {
 	
 	if (!ucgDirectory.endsWith(File.separator)) {
 		ucgDirectory = ucgDirectory + File.separator;
@@ -130,12 +131,13 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runId,
 	this.outputLabels = outputLabels;
 	this.executorLimit = executorLimit;
 	this.allowMultiple = allowMultiple;
+	this.useCheckpoint = useCheckpoint;
 }
 
 public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 	this.module = MODULE_TREE;
 	checkThirdPartyPrograms(tool);
-	checkPathDirectory();
+	if(!checkPathDirectory()) return;
 	readJsonsToFastaFiles();
 	if(checkpoint < 2) alignGenes(nThreads); // 
 	if(checkpoint < 2) removeGaps();
@@ -150,7 +152,7 @@ public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 public void jsonsToMsa(int nThreads) throws IOException {
 	this.module = MODULE_ALIGN;
 	testMafft(mafftPath);
-	checkPathDirectory();
+	if(!checkPathDirectory()) return;
 	readJsonsToFastaFiles();
 	if(checkpoint < 2) alignGenes(nThreads);
 	if(checkpoint < 2) removeGaps();
@@ -450,7 +452,7 @@ void readJsonsToFastaFiles() throws IOException{
 	treeLabelGsiFileName = outDirectory + "concatenated_gsi_" + usedGenes.size() + ".nwk";
 }
 
-private void checkPathDirectory() {
+private boolean checkPathDirectory() {
 	
 	File path = new File(outDirectory);
 	
@@ -463,7 +465,11 @@ private void checkPathDirectory() {
 	
 	File runPath = new File(outDirectory);
 	if(runPath.exists()) {
-		Prompt.warn("Path '" + runPath + "' already exists.");
+		Prompt.print("Path '" + runPath + "' already exists.");
+		if(!useCheckpoint) {
+			Prompt.print("Use -k option to continue from the checkpoint.");
+			return false;
+		}
 		Prompt.debug("Looking for a checkpoint...");
 		
 		// define checkpoint step
@@ -507,11 +513,10 @@ private void checkPathDirectory() {
 	if(!new File(outDirectory).canWrite()) {
 		ExceptionHandler.pass("Cannot write files to " + outDirectory + ". Please check the permission.");
 		ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+		return false;
 	}else {
-		new File(outDirectory).mkdir();
+		return (new File(outDirectory).mkdir());
 	}
-	
-	
 }
 
 void alignGenes(int nThreads) {
