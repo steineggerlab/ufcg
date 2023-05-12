@@ -31,7 +31,7 @@ public class GenomeTranslator {
 		case 'C':
 		case 'A':
 		case 'G': 
-		case 'X': return true;
+		case 'N': return true;
 		default : return false;
 		}
 	}
@@ -41,7 +41,7 @@ public class GenomeTranslator {
 		codon = codon.toUpperCase();
 		if(codon.length() != 3) return "#";
 		for(int i = 0; i < 3; i++) if(!valid(codon.charAt(i))) return "?";
-		if(codon.contains("X")) return "X";
+		if(codon.contains("N")) return "X";
 		return TSLN.get(codon);
 	}
 	
