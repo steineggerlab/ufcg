@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import envs.toolkit.Checkpoint;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -66,6 +67,7 @@ private final List<String> outputLabels;
 
 private final List<Long> genomeList;// Genomes used for the analysis
 private final Map<String, String> replaceMap;
+private final List<GeneSetByGenomeDomain> geneSetsDomainList;
 private List<String> targetGenes;
 private final Set<String> usedGenes;
 
@@ -86,7 +88,7 @@ private String treeLabelGsiFileName = null;
  *     6 : GSI calculated
  *     7 : Label replaced
  */
-private int checkpoint = 0;
+private Checkpoint ckp = null;
 private final boolean allowMultiple, useCheckpoint;
 private final static int MODULE_ALIGN = 1, MODULE_TREE = 0;
 private int module = -1;
@@ -113,6 +115,7 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runId,
 	this.iqtreePath = iqtreePath;
 	this.genomeList = new ArrayList<>();
 	this.replaceMap = new HashMap<>();
+	this.geneSetsDomainList = new ArrayList<>();
 	this.targetGenes = new ArrayList<>();
 	this.usedGenes = new HashSet<>();
 
@@ -137,27 +140,62 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runId,
 public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 	this.module = MODULE_TREE;
 	checkThirdPartyPrograms(tool);
-	if(!checkPathDirectory()) return;
-	readJsonsToFastaFiles();
-	if(checkpoint < 2) alignGenes(nThreads); // 
-	if(checkpoint < 2) removeGaps();
-	if(checkpoint < 3) concatenateAlignedGenes(); 
-	if(checkpoint < 4) inferTree(tool, nThreads); // fasttree or raxml
-	if(checkpoint < 5) inferGeneTrees(tool, nThreads);
-	if(checkpoint < 6) calculateGsi();
-	if(checkpoint < 7) replaceLabel(nThreads);
+	if(checkPathDirectory()) return;
+	ckp.setModule("tree");
+
+	readJsons();
+	retrieveFasta();
+	if(ckp.read() < 1) ckp.log(1);
+	if(ckp.read() < 2) {
+		alignGenes(nThreads);
+		removeGaps();
+		ckp.log(2);
+	}
+	if(ckp.read() < 3) {
+		concatenateAlignedGenes();
+		ckp.log(3);
+	}
+	if(ckp.read() < 4) {
+		inferTree(tool, nThreads);
+		ckp.log(4);
+	}
+	if(ckp.read() < 5) {
+		inferGeneTrees(tool, nThreads);
+		ckp.log(5);
+	}
+	if(ckp.read() < 6) {
+		calculateGsi();
+		ckp.log(6);
+	}
+	if(ckp.read() < 7) {
+		replaceLabel(nThreads);
+		ckp.log(7);
+	}
 	cleanFiles();
 }
 
 public void jsonsToMsa(int nThreads) throws IOException {
 	this.module = MODULE_ALIGN;
 	testMafft(mafftPath);
-	if(!checkPathDirectory()) return;
-	readJsonsToFastaFiles();
-	if(checkpoint < 2) alignGenes(nThreads);
-	if(checkpoint < 2) removeGaps();
-	if(checkpoint < 3) concatenateAlignedGenes();
-	replaceLabelforAlign(nThreads);
+	if(checkPathDirectory()) return;
+	ckp.setModule("align");
+
+	readJsons();
+	retrieveFasta();
+	if(ckp.read() < 1) ckp.log(1);
+	if(ckp.read() < 2) {
+		alignGenes(nThreads);
+		removeGaps();
+		ckp.log(2);
+	}
+	if(ckp.read() < 3) {
+		concatenateAlignedGenes();
+		ckp.log(3);
+	}
+	if(ckp.read() < 4) {
+		replaceLabelforAlign(nThreads);
+		ckp.log(4);
+	}
 	cleanFiles();
 }
 
@@ -366,7 +404,36 @@ private void testIqtree(String iqtreePath) {
 	}
 }
 
-void readJsonsToFastaFiles() throws IOException{
+private boolean checkPathDirectory() {
+	File path = new File(outDirectory);
+
+	if(path.exists()) {
+		Prompt.print("Path '" + outDirectory + "' already exists.");
+	} else {
+		if (!path.mkdir()) {
+			ExceptionHandler.pass(outDirectory);
+			ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
+			return true;
+		}
+	}
+
+	if(!path.canWrite()) {
+		ExceptionHandler.pass("Cannot write files to " + outDirectory + ". Please check the permission.");
+		ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+		return true;
+	}
+
+	ckp = new Checkpoint(outDirectory + runId + ".ckp");
+	if(ckp.read() > 0 && !useCheckpoint) {
+		Prompt.print("Use -k option to continue from the checkpoint.");
+		return true;
+	}
+
+	ckp.setModule(module == MODULE_TREE ? "tree" : "align");
+	return false;
+}
+
+void readJsons() {
 	// ucg files
 	File dir = new File(ucgDirectory);
 
@@ -382,7 +449,7 @@ void readJsonsToFastaFiles() throws IOException{
 	checkIfSameTargetGeneSets(files);
 	
 	// 2. jsons to geneSetByGenomeDomains
-	List<GeneSetByGenomeDomain> geneSetsDomainList = jsonsToGeneSetDomains(files);
+	jsonsToGeneSetDomains(files);
 	HashMap<String, Integer> labelCountMap = new HashMap<>();
 	HashSet<Long> uidSet = new HashSet<>();
 	
@@ -437,86 +504,17 @@ void readJsonsToFastaFiles() throws IOException{
 		
 		replaceMap.put(String.valueOf(uid), label);
 	}
-	
-	if(checkpoint < 1) writeGenomeInfoToLogFile(geneSetsDomainList);
-	
-	// 3. retrieve fasta files
-	
+	writeGenomeInfoToLogFile(geneSetsDomainList);
+}
+
+void retrieveFasta() throws IOException {
 	if(alignMode.equals(AlignMode.codon)||alignMode.equals(AlignMode.codon12)) {
 		retrieveFastaNucProFiles(geneSetsDomainList);
 	}else if(alignMode.equals(AlignMode.nucleotide)||alignMode.equals(AlignMode.protein)) {
 		retrieveFastaFiles(geneSetsDomainList);
 	}
-	
 	treeZzGsiFileName = outDirectory + "concatenated_gsi_" + usedGenes.size() + ".zZ.nwk";
 	treeLabelGsiFileName = outDirectory + "concatenated_gsi_" + usedGenes.size() + ".nwk";
-}
-
-private boolean checkPathDirectory() {
-	
-	File path = new File(outDirectory);
-	
-	if(!path.exists()) {
-		if(!path.mkdir()) {
-			ExceptionHandler.pass(outDirectory);
-			ExceptionHandler.handle(ExceptionHandler.INVALID_DIRECTORY);
-		}
-	}
-	
-	File runPath = new File(outDirectory);
-	if(runPath.exists()) {
-		Prompt.print("Path '" + runPath + "' already exists.");
-		if(!useCheckpoint) {
-			Prompt.print("Use -k option to continue from the checkpoint.");
-			return false;
-		}
-		Prompt.debug("Looking for a checkpoint...");
-		
-		// define checkpoint step
-		File[] ckpFiles = runPath.listFiles();
-		List<String> ckpFilenames = new ArrayList<>();
-		assert ckpFiles != null;
-		for(File ckpFile : ckpFiles) ckpFilenames.add(ckpFile.getName());
-		
-		for(String ckp : ckpFilenames) {
-			if(checkpoint < 1 && ckp.endsWith(".zZ.fasta")) {
-				Prompt.debug(String.format("Gene FASTA file found : %s - checkpoint stage %d applied", ckp, 1));
-				checkpoint = 1;
-			}
-			if(checkpoint < 2 && ckp.startsWith("aligned") && ckp.endsWith(".zZ.fasta")) {
-				Prompt.debug(String.format("Aligned gene FASTA file found : %s - checkpoint stage %d applied", ckp, 2));
-				checkpoint = 2;
-			}
-			if(checkpoint < 3 && ckp.equals("aligned_concatenated.zZ.fasta")) {
-				Prompt.debug(String.format("Concatenated FASTA file found : %s - checkpoint stage %d applied", ckp, 3));
-				checkpoint = 3;
-			}
-			if(checkpoint < 4 && ckp.endsWith(".zZ.nwk") && ckp.startsWith("concatenated")) {
-				Prompt.debug(String.format("Concatenated tree found : %s - checkpoint stage %d applied", ckp, 4));
-				checkpoint = 4;
-			}
-			if(checkpoint < 5 && ckp.endsWith(".zZ.nwk") && !ckp.startsWith("concatenated")) {
-				Prompt.debug(String.format("Gene tree file found : %s - checkpoint stage %d applied", ckp, 5));
-				checkpoint = 5;
-			}
-			if(checkpoint < 6 && ckp.startsWith("concatenated_gsi")) {
-				Prompt.debug(String.format("GSI tree file found : %s - checkpoint stage %d applied", ckp, 6));
-				checkpoint = 6;
-			}
-			if(checkpoint < 7 && ckp.equals("concatenated.nwk")) {
-				Prompt.debug(String.format("Label replaced file found : %s - checkpoint stage %d applied", ckp, 7));
-				checkpoint = 7;
-			}
-		}
-	}
-	
-	if(!new File(outDirectory).canWrite()) {
-		ExceptionHandler.pass("Cannot write files to " + outDirectory + ". Please check the permission.");
-		ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
-		return false;
-	}else {
-		return (new File(outDirectory).mkdir());
-	}
 }
 
 void alignGenes(int nThreads) {
@@ -1714,7 +1712,7 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 		}
 		
 		if (sbNuc.length() != 0 && (!deficient)) {
-			if(checkpoint < 1) {
+			if(ckp.read() < 1) {
 				FileWriter fileNucWriter = new FileWriter(fastaFileName(gene, AlignMode.nucleotide));
 				fileNucWriter.append(sbNuc.toString());
 				fileNucWriter.close();
@@ -1723,7 +1721,7 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 		}
 
 		if (sbPro.length() != 0 && (!deficient)) {
-			if(checkpoint < 1) {
+			if(ckp.read() < 1) {
 				FileWriter fileProWriter = new FileWriter(fastaFileName(gene, AlignMode.protein));
 				fileProWriter.append(sbPro.toString());
 				fileProWriter.close();
@@ -1780,7 +1778,7 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 		}
 		
 		if (sb.length() != 0 && (!deficient)) {
-			if(checkpoint < 1) {
+			if(ckp.read() < 1) {
 				FileWriter fileNucWriter = new FileWriter(fastaFileName(gene));
 				fileNucWriter.append(sb.toString());
 				fileNucWriter.close();
@@ -1790,19 +1788,13 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 	}
 }
 
-private List<GeneSetByGenomeDomain> jsonsToGeneSetDomains(File[] files) {
-	List<GeneSetByGenomeDomain> geneSetsDomainList = new ArrayList<>();
-
+private void jsonsToGeneSetDomains(File[] files) {
 	for (File file : files) {
-
 		String filePath = file.getAbsolutePath();
 		String geneSetJson = FileUtils.readTextFile2StringWithCR(filePath);
 		GeneSetByGenomeDomain geneSetDomain = GeneSetByGenomeDomain.jsonToDomain(geneSetJson);
 		geneSetsDomainList.add(geneSetDomain);
-
 	}
-	
-	return geneSetsDomainList;
 }
 private void checkIfSameTargetGeneSets(File[] files) throws JSONException {
 	
@@ -1958,10 +1950,16 @@ private void writeGenomeInfoToLogFile(List<GeneSetByGenomeDomain> geneSetByGenom
 	}
 	
 	try {
+		File logFile = new File(logFileName);
+		if(logFile.exists() && !logFile.delete()) {
+			ExceptionHandler.pass("Could not delete log file: " + ANSIHandler.wrapper(logFileName, 'B'));
+			ExceptionHandler.handle(ExceptionHandler.ERROR_WITH_MESSAGE);
+		}
+
 		FileWriter fw = new FileWriter(logFileName, true);
 		fw.append(logSB);
 		fw.close();
-	}catch(IOException e) {
+	} catch(IOException e) {
 		ExceptionHandler.handle(e);
 	}
 }
