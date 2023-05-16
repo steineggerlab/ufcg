@@ -41,7 +41,7 @@ ufcg profile -i <INPUT> -o <OUTPUT> [OPTIONS]
 ### `tree`
 UFCG `tree` reconstructs the phylogenetic relationship of the set of marker gene profiles.
 ~~~bash
-ufcg tree -i <INPUT> -l <LEAF_FORMAT> [OPTIONS]
+ufcg tree -i <INPUT> -o <OUTPUT> [OPTIONS]
 ~~~
 
 ### `train`
