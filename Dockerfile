@@ -3,6 +3,9 @@ FROM ubuntu:jammy
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH /opt/conda/bin:$PATH
 
+ARG VERSION=1.0.4
+ARG BUILD=0
+
 # Install dependencies
 RUN apt-get update --fix-missing && \
 	apt-get install -y wget zip bzip2 curl git file vim iputils-ping && \
@@ -30,8 +33,8 @@ RUN /bin/bash -c "source activate && \
 RUN wget --quiet https://ufcg.steineggerlab.workers.dev/payload/config.tar.gz && \
 	wget --quiet https://ufcg.steineggerlab.workers.dev/payload/core.tar.gz && \
 	wget --quiet https://ufcg.steineggerlab.workers.dev/payload/sample.tar.gz && \
-	tar -xzf config.tar.gz -C /opt/conda/share/ufcg-1.0.3c-0/ && \
-	tar -xzf core.tar.gz -C /opt/conda/share/ufcg-1.0.3c-0/ && \
+	tar -xzf config.tar.gz -C /opt/conda/share/ufcg-${VERSION}-${BUILD}/ && \
+	tar -xzf core.tar.gz -C /opt/conda/share/ufcg-${VERSION}-${BUILD}/ && \
 	tar -xzf sample.tar.gz -C ~ && \
 	rm *.tar.gz
 

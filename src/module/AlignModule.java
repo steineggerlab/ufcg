@@ -1,7 +1,5 @@
 package module;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +29,7 @@ public class AlignModule {
 	private static List<String> leaves = null;
 	private static boolean allowMultiple = false;
 	private static boolean useCheckpoint = false;
+	private static String mafftPath = "mafft-linsi";
 
 	/* Argument parsing route */
 	private static void parseArgument(String[] args) throws ParseException {
@@ -47,6 +46,7 @@ public class AlignModule {
 		opts.addOption("f", "filter",	true,	"gap-rich filter");
 		opts.addOption("c", "copy",		false,	"allow multiple copies");
 		opts.addOption("k", "ckp",		false,	"checkpoint");
+		opts.addOption("m", "mafft",	true,	"mafft path");
 
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
@@ -134,32 +134,10 @@ public class AlignModule {
 		}
 		allowMultiple = cmd.hasOption("-c");
 		useCheckpoint = cmd.hasOption("-k");
+		if(cmd.hasOption("-m")) mafftPath = cmd.getOptionValue("-m");
 
 		/* successfully parsed */
 		Prompt.talk(ANSIHandler.wrapper("SUCCESS", 'g') + " : Option parsing");
-	}
-
-	private static String getMafftPath() {
-		String mafftPath = null;
-		try {
-			BufferedReader pathBR = new BufferedReader(
-					new FileReader(PathConfig.EnvironmentPath + "config/tree.cfg"));
-			String line;
-			while ((line = pathBR.readLine()) != null) {
-				if (line.startsWith("mafft")) {
-					mafftPath = line.substring(line.indexOf("=") + 1);
-				}
-			}
-
-			pathBR.close();
-
-			if (mafftPath == null) {
-				ExceptionHandler.handle(ExceptionHandler.INVALID_PROGRAM_PATH);
-			}
-		} catch (IOException e) {
-			ExceptionHandler.handle(e);
-		}
-		return mafftPath;
 	}
 
 	public static void run(String[] args) {
@@ -171,7 +149,7 @@ public class AlignModule {
 
 		TreeBuilder module = new TreeBuilder(
 				PathConfig.InputPath, PathConfig.OutputPath, name,
-				getMafftPath(), null, null, null,
+				mafftPath, null, null, null,
 				alignMode, filter, null, 0, leaves, 0,
 				allowMultiple, useCheckpoint);
 
@@ -206,6 +184,7 @@ public class AlignModule {
 		System.out.println(ANSIHandler.wrapper(" -f INT         Gap-rich filter percentage threshold {0 - 100} [50]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -c             Align multiple copied genes [0]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -k             Continue from the checkpoint [0]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -m STR         Path to MAFFT binary [mafft-linsi]", 'x'));
 		System.out.println();
 		
 		UFCGMainPipeline.printGeneral();
