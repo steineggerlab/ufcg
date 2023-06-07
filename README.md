@@ -14,7 +14,7 @@ Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M. (2023) UFCG: database of u
 
 ## Quick start with conda
 ~~~bash
-mamba install -y ufcg # conda install also works (slow)
+conda install -y ufcg # conda-libmamba-solver recommended
 ufcg download -t minimum
 ufcg -h
 ~~~
