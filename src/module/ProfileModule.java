@@ -953,7 +953,7 @@ public class ProfileModule {
 		for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) progress.add(new Status());
 		tk = new TimeKeeper();
 	}
-	static void updateProg(int g, String ch, Integer proc) {
+	static synchronized void updateProg(int g, String ch, Integer proc) {
 		progress.get(g).updateStat(ch, proc);
 	}
 	

@@ -232,7 +232,6 @@ public class ProfileProModule {
 			for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) {
 				CreateProfile creator = new CreateProfile(g);
 				futures.add(executorService.submit(creator));
-				Thread.sleep(500);
 			}
 
 			executorService.shutdown();
@@ -282,11 +281,11 @@ public class ProfileProModule {
 		for(int g = 0; g < GenericConfig.QUERY_GENES.length; g++) progress.add(new Status());
 		tk = new TimeKeeper();
 	}
-	static void updateProg(int g, String ch, Integer proc) {
+	static synchronized void updateProg(int g, String ch, Integer proc) {
 		progress.get(g).updateStat(ch, proc);
 	}
 	
-	static void printProg() {	
+	static synchronized void printProg() {
 		StringBuilder build = new StringBuilder("PROGRESS : [");
 		int fin = 0;
 		
