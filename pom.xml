@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>steineggerlab</groupId>
 	<artifactId>ufcg</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4</version>
 	<packaging>jar</packaging>
 
 	<dependencies>
@@ -57,14 +57,26 @@
                     <target>8</target>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.2</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>pipeline.UFCGMainPipeline</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
         </plugins>
 	</build>
 
-	<distributionManagement>
+	<!--distributionManagement>
 		<repository>
 			<id>github</id>
 			<name>GitHub Packages</name>
 			<url>https://maven.pkg.github.com/endixk/ufcg</url>
 		</repository>
-	</distributionManagement>
+	</distributionManagement-->
 </project>

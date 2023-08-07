@@ -37,6 +37,7 @@ import sun.misc.Signal;
 @SuppressWarnings("restriction")
 public class UFCGMainPipeline {
 	public static final String VERSION = "1.0.4";
+	public static final Boolean STABLE = false;
 	public static final String RELEASE_DATE = "May 2023";
 	public static final String CITATION = " Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M. (2023)\n"
 										+ " UFCG: database of universal fungal core genes and pipeline for genome-wide phylogenetic analysis of fungi.\n"
@@ -208,7 +209,7 @@ public class UFCGMainPipeline {
 		System.out.println(
 				ANSIHandler.wrapper(" UFCG : Profiling Fungi with " + // String.valueOf(GenericConfig.FCG_REF.length) + 
 									"Universal Fungal Core Genes\n", 'Y') +
-				ANSIHandler.wrapper(" ver. " + VERSION + " (Released: " + RELEASE_DATE + ")\n\n", 'Y') + 
+				ANSIHandler.wrapper(" " + (STABLE ? "stable" : "unstable") + " ver. " + VERSION + " (Released: " + RELEASE_DATE + ")\n\n", 'Y') +
 				
 				ANSIHandler.wrapper("\n Please cite:\n", 'C') + CITATION + "\n\n" +
 				

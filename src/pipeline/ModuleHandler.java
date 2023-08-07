@@ -56,7 +56,7 @@ public class ModuleHandler {
 		PruneModule.run(args);
 	}
 	private void handle_download(){
-		Prompt.talk("UFCG profile v" + UFCGMainPipeline.VERSION);
+		Prompt.talk("UFCG download v" + UFCGMainPipeline.VERSION);
 		DownloadModule.run(args);
 	}
 
