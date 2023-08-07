@@ -13,7 +13,7 @@ import pipeline.UFCGMainPipeline;
 
 public class PathConfig {
 	/* Environment */
-	public static final String CurrPath = Paths.get("").toAbsolutePath().toString() + File.separator;
+	public static final String CurrPath = Paths.get("").toAbsolutePath() + File.separator;
 	public static final String JarPath = new File(UFCGMainPipeline.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent() + File.separator;
 	public static String EnvironmentPath = "";
 	public static boolean EnvironmentPathSet = false;
