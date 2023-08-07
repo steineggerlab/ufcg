@@ -49,14 +49,14 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>8</source>
+					<target>8</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -69,7 +69,24 @@
 					</archive>
 				</configuration>
 			</plugin>
-        </plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>appassembler-maven-plugin</artifactId>
+				<version>1.10</version>
+				<configuration>
+					<assembleDirectory>${project.build.directory}</assembleDirectory>
+					<programs>
+						<program>
+							<mainClass>pipeline.UFCGMainPipeline</mainClass>
+							<platforms>
+								<platform>unix</platform>
+							</platforms>
+							<id>ufcg</id>
+						</program>
+					</programs>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<!--distributionManagement>

@@ -58,3 +58,15 @@ UFCG `align` conducts multiple sequence alignment of the genes from the set of m
 ufcg align -i <INPUT> -o <OUTPUT> [OPTIONS]
 ~~~
 
+## Build from source
+### Requirements
+* Java 8 or higher
+* Maven 3.9.4 or higher
+
+### Build
+~~~bash
+git clone https://github.com/steineggerlab/ufcg.git
+cd ufcg
+mvn clean package appassembler:assemble
+./target/bin/ufcg -h
+~~~
