@@ -11,13 +11,27 @@ import module.TrainModule;
 import module.TreeModule;
 import module.DownloadModule;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ModuleHandler {
 	private final int module;
 	private final String[] args;
+	public final boolean help;
 	
 	public ModuleHandler(int module, String[] args) {
 		this.module = module;
 		this.args = args;
+		List<String> argList = Arrays.asList(args);
+		if(argList.contains("-h") || argList.contains("--help")) {
+			Prompt.SUPPRESS = true;
+			help = true;
+		} else {
+			help = false;
+		}
+		if(module == UFCGMainPipeline.MODULE_DOWNLOAD && argList.contains("-c")) {
+			Prompt.SUPPRESS = true;
+		}
 	}
 	
 	private void handle_no_module() {

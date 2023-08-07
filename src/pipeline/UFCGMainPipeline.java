@@ -276,9 +276,28 @@ public class UFCGMainPipeline {
 			/* Module parsing */
 			int module = parseModule(args);
 			GenericConfig.setModule(module);
-			
+
 			printLogo();
 			ModuleHandler mh = new ModuleHandler(module, args);
+
+			if(!STABLE && module != NO_MODULE) {
+				Prompt.warn("This is an unstable version. Use at your own risk. Please report any bugs or errors.");
+			}
+
+			/* Check environment for profile modules */
+			if(module == MODULE_PROFILE || module == MODULE_PROFILE_RNA || module == MODULE_PROFILE_PRO) {
+				if(!mh.help && !PathConfig.EnvironmentPathSet) {
+					Prompt.warn("Could not set environment path. Downloading resources to the auto-detected path.");
+					Prompt.warn("This may happen if this is your first launch after installation or update.");
+
+					String[] dargs = {"-t", "minimum"};
+					ModuleHandler dh = new ModuleHandler(MODULE_DOWNLOAD, dargs);
+					dh.handle();
+
+					PathConfig.setEnvironmentPath(jarPath.substring(0, jarPath.lastIndexOf("/")));
+				}
+			}
+
 			mh.handle();
 		}
 		catch(Exception e) {
