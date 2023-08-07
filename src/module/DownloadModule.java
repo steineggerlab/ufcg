@@ -154,6 +154,8 @@ public class DownloadModule {
     private void checkStatus(){
         boolean ping = internetConnection();
         if(PathConfig.EnvironmentPathSet && !dirGiven) dir = PathConfig.EnvironmentPath;
+        String sampleDir = dir;
+        if(!dirGiven) sampleDir = PathConfig.CurrPath;
 
         System.out.println(ANSIHandler.wrapper(" System status", 'Y'));
         System.out.println(ANSIHandler.wrapper(" OS       : " + GenericConfig.OS, 'x'));
@@ -169,7 +171,7 @@ public class DownloadModule {
                 ANSIHandler.wrapper("OK", 'G') : ANSIHandler.wrapper("NO", 'R')));
         System.out.println(ANSIHandler.wrapper(" busco      ", 'x') + (new File(dir + "config/seq/busco/100957at4751.fa").exists() ?
                 ANSIHandler.wrapper("OK", 'G') : ANSIHandler.wrapper("NO", 'R')));
-        System.out.println(ANSIHandler.wrapper(" sample     ", 'x') + (new File(dir + "sample/meta_full.tsv").exists() ?
+        System.out.println(ANSIHandler.wrapper(" sample     ", 'x') + (new File(sampleDir + "sample/meta_full.tsv").exists() ?
                 ANSIHandler.wrapper("OK", 'G') : ANSIHandler.wrapper("NO", 'R')));
         System.out.println();
 
@@ -288,6 +290,10 @@ public class DownloadModule {
         Prompt.print("Download success : target " + ANSIHandler.wrapper("busco", 'G'));
     }
     private void downloadSample(){
+        if(!dirGiven) {
+            dir = PathConfig.CurrPath;
+        }
+
         // download payload
         Prompt.print("Downloading sample package on " + ANSIHandler.wrapper(dir + "sample.tar.gz", 'y') + " ...");
         Shell.exec(String.format("wget -q -O %ssample.tar.gz https://ufcg.steineggerlab.workers.dev/payload/sample.tar.gz", dir));
