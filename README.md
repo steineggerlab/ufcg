@@ -6,7 +6,6 @@
 
 UFCG pipeline provides methods for a genome-wide taxonomic profiling and annotation of your own biological sequences of Fungi.
  * [Homepage](https://ufcg.steineggerlab.com/)
- * [Preprint](https://www.biorxiv.org/content/10.1101/2022.08.16.504087v1)
  * [Publication](https://academic.oup.com/nar/advance-article/doi/10.1093/nar/gkac894/6769744)
 
 ### How to cite
@@ -14,19 +13,40 @@ Kim, D., Gilchrist, C.L.M., Chun, J. & Steinegger, M. (2023) UFCG: database of u
 
 <p align="center"><img src="https://github.com/steineggerlab/ufcg/assets/49298377/7aa5a1d7-96b0-4f1e-b151-60220f796d94" height="256" /></p>
 
-## Quick start with conda
+## Installation
+
+### Quick start with conda
 ~~~bash
 conda install -y ufcg # conda-libmamba-solver recommended
 ufcg download -t minimum
 ufcg -h
 ~~~
 
-## Quick start with docker 
+### Quick start with docker 
 ~~~bash
 docker pull endix1029/ufcg:latest
 docker run -it endix1029/ufcg:latest
 ufcg -h
 ~~~
+
+### Build from source
+#### Build requirements
+* Java 8 or higher
+* Maven 3.9.4 or higher
+
+#### Build
+~~~bash
+git clone https://github.com/steineggerlab/ufcg.git
+cd ufcg
+mvn clean package appassembler:assemble
+./target/bin/ufcg -h
+~~~
+#### Runtime requirements
+* Java 8 or higher
+* `profile` - [AUGUSTUS](https://github.com/Gaius-Augustus/Augustus) v3.5.0 or higher
+* `profile` - [MMseqs2](https://mmseqs.com/) v13 or higher
+* `tree` - [MAFFT](https://mafft.cbrc.jp/alignment/software/) v7.310 or higher
+* `tree` - [IQ-TREE](http://www.iqtree.org/) v2.0.3 or higher
 
 ## Modules
 ### `profile`
@@ -58,15 +78,3 @@ UFCG `align` conducts multiple sequence alignment of the genes from the set of m
 ufcg align -i <INPUT> -o <OUTPUT> [OPTIONS]
 ~~~
 
-## Build from source
-### Requirements
-* Java 8 or higher
-* Maven 3.9.4 or higher
-
-### Build
-~~~bash
-git clone https://github.com/steineggerlab/ufcg.git
-cd ufcg
-mvn clean package appassembler:assemble
-./target/bin/ufcg -h
-~~~
