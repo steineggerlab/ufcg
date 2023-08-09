@@ -85,6 +85,7 @@ public class ProfileModule {
 		opts.addOption(null, "augoffset", true, "AUGUSTUS prediction offset");
 //		opts.addOption(null, "hmmscore", true, "hmmsearch score cutoff");
 		opts.addOption(null, "evalue", true, "e-value cutoff");
+		opts.addOption(null, "sensitivity", true, "Search sensitivity");
 		
 		opts.addOption(null, "notime", false, "no timestamp with prompt");
 		opts.addOption(null, "nocolor", false, "disable ANSI escapes");
@@ -199,6 +200,8 @@ public class ProfileModule {
 			GenericConfig.setEvalueCutoff(cmd.getOptionValue("evalue"));
 //		if(cmd.hasOption("corelist"))
 //			GenericConfig.setCustomCoreList(cmd.getOptionValue("corelist"));
+		if(cmd.hasOption("sensitivity"))
+			GenericConfig.setSensitivity(cmd.getOptionValue("sensitivity"));
 		
 		/* successfully parsed */
 		Prompt.talk(ANSIHandler.wrapper("SUCCESS", 'g') + " : Option parsing");
@@ -304,6 +307,7 @@ public class ProfileModule {
 		System.out.println(ANSIHandler.wrapper(" --fbshits INT            Use this amount of top hits from fastBlockSearch results [5]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --augoffset INT          Prediction offset window size for AUGUSTUS process [10000]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" --evalue FLOAT           E-value cutoff for validation [1e-3]", 'x'));
+		System.out.println(ANSIHandler.wrapper(" --sensitivity INT        Validation sensitivity (1-3) [3]", 'x'));
 		System.out.println();
 		
 		System.exit(0);
@@ -713,6 +717,18 @@ public class ProfileModule {
 				if(GenericConfig.setEvalueCutoff(buf) == 0) {
 					proceed = true;
 					command.append(" --evalue ").append(buf);
+				}
+			}
+			proceed = false;
+
+			// --sensitivity
+			while(!proceed) {
+				Prompt.print_nnc("Enter the sensitivity level between 1 to 3 for validation (--sensitivity, default = 3) : ");
+				buf = stream.readLine();
+				if(buf.isEmpty()) continue;
+				if(GenericConfig.setSensitivity(buf) == 0) {
+					proceed = true;
+					command.append(" --sensitivity ").append(buf);
 				}
 			}
 			proceed = false;

@@ -635,4 +635,25 @@ public class GenericConfig {
 		for(String fcg : FCG_REF) gstr.append(fcg).append(",");
 		return gstr.substring(0, gstr.length() - 1);
 	}
+
+	/* Sensitivity */
+	public static int SENS = 3;
+	public static void setSensitivity(int sens) {SENS = sens;}
+	public static int setSensitivity(String val) {
+		try {
+			Prompt.talk("Custom sensitivity value check : " + ANSIHandler.wrapper(val, 'B'));
+			int sens = Integer.parseInt(val);
+			if(sens < 1 || sens > 3) {
+				ExceptionHandler.pass(val + " (Integer value 1, 2, or 3 expected)");
+				ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+				return 1;
+			}
+			setSensitivity(sens);
+		} catch(NumberFormatException nfe) {
+			ExceptionHandler.pass(val + " (Integer value expected)");
+			ExceptionHandler.handle(ExceptionHandler.INVALID_VALUE);
+			return 1;
+		}
+		return 0;
+	}
 }

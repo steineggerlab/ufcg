@@ -129,10 +129,10 @@ public class MMseqsEasySearchProcess {
 		
 		// 3-step coverage search
 		MMseqsSearchResultEntity res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, 0.8);
-		if(res.size() == 0) {
+		if(res.size() == 0 && GenericConfig.SENS > 1) {
 			res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, 0.5);
 		}
-		if(res.size() == 0) {
+		if(res.size() == 0 && GenericConfig.SENS > 2) {
 			res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, 0.0);
 		}
 		

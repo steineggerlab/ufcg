@@ -23,7 +23,10 @@ public class ModuleHandler {
 		this.module = module;
 		this.args = args;
 		List<String> argList = Arrays.asList(args);
-		if(argList.contains("-h") || argList.contains("--help")) {
+		if(argList.contains("-h") || argList.contains("-help") || argList.contains("--help")) {
+			Prompt.SUPPRESS = true;
+			help = true;
+		} else if(module == UFCGMainPipeline.MODULE_PROFILE && (argList.contains("-hh") || argList.contains("--hh"))) {
 			Prompt.SUPPRESS = true;
 			help = true;
 		} else {
