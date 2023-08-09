@@ -3,7 +3,7 @@ package entity;
 import java.util.List;
 
 import envs.config.GenericConfig;
-import envs.config.PathConfig;
+// import envs.config.PathConfig;
 import envs.toolkit.FileStream;
 import envs.toolkit.Prompt;
 //import process.HmmsearchProcess;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class MMseqsSearchResultEntity {
-	private static class M8Entry implements Comparable<M8Entry> {
+	protected static class M8Entry implements Comparable<M8Entry> {
 		String query, contig;
 		Integer start, end;
 		Double evalue;
@@ -198,11 +198,13 @@ public class MMseqsSearchResultEntity {
 	public void remove() {
 		FileStream.wipe(resPath);
 	}
+	/*
 	public void remove(boolean force) {
 		boolean tic = PathConfig.TempIsCustom;
 		if(force) PathConfig.TempIsCustom = false;
 		remove();
 		PathConfig.TempIsCustom = tic;
 	}
+	*/
 }
 

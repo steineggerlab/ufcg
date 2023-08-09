@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class BlockProfileEntity {
-	private static class HitEntry implements Comparable<HitEntry>{
+	protected static class HitEntry implements Comparable<HitEntry>{
 		private final String ctg;
 		private final Integer[] pos;
 		private final Double score;
@@ -41,7 +41,7 @@ public class BlockProfileEntity {
 	protected String famPath, blkPath;
 	protected List<HitEntry> hits;
 	
-	public boolean isValid(){return hits.size() > 0;}
+	public boolean isValid(){return !hits.isEmpty();}
 	// public boolean isSingle(){return hits.size() == 1;}
 
 	public BlockProfileEntity(String cg, String famPath) {

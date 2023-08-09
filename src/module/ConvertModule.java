@@ -203,7 +203,7 @@ public class ConvertModule {
         for(String gene : ((String) json.getJSONObject("run_info").get("target_gene_set")).split(",")){
             if(data.has(gene)){
                 JSONArray arr = data.getJSONArray(gene);
-                if(arr.length() < 1 || (!allowMultiple && arr.length() > 1)) continue;
+                if(arr.isEmpty() || (!allowMultiple && arr.length() > 1)) continue;
                 for(int i = 0; i < arr.length(); i++){
                     StringBuilder header = new StringBuilder(">");
                     for(int j = 0; j < format.length; j++){

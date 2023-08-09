@@ -343,7 +343,7 @@ public class ProfileModule {
 		while(!proceed) {
 			Prompt.print_nnc("Enter the file or directory containing fungal genome assemblies (--input) : ");
 			buf = stream.readLine();
-			if(buf.length() == 0) continue;
+			if(buf.isEmpty()) continue;
 			if(PathConfig.setInputPath(buf) == 0) {
 				proceed = true;
 				command.append(" --input ").append(buf);
@@ -355,7 +355,7 @@ public class ProfileModule {
 		while(!proceed) {
 			Prompt.print_nnc("Enter the directory to store your result (--output) : ");
 			buf = stream.readLine();
-			if(buf.length() == 0) continue;
+			if(buf.isEmpty()) continue;
 			if(PathConfig.setOutputPath(buf) == 0) {
 				proceed = true;
 				command.append(" --output ").append(buf);
@@ -367,7 +367,7 @@ public class ProfileModule {
 		while(!proceed) {
 			Prompt.print_nnc("Enter the set of genes to use (--set) (NUC/PRO/BUSCO) : ");
 			buf = stream.readLine();
-			if(buf.length() == 0) continue;
+			if(buf.isEmpty()) continue;
 			GenericConfig.setGeneset(buf);
 			if(GenericConfig.solveGeneset() == 0) {
 				proceed = true;
@@ -402,7 +402,7 @@ public class ProfileModule {
 				while(!proceed) {
 					Prompt.print_nnc("Enter the directory to store temporary files (--keep) : ");
 					buf = stream.readLine();
-					if(buf.length() == 0) continue;
+					if(buf.isEmpty()) continue;
 					if(PathConfig.setTempPath(buf) == 0) {
 						proceed = true;
 						command.append(" --keep ").append(buf);
@@ -426,7 +426,7 @@ public class ProfileModule {
 				while(!proceed) {
 					Prompt.print_nnc("Enter the location of fastBlockSearch binary (--fastblocksearch) : ");
 					buf = stream.readLine();
-					if(buf.length() == 0) continue;
+					if(buf.isEmpty()) continue;
 					if(PathConfig.setFastBlockSearchPath(buf) == 0) {
 						solvedPath = buf;
 						proceed = true;
@@ -456,7 +456,7 @@ public class ProfileModule {
 				while(!proceed) {
 					Prompt.print_nnc("Enter the location of AUGUSTUS binary (--augustus) : ");
 					buf = stream.readLine();
-					if(buf.length() == 0) continue;
+					if(buf.isEmpty()) continue;
 					if(PathConfig.setAugustusPath(buf) == 0) {
 						solvedPath = buf;
 						proceed = true;
@@ -477,7 +477,7 @@ public class ProfileModule {
 				while(!proceed) {
 					Prompt.print_nnc("Enter the location of MMseqs2 binary (--mmseqs) : ");
 					buf = stream.readLine();
-					if(buf.length() == 0) continue;
+					if(buf.isEmpty()) continue;
 					if(PathConfig.setMMseqsPath(buf) == 0) {
 						solvedPath = buf;
 						proceed = true;
@@ -494,7 +494,7 @@ public class ProfileModule {
 		while(!proceed) {
 			Prompt.print_nnc("Enter the number of CPU thread to use (--thread, default = 1) : ");
 			buf = stream.readLine();
-			if(buf.length() == 0) continue;
+			if(buf.isEmpty()) continue;
 			if(GenericConfig.setThreadPoolSize(buf) == 0) {
 				proceed = true;
 				command.append(" --thread ").append(GenericConfig.ThreadPoolSize);
@@ -510,7 +510,7 @@ public class ProfileModule {
 				while(!proceed) {
 					Prompt.print_nnc("Enter the file containing metadata list (--metadata) : ");
 					buf = stream.readLine();
-					if(buf.length() == 0) continue;
+					if(buf.isEmpty()) continue;
 					if(PathConfig.setMetaPath(buf) == 0) {
 						proceed = true;
 						command.append(" --metadata ").append(buf);
@@ -533,7 +533,7 @@ public class ProfileModule {
 			while(!proceed) {
 				Prompt.print_nnc("Enter your custom directory with core gene sequences (--seqpath) : ");
 				buf = stream.readLine();
-				if(buf.length() == 0) continue;
+				if(buf.isEmpty()) continue;
 				if(PathConfig.setSeqPath(buf) == 0) {
 					proceed = true;
 					command.append(" --seqpath ").append(buf);
@@ -550,7 +550,7 @@ public class ProfileModule {
 			while(!proceed) {
 				Prompt.print_nnc("Enter your custom directory with core gene models (--modelpath) : ");
 				buf = stream.readLine();
-				if(buf.length() == 0) continue;
+				if(buf.isEmpty()) continue;
 				if(PathConfig.setModelPath(buf) == 0) {
 					proceed = true;
 					command.append(" --modelpath ").append(buf);
@@ -594,7 +594,7 @@ public class ProfileModule {
 			while(!proceed) {
 				Prompt.print_nnc("Enter your custom AUGUSTUS-PPX config file (--ppxcfg) : ");
 				buf = stream.readLine();
-				if(buf.length() == 0) continue;
+				if(buf.isEmpty()) continue;
 				if(PathConfig.setAugustusConfig(buf) == 0) {
 					proceed = true;
 					command.append(" --ppxcfg ").append(buf);
@@ -615,7 +615,7 @@ public class ProfileModule {
 		while(!proceed) {
 			Prompt.print_nnc("Configurate advanced options? (y/n) : ");
 			buf = stream.readLine();
-			if(buf.length() == 0) continue;
+			if(buf.isEmpty()) continue;
 			if(buf.startsWith("n") || buf.startsWith("N")) proceed = true;
 			if(buf.startsWith("y") || buf.startsWith("Y")) {
 				flag = true;
@@ -630,7 +630,7 @@ public class ProfileModule {
 				if(GenericConfig.VERB) break; 
 				Prompt.print_nnc("Make the program chatty (--verbose)? (y/n) : ");
 				buf = stream.readLine();
-				if(buf.length() == 0) continue;
+				if(buf.isEmpty()) continue;
 				if(buf.startsWith("n") || buf.startsWith("N")) proceed = true;
 				if(buf.startsWith("y") || buf.startsWith("Y")) {
 					GenericConfig.VERB = true;
@@ -659,7 +659,7 @@ public class ProfileModule {
 			while(!proceed) {
 				Prompt.print_nnc("Exclude introns from predicted ORFs (--exon)? (y/n) : ");
 				buf = stream.readLine();
-				if(buf.length() == 0) continue;
+				if(buf.isEmpty()) continue;
 				if(buf.startsWith("n") || buf.startsWith("N")) proceed = true;
 				if(buf.startsWith("y") || buf.startsWith("Y")) {
 					GenericConfig.INTRON = false;
@@ -673,7 +673,7 @@ public class ProfileModule {
 			while(!proceed) {
 				Prompt.print_nnc("Enter the cutoff value for fastBlockSearch process (--fbscutoff, default = 0.5) : ");
 				buf = stream.readLine();
-				if(buf.length() == 0) continue;
+				if(buf.isEmpty()) continue;
 				if(GenericConfig.setFastBlockSearchCutoff(buf) == 0) {
 					proceed = true;
 					command.append(" --fbscutoff ").append(buf);
@@ -685,7 +685,7 @@ public class ProfileModule {
 			while(!proceed) {
 				Prompt.print_nnc("Enter the maximum number of hits to include from fastBlockSearch results (--fbshits, default = 5) : ");
 				buf = stream.readLine();
-				if(buf.length() == 0) continue;
+				if(buf.isEmpty()) continue;
 				if(GenericConfig.setFastBlockSearchHits(buf) == 0) {
 					proceed = true;
 					command.append(" --fbscutoff ").append(buf);
@@ -697,7 +697,7 @@ public class ProfileModule {
 			while(!proceed) {
 				Prompt.print_nnc("Enter the prediction offset window for AUGUSTUS process (--augoffset, default = 10000) : ");
 				buf = stream.readLine();
-				if(buf.length() == 0) continue;
+				if(buf.isEmpty()) continue;
 				if(GenericConfig.setAugustusPredictionOffset(buf) == 0) {
 					proceed = true;
 					command.append(" --augoffset ").append(buf);
@@ -709,7 +709,7 @@ public class ProfileModule {
 			while(!proceed) {
 				Prompt.print_nnc("Enter the E-value cutoff for validation (--evalue, default = 1e-3) : ");
 				buf = stream.readLine();
-				if(buf.length() == 0) continue;
+				if(buf.isEmpty()) continue;
 				if(GenericConfig.setEvalueCutoff(buf) == 0) {
 					proceed = true;
 					command.append(" --evalue ").append(buf);

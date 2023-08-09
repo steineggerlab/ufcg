@@ -543,7 +543,7 @@ public class GenericConfig {
 		
 		if(!(NUC | PRO | BUSCO)) return 1; // invalid if nothing is detected
 		for(String pro : pros) if(!Character.isLetterOrDigit(pro.charAt(0))) return 1; // invalid if non-alphanumeric characters are detected
-		if(pros.size() > 0) FCG = Arrays.copyOf(pros.toArray(), pros.toArray().length, String[].class); // use custom proteins if detected
+		if(!pros.isEmpty()) FCG = Arrays.copyOf(pros.toArray(), pros.toArray().length, String[].class); // use custom proteins if detected
 		return 0;
 	}
 	

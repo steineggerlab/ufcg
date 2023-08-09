@@ -84,7 +84,7 @@ public class QueryEntity {
 		
 		// parse elements
 		while((buf = metaStream.readLine()) != null) {
-			if(buf.length() == 0) break;
+			if(buf.isEmpty()) break;
 			List<String> data = new ArrayList<>();
 			String[] values = buf.split("\t");
 			if(headers.length != values.length) ExceptionHandler.handle(ExceptionHandler.INVALID_METADATA);
@@ -152,7 +152,7 @@ public class QueryEntity {
 
 				metaContainer[0] = PathConfig.InputPath.substring(PathConfig.InputPath.lastIndexOf("/") + 1);
 				for(int i = 1; i < 7; i++) {
-					if(metaContainer[i].length() == 0 || metaContainer[i].equals("null"))
+					if(metaContainer[i].isEmpty() || metaContainer[i].equals("null"))
 						metaContainer[i] = null;
 				}
 				

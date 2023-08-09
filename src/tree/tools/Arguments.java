@@ -2,6 +2,7 @@ package tree.tools;
 
 import java.util.Hashtable;
 
+@Deprecated
 public class Arguments {
 	public Hashtable<String,String> hash = new Hashtable<>();
 	public String[] args;

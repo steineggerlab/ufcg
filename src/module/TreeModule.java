@@ -116,7 +116,7 @@ public class TreeModule {
 					else ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
 				}
 			} else outputLabels.add("label");
-			if(outputLabels.size() == 0) ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
+			if(outputLabels.isEmpty()) ExceptionHandler.handle(ExceptionHandler.INVALID_LEAF_FORMAT);
 
 			if(cmd.hasOption("a")) {
 				String mode = cmd.getOptionValue("a");

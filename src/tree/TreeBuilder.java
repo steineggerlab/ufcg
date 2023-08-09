@@ -1673,7 +1673,7 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 
 			HashMap<String, ArrayList<DetectedGeneDomain>> dataMap = geneSetsDomain.getDataMap();
 			if (dataMap.containsKey(gene)) {
-				if(dataMap.get(gene).size()!=0) {
+				if(!dataMap.get(gene).isEmpty()) {
 					if(!allowMultiple && dataMap.get(gene).size()>1) {
 						Prompt.talk(String.format("Multiple copied gene rejected from %s : %s", geneSetsDomain.getAccession(), ANSIHandler.wrapper(gene, 'y')));
 						continue;
@@ -1745,7 +1745,7 @@ private void retrieveFastaFiles(List<GeneSetByGenomeDomain> geneSetsDomainList) 
 
 			HashMap<String, ArrayList<DetectedGeneDomain>> dataMap = geneSetsDomain.getDataMap();
 			if (dataMap.containsKey(gene)) {
-				if(dataMap.get(gene).size()!=0) {
+				if(!dataMap.get(gene).isEmpty()) {
 					if(!allowMultiple && dataMap.get(gene).size()>1) {
 						Prompt.talk(String.format("Multiple copied gene rejected from %s : %s", geneSetsDomain.getAccession(), ANSIHandler.wrapper(gene, 'y')));
 						continue;

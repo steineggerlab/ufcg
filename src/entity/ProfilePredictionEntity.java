@@ -123,12 +123,14 @@ public class ProfilePredictionEntity {
 		FileStream.wipe(expPath);
 		expPath = null;
 	}
+	/*
 	public void remove(boolean force) {
 		boolean tic = PathConfig.TempIsCustom;
 		if(force) PathConfig.TempIsCustom = false;
 		remove();
 		PathConfig.TempIsCustom = tic;
 	}
+	*/
 	
 	public int getType() {return type;}
 	// public int getOrigin() {return origin;}

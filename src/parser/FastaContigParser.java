@@ -48,7 +48,7 @@ public class FastaContigParser {
 		ctgStream.close();
 
 		StringBuilder cDNA = new StringBuilder(seq.substring(loc.trxHead - offset, loc.trxTail - offset + 1));
-		if(loc.intronHeads.size() > 0 && !GenericConfig.INTRON) {
+		if(!loc.intronHeads.isEmpty() && !GenericConfig.INTRON) {
 			cDNA = new StringBuilder(seq.substring(loc.trxHead - offset, loc.intronHeads.get(0) - offset));
 			for(int i = 0; i < loc.intronHeads.size() - 1; i++) {
 				cDNA.append(seq.substring(loc.intronTails.get(i) - offset + 1, loc.intronHeads.get(i + 1) - offset));

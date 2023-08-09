@@ -20,7 +20,7 @@ public static String replace_name_str(String ori_str, Map<String, String> replac
 	for (int i = 1; i < nodes.length; i = i + 2) {
 		String uid = nodes[i];
 		String label = replaceMap.get(uid);
-		ra.add(uid + "", label);
+		ra.add(uid, label);
 	}
 	return ra.replace(ori_str, true);
 
