@@ -210,7 +210,7 @@ public class TrainModule {
 		
 		UFCGMainPipeline.printGeneral();
 		
-		System.out.println(ANSIHandler.wrapper("\n Following binaries should be on the enviornment PATH: ", 'y'));
+		System.out.println(ANSIHandler.wrapper("\n Following binaries should be on the environment PATH: ", 'y'));
 		System.out.println(ANSIHandler.wrapper(" Binary               Required by", 'c'));
 		System.out.println(ANSIHandler.wrapper(" fastBlockSearch      profile", 'x'));
 		System.out.println(ANSIHandler.wrapper(" augustus             profile", 'x'));
@@ -364,7 +364,7 @@ public class TrainModule {
 					MARKERS.remove((int) remove.get(i));
 					MNAMES.remove((int) remove.get(i));
 				}
-				if(MARKERS.size() == 0) break;
+				if(MARKERS.isEmpty()) break;
 				
 				// prepare next iteration
 				seqs = new String[MARKERS.size()];

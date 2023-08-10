@@ -26,7 +26,7 @@ public class ModuleHandler {
 		if(argList.contains("-h") || argList.contains("-help") || argList.contains("--help")) {
 			Prompt.SUPPRESS = true;
 			help = true;
-		} else if(module == UFCGMainPipeline.MODULE_PROFILE && (argList.contains("-hh") || argList.contains("--hh"))) {
+		} else if((module == UFCGMainPipeline.MODULE_PROFILE || module == UFCGMainPipeline.MODULE_PROFILE_RNA) && (argList.contains("-hh") || argList.contains("--hh"))) {
 			Prompt.SUPPRESS = true;
 			help = true;
 		} else {
