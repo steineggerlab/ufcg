@@ -70,7 +70,7 @@ public class MMseqsEasySearchProcess {
 		
 		MMseqsWrapper mm = new MMseqsWrapper();
 		mm.setEasySearch(queryPath, targetPath, resultPath, tmpPath);
-		mm.setSearchType(3);
+		mm.setSearchType(0);
 		mm.setThreads(threads);
 		mm.exec();
 		
@@ -95,7 +95,7 @@ public class MMseqsEasySearchProcess {
 		
 		MMseqsWrapper mm = new MMseqsWrapper();
 		mm.setEasySearch(queryPath, targetPath, resultPath, tmpPath);
-		mm.setSearchType(3);
+		mm.setSearchType(0);
 		mm.setEvalue(evalue);
 		mm.setCoverage(cov);
 		mm.setThreads(threads);
