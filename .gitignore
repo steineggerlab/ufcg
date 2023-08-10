@@ -3,6 +3,10 @@
 .settings/
 .idea/
 
+bin/
+jar/
+*.cfg
+
 test/
 fix/
 target/

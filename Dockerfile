@@ -3,7 +3,7 @@ FROM ubuntu:jammy
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 ENV PATH /opt/conda/bin:$PATH
 
-ARG VERSION=1.0.4
+ARG VERSION=1.0.5
 ARG BUILD=0
 
 # Install dependencies
