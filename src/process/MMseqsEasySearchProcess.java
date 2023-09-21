@@ -65,12 +65,12 @@ public class MMseqsEasySearchProcess {
 	static String TASK = null;
 	public static void setTask(String task) {TASK = task;}
 	
-	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, int uoff, int doff, boolean abs, int threads) {
+	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, int searchType, int uoff, int doff, boolean abs, int threads) {
 		String resultPath = tmpPath + GenericConfig.SESSION_UID + "_" + targetPath.substring(targetPath.lastIndexOf(File.separator) + 1) + ".m8";
 		
 		MMseqsWrapper mm = new MMseqsWrapper();
 		mm.setEasySearch(queryPath, targetPath, resultPath, tmpPath);
-		mm.setSearchType(0);
+		mm.setSearchType(searchType);
 		mm.setThreads(threads);
 		mm.exec();
 		
@@ -90,12 +90,12 @@ public class MMseqsEasySearchProcess {
 		
 		return res;
 	}
-	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, double evalue, int threads, double cov) {
+	public static MMseqsSearchResultEntity search(String queryPath, String targetPath, String tmpPath, int searchType, double evalue, int threads, double cov) {
 		String resultPath = tmpPath + GenericConfig.SESSION_UID + "_" + targetPath.substring(targetPath.lastIndexOf(File.separator) + 1) + ".m8";
 		
 		MMseqsWrapper mm = new MMseqsWrapper();
 		mm.setEasySearch(queryPath, targetPath, resultPath, tmpPath);
-		mm.setSearchType(0);
+		mm.setSearchType(searchType);
 		mm.setEvalue(evalue);
 		mm.setCoverage(cov);
 		mm.setThreads(threads);
@@ -124,16 +124,16 @@ public class MMseqsEasySearchProcess {
 		return pp;
 	}
 	
-	public static void validate(ProfilePredictionEntity pp, String seqPath, String tmpPath, int threads) {
+	public static void validate(ProfilePredictionEntity pp, String seqPath, String tmpPath, int searchType, int threads) {
 		String queryPath = pp.export();
 		
 		// 3-step coverage search
-		MMseqsSearchResultEntity res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, 0.8);
+		MMseqsSearchResultEntity res = search(queryPath, seqPath, tmpPath, searchType, GenericConfig.EvalueCutoff, threads, 0.8);
 		if(res.size() == 0 && GenericConfig.SENS > 1) {
-			res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, 0.5);
+			res = search(queryPath, seqPath, tmpPath, searchType, GenericConfig.EvalueCutoff, threads, 0.5);
 		}
 		if(res.size() == 0 && GenericConfig.SENS > 2) {
-			res = search(queryPath, seqPath, tmpPath, GenericConfig.EvalueCutoff, threads, 0.0);
+			res = search(queryPath, seqPath, tmpPath, searchType, GenericConfig.EvalueCutoff, threads, 0.0);
 		}
 		
 		res.assignLocs();

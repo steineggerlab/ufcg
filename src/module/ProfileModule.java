@@ -837,11 +837,11 @@ public class ProfileModule {
 					MMseqsSearchResultEntity res = MMseqsEasySearchProcess.search(
 							PathConfig.SeqPath + "nuc" + File.separator + "ITS.fa",
 							PathConfig.InputIsFolder ? PathConfig.InputPath + GenericConfig.FILENAME : PathConfig.InputPath,
-							PathConfig.TempPath, 500, 500, true, GenericConfig.ThreadPoolSize);
+							PathConfig.TempPath, 3, 500, 500, true, GenericConfig.ThreadPoolSize);
 					res.reduce();
 					ProfilePredictionEntity pp = MMseqsEasySearchProcess.parse(res);
 					res.remove();
-					if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + "nuc" + File.separator + "ITS.fa", PathConfig.TempPath, GenericConfig.ThreadPoolSize);
+					if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + "nuc" + File.separator + "ITS.fa", PathConfig.TempPath, 3, GenericConfig.ThreadPoolSize);
 					pps.add(pp);
 					
 					if(pp.valid()) Prompt.print(ANSIHandler.wrapper("SUCCESS", 'g') + " : ITS sequence successfully extracted.");
@@ -1067,7 +1067,7 @@ public class ProfileModule {
 				updateProg(g, ANSIHandler.wrapper("V", 'R'), 1); printProg();
 				Prompt.talk(ANSIHandler.wrapper("[Phase 3 : Validation]", 'R'));
 				/* Run hmmsearch and find target gene among the predicted genes */
-				if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + dir + File.separator + cg + ".fa", PathConfig.TempPath, 1);
+				if(pp.nseq() > 0) MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + dir + File.separator + cg + ".fa", PathConfig.TempPath, 0, 1);
 				/* Implementation note.
 				 *		Previously, contigs were removed right after AUGUSTUS finishes the prediction.
 				 *		However, to extract the cDNA sequence for the gene, contig should remain intact.

@@ -322,7 +322,7 @@ public class ProfileProModule {
 				Prompt.talk(ANSIHandler.wrapper("[Phase 3 : Validation]", 'R'));
 				ProfilePredictionEntity pp = new ProfilePredictionEntity(cg, ProfilePredictionEntity.TYPE_PRO);
 				for(String seq : SEQS) pp.addSeq(seq);
-				MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + "pro" + File.separator + cg + ".fa", PathConfig.TempPath, 1);
+				MMseqsEasySearchProcess.validate(pp, PathConfig.SeqPath + "pro" + File.separator + cg + ".fa", PathConfig.TempPath, 0, 1);
 				
 				/* Record obtained result */
 				String result;
