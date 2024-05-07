@@ -19,7 +19,7 @@ public class MafftForGeneSet {
 	}
 
 	public void setInputOutput(String input, String output) {
-		arguments.add(ProgramPath + " --thread 1 " + input + " > " + output);
+		arguments.add(ProgramPath + " --anysymbol --thread 1 " + input + " > " + output);
 	}
 
 	public ProcessGobbler execute() throws IOException, InterruptedException{
