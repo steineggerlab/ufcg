@@ -538,20 +538,28 @@ void alignGenes(int nThreads) {
 
 void removeGaps() {
 	Prompt.print("Removing gappy columns with threshold of gap percentage " + filtering + "%...");
-	
-	List<String> fileList = new ArrayList<>();
 
+	List<String> excludeList = new ArrayList<>();
 	for (String gene : usedGenes) {
-		fileList.add(alignedFinalGeneFastaFile(gene));
-	}
-
-	for (String fileName : fileList) {
+		String fileName = alignedFinalGeneFastaFile(gene);
 		FastaSeqList fsl = new FastaSeqList();
 		fsl.importFile(fileName);
 		
 		String fasta = fsl.getString();
 		Prompt.talk("Removing gaps of sequences from " + fileName + "...");
 		if(filtering < 100) fasta = removeGapColumns(fasta);
+
+		fsl = new FastaSeqList();
+		fsl.importString(fasta);
+		HashSet<String> seqSet = new HashSet<>();
+		for(FastaSeq fs : fsl.list) {
+			seqSet.add(fs.sequence);
+		}
+		if(seqSet.size() < 4) {
+			Prompt.warn("Gene " + gene + " has less than 4 unique sequences. This gene will be excluded.");
+			excludeList.add(gene);
+			continue;
+		}
 		
 		Prompt.talk("Writing result to " + fileName + "...");
 		try {
@@ -561,6 +569,9 @@ void removeGaps() {
 		} catch(java.io.IOException e) {
 			ExceptionHandler.handle(e);
 		}
+	}
+	for (String gene : excludeList) {
+		usedGenes.remove(gene);
 	}
 }
 
@@ -1708,7 +1719,7 @@ private void retrieveFastaNucProFiles(List<GeneSetByGenomeDomain> geneSetsDomain
 		if(this.module == MODULE_TREE) deficient = nuc < 4 && pro < 4;
 		
 		if(deficient) {
-			Prompt.warn("Less than 4 species have '" + gene + "'. This gene will be excluded");
+			Prompt.warn("Less than 4 species have '" + gene + "'. This gene will be excluded.");
 		}
 		
 		if (sbNuc.length() != 0 && (!deficient)) {
