@@ -1,6 +1,8 @@
 package envs.config;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -34,7 +36,14 @@ public class PathConfig {
 		try {
 			Prompt.talk("fastBlockSearch binary check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
-			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				return setFastBlockSearchPath(real.toString());
+			}
+			if(!exec[0].contains("exec")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
 				return 1;
@@ -55,7 +64,14 @@ public class PathConfig {
 		try {
 			Prompt.talk("AUGUSTUS binary check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
-			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				return setAugustusPath(real.toString());
+			}
+			if(!exec[0].contains("exec")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
 				return 1;
@@ -77,7 +93,14 @@ public class PathConfig {
 		try {
 			Prompt.talk("hmmsearch binary check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
-			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				return setHmmsearchPath(real.toString());
+			}
+			if(!exec[0].contains("exec")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
 				return 1;
@@ -98,6 +121,13 @@ public class PathConfig {
 		try {
 			Prompt.talk("MMseqs binary check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				return setMMseqsPath(real.toString());
+			}
 			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
@@ -119,6 +149,14 @@ public class PathConfig {
 		try {
 			Prompt.talk("Trinity binary check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				setTrinityPath(real.toString());
+				return;
+			}
 			if(!exec[0].contains("exec") && !exec[0].contains("link")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_BINARY);
@@ -140,6 +178,14 @@ public class PathConfig {
 		try {
 			Prompt.talk("Input file check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				return setInputPath(real.toString());
+			}
+
 			if(exec[0].contains("directory")) InputIsFolder = true;
 			Prompt.talk("Input argument : " + ANSIHandler.wrapper(exec[0], 'B'));
 			
@@ -166,6 +212,14 @@ public class PathConfig {
 			Prompt.talk("Input file check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
 			Prompt.talk("Input argument : " + ANSIHandler.wrapper(exec[0], 'B'));
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				checkInputFile(real.toString());
+				return;
+			}
 			if(exec[0].contains("directory") | exec[0].startsWith("cannot")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_FILE);
@@ -229,6 +283,14 @@ public class PathConfig {
 	public static int setTempPath(String path) {		
 		try {
 			Prompt.talk("Temporary directory check : " + ANSIHandler.wrapper(path, 'B'));
+			String[] exec = Shell.exec("file -b " + path);
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				return setTempPath(real.toString());
+			}
 			File output = new File(path);
 			if(output.exists()) {
 				if(!output.canWrite()) {
@@ -262,6 +324,14 @@ public class PathConfig {
 		try {
 			Prompt.talk("Metadata file check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				setMetaPath(real.toString());
+				return 0;
+			}
 			if(!exec[0].contains("text")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_FILE);
@@ -405,6 +475,14 @@ public class PathConfig {
 		try {
 			Prompt.talk("AUGUSTUS-PPX config file check : " + ANSIHandler.wrapper(path, 'B'));
 			String[] exec = Shell.exec("file -b " + path);
+			if(exec[0].contains("link")) {
+				// symbolic link given, get the real path
+				Path link = Files.readSymbolicLink(Paths.get(path));
+				Path real = link.toRealPath().toAbsolutePath();
+				Prompt.talk("Symbolic link detected : " + ANSIHandler.wrapper(path, 'B') + " -> " + ANSIHandler.wrapper(real.toString(), 'B'));
+				setAugustusConfig(real.toString());
+				return 0;
+			}
 			if(!exec[0].contains("text")) {
 				ExceptionHandler.pass(path);
 				ExceptionHandler.handle(ExceptionHandler.INVALID_FILE);
