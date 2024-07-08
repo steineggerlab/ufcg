@@ -27,7 +27,7 @@ RUN /bin/bash -c "source activate && \
 	conda config --add channels conda-forge && \
 	conda config --add channels bioconda && \
 	conda install -n base -y conda-libmamba-solver && \
-	conda install -n base -y --solver=libmamba ufcg"
+	conda install -n base -y --solver=libmamba ufcg libboost'>=1.8.5'"
 
 # Download minimum payloads
 RUN wget --quiet https://ufcg.steineggerlab.workers.dev/payload/config.tar.gz && \
