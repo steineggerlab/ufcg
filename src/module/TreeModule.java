@@ -244,7 +244,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" -a STR          Alignment method {nucleotide, codon, codon12, protein} [protein]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT          Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -p STR          Tree building program {raxml, iqtree, fasttree} [iqtree] ", 'x'));
-		System.out.println(ANSIHandler.wrapper(" -G              Activate GSI analysis", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -G              Deactivate GSI analysis", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -c              Align multiple copied genes [0]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -k              Continue from the checkpoint [0]", 'x'));
 		System.out.println();
