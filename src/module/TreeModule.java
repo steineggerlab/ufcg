@@ -28,6 +28,7 @@ public class TreeModule {
 	Integer filtering = 50;
 	PhylogenyTool phylogenyTool = PhylogenyTool.iqtree;
 	String model = null;
+	Boolean gsi_on = true;
 	Integer gsi_threshold = 95;
 	List<String> outputLabels = null;
 	Integer executorLimit = 1;
@@ -48,7 +49,8 @@ public class TreeModule {
 		opts.addOption("f", "filter",	true,	"gap-rich filter");
 		opts.addOption("p", "program",	true,	"tree program");
 		opts.addOption("m", "model",	true,	"tree model");
-		opts.addOption("g", "gsi",		true,	"gsi-threshold");
+		opts.addOption("G", "gsi-off",	false,	"disable GSI analysis");
+		opts.addOption("g", "gsi-thres",true,	"gsi-threshold");
 		opts.addOption("x", "executor", true,   "executor limit");
 		opts.addOption("c", "copy",		false,	"copy number");
 		opts.addOption("k", "ckp",		false,	"checkpoint");
@@ -176,6 +178,7 @@ public class TreeModule {
 				}
 			}
 
+			if(cmd.hasOption("G")) gsi_on = false;
 			if(cmd.hasOption("g")) {
 				gsi_threshold = Integer.parseInt(cmd.getOptionValue("g"));
 				if (gsi_threshold < 0 || gsi_threshold > 100) {
@@ -210,7 +213,7 @@ public class TreeModule {
 		TreeBuilder proc = new TreeBuilder(
 				ucgDirectory, outDirectory, runId,
 				mafftPath, raxmlPath, fasttreePath, iqtreePath,
-				alignMode, filtering, model, gsi_threshold, outputLabels, executorLimit,
+				alignMode, filtering, model, gsi_on, gsi_threshold, outputLabels, executorLimit,
 				allowMultiple, useCheckpoint);
 		try {
 			proc.jsonsToTree(GenericConfig.ThreadPoolSize, phylogenyTool);
@@ -241,6 +244,7 @@ public class TreeModule {
 		System.out.println(ANSIHandler.wrapper(" -a STR          Alignment method {nucleotide, codon, codon12, protein} [protein]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -t INT          Number of CPU threads to use [1]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -p STR          Tree building program {raxml, iqtree, fasttree} [iqtree] ", 'x'));
+		System.out.println(ANSIHandler.wrapper(" -G              Activate GSI analysis", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -c              Align multiple copied genes [0]", 'x'));
 		System.out.println(ANSIHandler.wrapper(" -k              Continue from the checkpoint [0]", 'x'));
 		System.out.println();

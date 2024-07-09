@@ -89,13 +89,13 @@ private String treeLabelGsiFileName = null;
  *     7 : Label replaced
  */
 private Checkpoint ckp = null;
-private final boolean allowMultiple, useCheckpoint;
+private final boolean allowMultiple, useCheckpoint, gsi_on;
 private final static int MODULE_ALIGN = 1, MODULE_TREE = 0;
 private int module = -1;
 
 public TreeBuilder(String ucgDirectory, String outDirectory, String runId,
 				   String mafftPath, String raxmlPath, String fasttreePath, String iqtreePath,
-				   AlignMode alignMode, int filtering, String model, int gsi_threshold, List<String> outputLabels, int executorLimit,
+				   AlignMode alignMode, int filtering, String model, boolean gsi_on, int gsi_threshold, List<String> outputLabels, int executorLimit,
 				   boolean allowMultiple, boolean useCheckpoint) {
 	
 	if (!ucgDirectory.endsWith(File.separator)) {
@@ -130,6 +130,7 @@ public TreeBuilder(String ucgDirectory, String outDirectory, String runId,
 	this.filtering = filtering;
 	
 	this.model = model;
+	this.gsi_on = gsi_on;
 	this.gsi_threshold = gsi_threshold;
 	this.outputLabels = outputLabels;
 	this.executorLimit = executorLimit;
@@ -163,7 +164,7 @@ public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 		inferGeneTrees(tool, nThreads);
 		ckp.log(5);
 	}
-	if(ckp.read() < 6) {
+	if(ckp.read() < 6 && gsi_on) {
 		calculateGsi();
 		ckp.log(6);
 	}
@@ -1067,10 +1068,10 @@ void replaceLabel(int nThreads) {
 	
 	src.add(concatenatedSeqFileName);
 	src.add(treeZzFileName);
-	src.add(treeZzGsiFileName);
+	if(gsi_on) src.add(treeZzGsiFileName);
 	dst.add(concatenatedSeqLabelFileName);
 	dst.add(treeLabelFileName);
-	dst.add(treeLabelGsiFileName);
+	if(gsi_on) dst.add(treeLabelGsiFileName);
 	
 	for(String ucg : usedGenes) {
 		
@@ -1114,7 +1115,7 @@ void replaceLabel(int nThreads) {
 		if(srcFile.exists()) srcFile.delete();
 	}
 	
-	Prompt.print("The final tree marked with GSI was written in : " + ANSIHandler.wrapper(treeLabelGsiFileName, 'B'));
+	if(gsi_on) Prompt.print("The final tree marked with GSI was written in : " + ANSIHandler.wrapper(treeLabelGsiFileName, 'B'));
 }
 
 void replaceLabelforAlign(int nThreads) {

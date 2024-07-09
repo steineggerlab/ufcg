@@ -150,7 +150,7 @@ public class AlignModule {
 		TreeBuilder module = new TreeBuilder(
 				PathConfig.InputPath, PathConfig.OutputPath, name,
 				mafftPath, null, null, null,
-				alignMode, filter, null, 0, leaves, 0,
+				alignMode, filter, null, true, 0, leaves, 0,
 				allowMultiple, useCheckpoint);
 
 		try {
