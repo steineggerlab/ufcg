@@ -169,6 +169,7 @@ public void jsonsToTree(int nThreads, PhylogenyTool tool) throws IOException{
 		ckp.log(6);
 	}
 	if(ckp.read() < 7) {
+		generateTrm();
 		replaceLabel(nThreads);
 		ckp.log(7);
 	}
@@ -949,41 +950,7 @@ void inferGeneTreesSynchronized(PhylogenyTool phylogenyTool, int nThreads) {
 	}
 }
 
-void calculateGsi() {
-	
-	Prompt.print("Calculating Gene Support Indices (GSIs) from the gene trees...");
-
-	File ucgJsonDir = new File(ucgDirectory);
-	File[] tempUcgJsonFileList = ucgJsonDir.listFiles();
-
-	int genomeNum = 0;
-
-	assert tempUcgJsonFileList != null;
-	for (File jsonFile : tempUcgJsonFileList) {
-		if (jsonFile.getName().endsWith(".ucg")) {
-			genomeNum++;
-		}
-	}
-
-	// calculate GSI
-	BranchAnalysis branchAnalysis = new BranchAnalysis(new File(allGeneTreesFile));
-	String tmp = branchAnalysis.markTree(
-			new File(treeZzFileName),
-			false, true, -1, (100 - gsi_threshold) * genomeNum / 100);
-	
-	try {
-		FileWriter stFW = new FileWriter(treeZzGsiFileName);
-		BufferedWriter stBW = new BufferedWriter(stFW);
-
-		stBW.append(tmp);
-
-		stBW.close();
-		stFW.close();
-
-	} catch (IOException e) {
-		ExceptionHandler.handle(e);
-	}
-
+void generateTrm() {
 	// make trm file
 	JSONObject trmJson = new JSONObject();
 
@@ -992,7 +959,7 @@ void calculateGsi() {
 		BufferedReader br = new BufferedReader(fr);
 
 		String ucgNwk = br.readLine();
-		
+
 		br.close();
 		trmJson.put("UFCG", ucgNwk);
 
@@ -1001,7 +968,7 @@ void calculateGsi() {
 			BufferedReader geneBR = new BufferedReader(geneFR);
 
 			String geneNwk = geneBR.readLine();
-			
+
 			geneBR.close();
 			trmJson.put(ucg, geneNwk);
 		}
@@ -1036,7 +1003,7 @@ void calculateGsi() {
 				logBR.readLine();
 			}
 		}
-		
+
 		logBR.close();
 		trmJson.put("list", listArray);
 
@@ -1044,6 +1011,42 @@ void calculateGsi() {
 		trmFW.append(trmJson.toString());
 		trmFW.flush();
 		trmFW.close();
+
+	} catch (IOException e) {
+		ExceptionHandler.handle(e);
+	}
+}
+
+void calculateGsi() {
+	
+	Prompt.print("Calculating Gene Support Indices (GSIs) from the gene trees...");
+
+	File ucgJsonDir = new File(ucgDirectory);
+	File[] tempUcgJsonFileList = ucgJsonDir.listFiles();
+
+	int genomeNum = 0;
+
+	assert tempUcgJsonFileList != null;
+	for (File jsonFile : tempUcgJsonFileList) {
+		if (jsonFile.getName().endsWith(".ucg")) {
+			genomeNum++;
+		}
+	}
+
+	// calculate GSI
+	BranchAnalysis branchAnalysis = new BranchAnalysis(new File(allGeneTreesFile));
+	String tmp = branchAnalysis.markTree(
+			new File(treeZzFileName),
+			false, true, -1, (100 - gsi_threshold) * genomeNum / 100);
+	
+	try {
+		FileWriter stFW = new FileWriter(treeZzGsiFileName);
+		BufferedWriter stBW = new BufferedWriter(stFW);
+
+		stBW.append(tmp);
+
+		stBW.close();
+		stFW.close();
 
 	} catch (IOException e) {
 		ExceptionHandler.handle(e);
