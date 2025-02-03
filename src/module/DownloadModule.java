@@ -25,6 +25,7 @@ public class DownloadModule {
     private final String[] args;
     private String target, dir = PathConfig.JarPath;
     private boolean dirGiven = false;
+    private boolean force = false;
 
     public DownloadModule(String[] args) {
         this.args = args;
@@ -46,6 +47,7 @@ public class DownloadModule {
         opts.addOption(null, "test", false, "for test");
 
         opts.addOption("t", "target", true, "download target");
+        opts.addOption("f", "force", false, "force download");
         opts.addOption("d", "dir", true, "download directory");
         opts.addOption("c", "check", false, "check files");
 
@@ -115,6 +117,7 @@ public class DownloadModule {
             ExceptionHandler.handle(ExceptionHandler.INVALID_TARGET);
             return 1;
         }
+        if(cmd.hasOption("f")) force = true;
         return 0;
     }
 
@@ -145,6 +148,7 @@ public class DownloadModule {
         System.out.println(ANSIHandler.wrapper(" Argument       Description", 'c'));
         System.out.println(ANSIHandler.wrapper(" -d STR         Download directory [auto]", 'x'));
         System.out.println(ANSIHandler.wrapper(" -c             Check download status", 'x'));
+        System.out.println(ANSIHandler.wrapper(" -f             Force download", 'x'));
         System.out.println();
 
         UFCGMainPipeline.printGeneral();
@@ -181,7 +185,7 @@ public class DownloadModule {
         boolean ping = internetConnection();
         if(PathConfig.EnvironmentPathSet && !dirGiven) dir = PathConfig.EnvironmentPath;
 
-        if(!ping) {
+        if(!ping && !force) {
             ExceptionHandler.handle(ExceptionHandler.NO_INTERNET);
             return;
         }
